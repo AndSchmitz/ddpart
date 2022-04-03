@@ -77,9 +77,7 @@ CalculateDepositionVelocity <- function(InputTable) {
         MoninObukhovLength_m = ObukhovLength_Anemometer_m
       ),
       #_Wind speed at blending height------
-      #FIXME kann man das so machen: Die FrictionVelocity_ms-Formel invertieren?!
-      #FIXME compare to power-law-approach
-      #FIXME WS and blending height is << WS at anemometer height!!
+      #FIXME Add sanity check: WS at blending height must not be << WS at anemometer height
       WindSpeedAtBlendingHeight_ms = CalculateWindSpeedAtTargetHeight(
         FrictionVelocity_ms = FrictionVelocity_Anemometer_ms,
         TargetHeight_m = WindSpeedBlendingHeight_m,
