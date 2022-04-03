@@ -1,6 +1,17 @@
+#' @title CalculateDepositionVelocity
+#'
+#' @description Calculate vd from standard input table
+#'
+#' @param InputTable A data frame with columns SunAngle_degree, T_air_K, AirPressure_Pa, GlobalRadiation_W_m2, RelHum_percent, CloudCover_percent, WindSpeed_AtAnemometerHeight_ms, RoughnessLengthAnemometer_m, ZeroPlaneDisplacementHeightAnemometer_m, AnemometerHeight_m, WindSpeedBlendingHeight_m, Season, TargetLUCCodeZhang2001, ReferenceHeight_m, RoughnessLengthTargetLUC_m, ZeroPlaneDisplacementHeightTargetLUC_m, GeometricMassMedianDiameter_m, ParticleDensity_kgm3
+#'
+#' @return A data frame repeating the InputTable plus additional columsn with calculated values
+#' @examples
+#' #FIXME add
+#' @export
+#' @imports: dplyr
+
 CalculateDepositionVelocity <- function(InputTable) {
-  #Calculate vd from standard input table
-  
+
   #Sanity-check for required column names
   RequiredColumns <- c(
     #Meteo
@@ -11,7 +22,7 @@ CalculateDepositionVelocity <- function(InputTable) {
     "Season",
     #Target land use class
     "TargetLUCCodeZhang2001", "ReferenceHeight_m",
-    "RoughnessLengthTargetLUC_m", "ZeroPlaneDisplacementHeightTargetLUC",
+    "RoughnessLengthTargetLUC_m", "ZeroPlaneDisplacementHeightTargetLUC_m",
     #Particle properties
     "GeometricMassMedianDiameter_m", "ParticleDensity_kgm3"
   )
@@ -43,10 +54,10 @@ CalculateDepositionVelocity <- function(InputTable) {
       KinematicViscosityOfAir_m2s = CalculateKinematicViscosityOfAir(
         DynamicViscosityAir,
         AirDensity_kgm3
-      )        
+      )
     )
-  
-  
+
+
   #_Wind speed at anemometer location-----
   Results <- Results %>%
     #Atmospheric stability following
@@ -89,8 +100,8 @@ CalculateDepositionVelocity <- function(InputTable) {
       )
     ) %>%
     ungroup()
-  
-  
+
+
   #Target-LUC dependent calculations----
   Results <- Results %>%
     mutate(
@@ -98,13 +109,13 @@ CalculateDepositionVelocity <- function(InputTable) {
         LUCs = TargetLUCCodeZhang2001,
         Seasons = Season,
         TargetPar = "A"
-      ) / 1e3, #convert from mm to m    
+      ) / 1e3, #convert from mm to m
       ImpactionParameterAlpha = GetLandUseParametersEmerson2020(
         LUCs = TargetLUCCodeZhang2001,
         Seasons = Season,
         TargetPar = "alpha"
       )
-    ) %>%      
+    ) %>%
     rowwise() %>% #for functions that do not accept vectors as inputs
     #_Calculate atmospheric stability----
     mutate(
@@ -116,7 +127,7 @@ CalculateDepositionVelocity <- function(InputTable) {
       FrictionVelocityTargetLUC_ms = CalculateFrictionVelocity(
         SurfaceWindSpeed_ms = WindSpeedAtBlendingHeight_ms,
         AnemometerHeight_m = WindSpeedBlendingHeight_m,
-        ZeroPlaneDisplacementHeight_m = ZeroPlaneDisplacementHeightTargetLUC,
+        ZeroPlaneDisplacementHeight_m = ZeroPlaneDisplacementHeightTargetLUC_m,
         RoughnessLength_m = RoughnessLengthTargetLUC_m,
         MoninObukhovLength_m = ObukhovLengthTargetLUC
       ),
@@ -124,7 +135,7 @@ CalculateDepositionVelocity <- function(InputTable) {
       R_a_sm = CalculateAerodynamicResistance(
         FrictionVelocity_ms = FrictionVelocityTargetLUC_ms,
         ReferenceHeight_m = ReferenceHeight_m,
-        ZeroPlaneDisplacementHeight_m = ZeroPlaneDisplacementHeightTargetLUC,
+        ZeroPlaneDisplacementHeight_m = ZeroPlaneDisplacementHeightTargetLUC_m,
         RoughnessLength_m = RoughnessLengthTargetLUC_m,
         MoninObukhovLength_m = ObukhovLengthTargetLUC
       ),
@@ -183,6 +194,6 @@ CalculateDepositionVelocity <- function(InputTable) {
       V_d_RefHeight_ms = SettlingVelocity_ms + 1 / (R_a_sm + R_s_sm)
     ) %>%
     ungroup()
-  
+
   return(Results)
 }
