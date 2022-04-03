@@ -7,9 +7,9 @@ CalculateSchmidtNumber <- function(
   DynamicViscosityAir,
   KinematicViscosityOfAir_m2s,
   T_air_K,
-  d_p_m
+  ParticleDiameter_m
 ) {
-  
+
   #Seinfeld JH, Pandis SN. Atmospheric Chemistry and Physics: From Air Pollution to Climate Change.
   #2006
   #Table 9.3 p. 407
@@ -33,7 +33,7 @@ CalculateSchmidtNumber <- function(
     50,1.003,
     100,1.0016
   )
-  d_p_um <- d_p_m * 1e6
+  d_p_um <- ParticleDiameter_m * 1e6
   if ( d_p_um < min(CunninghamCorrectionTable$d_p_um) ) {
     stop(paste("No Cunningham correction factor for particles smaller than",min(CunninghamCorrectionTable$d_p_um),"provided."))
   }
@@ -55,14 +55,14 @@ CalculateSchmidtNumber <- function(
     delta_CCF <- CCF_larger - CCF_smaller
     CunninghamCorrection <- CCF_smaller + delta_CCF * (d_p_um - d_p_smaller) / delta_d_p
   }
-  
-  
+
+
   #Seinfeld JH, Pandis SN. Atmospheric Chemistry and Physics: From Air Pollution to Climate Change.
   #2006
   #Eq. 9.73 page 416
   k <- GetConstants()$k
-  BrownianDiffusivity <- k * T_air_K * CunninghamCorrection / (3 * pi * DynamicViscosityAir * d_p_m)
-  
+  BrownianDiffusivity <- k * T_air_K * CunninghamCorrection / (3 * pi * DynamicViscosityAir * ParticleDiameter_m)
+
   #Seinfeld JH, Pandis SN. Atmospheric Chemistry and Physics: From Air Pollution to Climate Change.
   #2006
   #p. 574

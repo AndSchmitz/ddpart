@@ -40,7 +40,7 @@ CalculateDepositionVelocity() vertically extrapolates the wind speed at "anemome
 - Calculate aerodynamic resistance (Ra) between the reference height and the receptor and surface resistance (Rs)
 }
 \examples{
-#FIXME add
+See vignette.
 }
 \references{
 Zhang L, Gong S, Padro J, Barrie L. A size-segregated particle dry deposition scheme for an atmospheric aerosol module. Atmospheric Environment 2001;35:549–560.

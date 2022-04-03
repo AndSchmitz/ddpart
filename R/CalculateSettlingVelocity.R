@@ -4,7 +4,7 @@
 
 CalculateSettlingVelocity <- function(
   ParticleDensity_kgm3, #density of particle
-  d_p_m, #particle diamter (FIXME updated based on relative humidity) 
+  ParticleDiameter_m, #particle diameter
   T_air_K,
   AirPressure_Pa,
   MeanFreePathOfAirMolecule_m,
@@ -13,11 +13,11 @@ CalculateSettlingVelocity <- function(
 
   #Correction factor for small particles
   #Zhang et al. 2001 eq. 3
-  C <- 1 + 2 * MeanFreePathOfAirMolecule_m / d_p_m * (1.257 + 0.4 * exp(-0.55 * d_p_m / MeanFreePathOfAirMolecule_m))
-  
+  C <- 1 + 2 * MeanFreePathOfAirMolecule_m / ParticleDiameter_m * (1.257 + 0.4 * exp(-0.55 * ParticleDiameter_m / MeanFreePathOfAirMolecule_m))
+
   #Gravitational settling velocity
   #Zhang et al. 2001 eq. 2
-  V_g <- ParticleDensity_kgm3 * d_p_m^2 * GetConstants()$g * C / (18 * DynamicViscosityAir)
-  
+  V_g <- ParticleDensity_kgm3 * ParticleDiameter_m^2 * GetConstants()$g * C / (18 * DynamicViscosityAir)
+
   return(V_g)
 }
