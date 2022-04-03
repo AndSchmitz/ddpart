@@ -1,0 +1,251 @@
+---
+title: "drydep_examples"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{drydep_examples}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  cache = FALSE,
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE  
+)
+```
+
+```{r setup}
+library(tidyverse)
+library(knitr)
+library(devtools)
+devtools::install_github(
+  repo = "https://github.com/AndSchmitz/drydep"
+)
+library(drydep)
+```
+
+# Introduction
+
+blending height concept
+
+# Examples and validations
+
+## Vertical wind speed profile: Comparison to power-law approach
+
+The following code calculates the wind speed profile for two example cases (stable and unstable conditions) according to two approaches:
+ 1. According to Monin-Obukhov similarity theory, as generally used in this package. The implementation follows Seinfeld and Pandis (2006) chapter 16.4.3.
+ 2. For comparison, also the simpler power-law equation for the wind speed profile is shown, according to Seinfeld and Pandis (2006) chapter 16.4.5.
+
+### Set parameters
+
+The following code defines the parameters for the setup. Roughness length, radiation, wind speed, etc. are chosen to yield two specific values of the Monin-Obukhov lenght (L=-10 (relatively unstable conditions), L = 100 (relatively stable conditions)). The parameter *WindSpeedBlendingHeight_m* is set to several different values between 5 and 50 m. 
+
+```{r WindSpeedProfile_SetParameters}
+
+nHeightIntervals <- 20
+MaxHeight_m <- 50
+
+#Define input for unstable conditions
+InputTable_UnstableConditions <- data.frame(
+  Label = "Relatively unstable conditions",
+  RoughnessLengthAnemometer_m = 0.01,
+  ZeroPlaneDisplacementHeightAnemometer_m = 7 * 0.01,
+  WindSpeed_AtAnemometerHeight_ms = 3,
+  AnemometerHeight_m = 10,
+  SunAngle_degree =  20,
+  T_air_K = 30,
+  RelHum_percent = 70,
+  AirPressure_Pa = 1013.25 * 100,
+  GlobalRadiation_W_m2 = 500,
+  CloudCover_percent = 10,
+  Season = 1, #midsummer
+  WindSpeedBlendingHeight_m = seq(5,MaxHeight_m,length.out = nHeightIntervals),
+  TargetLUCCodeZhang2001 = 6, #grass
+  #The following parameters do not matter for this use case:
+  ReferenceHeight_m = 2.5,
+  RoughnessLengthTargetLUC_m = 0.03,
+  ZeroPlaneDisplacementHeightTargetLUC = 0.21,
+  #Particle properties
+  GeometricMassMedianDiameter_m =  4.5 * 1e-6,
+  ParticleDensity_kgm3 = 2 / 1e3 * 1e4
+)
+
+#Define input for stable conditions
+InputTable_StableConditions <- InputTable_UnstableConditions %>%
+  mutate(
+    Label = "Relatively stable conditions",
+    WindSpeed_AtAnemometerHeight_ms = 1,
+    RoughnessLengthAnemometer_m = 0.46,
+    ZeroPlaneDisplacementHeightAnemometer_m = 7 * RoughnessLengthAnemometer_m,
+    SunAngle_degree = -20,
+    CloudCover_percent = 80
+  )
+
+#Combine inputs
+InputTable <- bind_rows(
+  InputTable_UnstableConditions,
+  InputTable_StableConditions
+)
+
+```
+
+### Calculate wind speed profile according to Monin-Obukhov theory
+
+For each row of the *InputTable*, the wrapper function *CalculateDepositionVelocity()* is called and the wind speed at the respective blending height (among other parameters) is calculated.
+
+```{r WindSpeedProfile_CallFunction, echo=FALSE}
+
+#Calculate wind speed at blending height (and other aspects like dry deposition velocity)
+Results <- CalculateDepositionVelocity(
+  InputTable = InputTable
+)
+
+TableDat <- Results %>%
+  select(Label, RoughnessLengthAnemometer_m, WindSpeed_AtAnemometerHeight_ms, PasquillClass, ObukhovLength_Anemometer_m) %>%
+  distinct()
+kable(
+  x = TableDat
+)
+```
+
+### Calculate wind speed profile according to power-law approach
+
+Seinfeld and Pandis (2006) chapter 16.4.5 empirical equation for the mean wind speed:
+
+$u(TargetHeight) = u(AnemometerHeight) * (TargetHeight / AnemometerHeight)^p$
+
+Exponent p taken from Seinfeld and Pandis (2006) figure 16.9 a):
+
+- p = 0.087 for z0 = 0.01 and L=-10 (relatively unstable conditions)
+- p = 0.43 for z0 = 0.46 and L = 100 (relatively stable conditions)
+
+```{r WindSpeedProfile_AddPowerLawApproach}
+Results <- Results %>%
+  mutate(
+    PowerLawExponent = case_when(
+      Label == "Relatively unstable conditions" ~ 0.087,
+      Label == "Relatively stable conditions" ~ 0.43,
+      T ~ 999
+    ),
+    WindSpeedAtBlendingHeight_ms_PowerLaw = WindSpeed_AtAnemometerHeight_ms * (WindSpeedBlendingHeight_m / AnemometerHeight_m)^PowerLawExponent
+  ) %>%
+  rename(
+    WS_MO = WindSpeedAtBlendingHeight_ms,
+    WS_PowerLaw = WindSpeedAtBlendingHeight_ms_PowerLaw
+  )
+
+PlotData <- Results %>%
+  select(Label, WindSpeedBlendingHeight_m, WS_MO, WS_PowerLaw) %>%
+  pivot_longer(
+    cols = c("WS_MO","WS_PowerLaw"),
+    values_to = "WS",
+    names_to = "WS_type"
+  ) %>%
+  mutate(
+    Approach = case_when(
+      WS_type == "WS_PowerLaw" ~ "Power law approximation",
+      WS_type == "WS_MO" ~ "Monin-Obukhov theory",
+      T ~ "UNDEF"
+    )
+  )
+```
+
+### Results
+
+The power law approach and the approach according to Monin-Obukhov theory yield similar vertical wind speed profiles. Differences likely result from the fact that the power law approach is only an approximation to the more accurate Monin-Obukhov theory approach.
+
+```{r WindSpeedProfile_Plot, fig.width = 7, fig.height = 5}
+
+ggplot(
+  data = PlotData,
+  mapping = aes(
+    x = WS,
+    y = WindSpeedBlendingHeight_m,
+    color = Approach,
+    shape = Label,
+    group = interaction(Label, Approach)
+  )
+) +
+geom_point() +
+geom_line() +
+ylim(0,max(Results$WindSpeedBlendingHeight_m)) +
+xlab("Wind speed (m/s)") +
+ylab("Height (m)") +
+guides(
+  color = guide_legend(
+    title = ""
+  ),
+  shape = guide_legend(
+    title = ""
+  )
+) +
+theme(
+  legend.position = "bottom",
+  legend.box="vertical"
+)
+```
+
+## Vertical wind speed profile: Comparison to an example in Seinfeld and Panis (2006)
+
+Seinfeld and Panis (2006) page 745 provide the following example:
+
+ - Known:
+    - z0 = 0.0015 m
+    - Anemometer height = 4 m
+    - Wind speed = 7.8 m/s
+    - Neutral atmopsheric stability
+ - Derived:
+    - Friction velocity = 0.4 m/s
+    - Wind speed in 0.5 m = 5.8 m/s
+    - Wind speed in 16 m = 9.3 m/s
+
+This is reproduced in the following setup. Meteorological parameters are set up to yield Pasquill class D (neutral stability).
+
+```{r WindSpeedExample}
+InputTable <- data.frame(
+  RoughnessLengthAnemometer_m = 0.0015,
+  AnemometerHeight_m = 4,
+  WindSpeed_AtAnemometerHeight_ms = 7.8,
+  WindSpeedBlendingHeight_m = c(0.5, 16),
+  #
+  ZeroPlaneDisplacementHeightAnemometer_m = 0.0015*7,
+  SunAngle_degree =  20,
+  T_air_K = 30,
+  RelHum_percent = 70,
+  AirPressure_Pa = 1013.25 * 100,
+  GlobalRadiation_W_m2 = 500,
+  CloudCover_percent = 10,
+  Season = 1, #midsummer
+  TargetLUCCodeZhang2001 = 6, #grass
+  #Irrelevant:
+  ReferenceHeight_m = 2.5,
+  RoughnessLengthTargetLUC_m = 0.03,
+  ZeroPlaneDisplacementHeightTargetLUC = 0.21,
+  GeometricMassMedianDiameter_m =  4.5 * 1e-6,
+  ParticleDensity_kgm3 = 2 / 1e3 * 1e4
+)
+
+Results <- CalculateDepositionVelocity(
+  InputTable = InputTable
+)
+
+kable(
+  x = Results %>%
+    select(PasquillClass, WindSpeedBlendingHeight_m, FrictionVelocity_Anemometer_ms, WindSpeedAtBlendingHeight_ms)
+)
+
+```
+
+
+# References
+
+Seinfeld JH, Pandis SN. Atmospheric Chemistry and Physics: From Air Pollution to Climate Change. Second edition. Wiley; 2006.
+
+
+
