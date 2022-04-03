@@ -70,7 +70,7 @@ InputTable_UnstableConditions <- data.frame(
   #The following parameters do not matter for this use case:
   ReferenceHeight_m = 2.5,
   RoughnessLengthTargetLUC_m = 0.03,
-  ZeroPlaneDisplacementHeightTargetLUC = 0.21,
+  ZeroPlaneDisplacementHeightTargetLUC_m = 0.21,
   #Particle properties
   GeometricMassMedianDiameter_m =  4.5 * 1e-6,
   ParticleDensity_kgm3 = 2 / 1e3 * 1e4
@@ -226,7 +226,7 @@ InputTable <- data.frame(
   #Irrelevant:
   ReferenceHeight_m = 2.5,
   RoughnessLengthTargetLUC_m = 0.03,
-  ZeroPlaneDisplacementHeightTargetLUC = 0.21,
+  ZeroPlaneDisplacementHeightTargetLUC_m = 0.21,
   GeometricMassMedianDiameter_m =  4.5 * 1e-6,
   ParticleDensity_kgm3 = 2 / 1e3 * 1e4
 )
