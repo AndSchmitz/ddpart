@@ -26,7 +26,7 @@ GetConstants = function() {
     #Empirical constants for calculation of E_In from Emerson et al. 2020 table S1
     nu_E20 = 0.8,
     C_In_E20 = 2.5,
-    #Particle size paramatrization according to
+    #Particle size parametrization according to
     #Zhang L, He Z. Technical Note: An empirical algorithm estimating dry deposition velocity of
     #fine, coarse and giant particles. Atmospheric Chemistry and Physics 2014;14:3729–3737.
     GeometricMassMedianDiameterPMcoarse_m = 4.5 * 1e-6, #PM2.5−10

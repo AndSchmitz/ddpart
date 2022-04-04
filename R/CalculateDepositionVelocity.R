@@ -25,7 +25,7 @@
 #' - Calculate meteorological parameters for the target land use type (Obukhov length, friction velocity, stability corrections), based on the wind speed at blending height and the surface properties of the target land use type.
 #'
 #' - Calculate aerodynamic resistance (Ra) between the reference height and the receptor and surface resistance (Rs)
-#' @param InputTable A data frame with columns SunAngle_degree, T_air_K, AirPressure_Pa, GlobalRadiation_W_m2, RelHum_percent, CloudCover_percent, WindSpeed_AtAnemometerHeight_ms, RoughnessLengthAnemometer_m, ZeroPlaneDisplacementHeightAnemometer_m, AnemometerHeight_m, WindSpeedBlendingHeight_m, Season, TargetLUCCodeZhang2001, ReferenceHeight_m, RoughnessLengthTargetLUC_m, ZeroPlaneDisplacementHeightTargetLUC_m, GeometricMassMedianDiameter_m, ParticleDensity_kgm3
+#' @param InputTable A data frame with columns SunAngle_degree, T_air_K, AirPressure_Pa, GlobalRadiation_W_m2, RelHum_percent, CloudCover_percent, WindSpeed_AtAnemometerHeight_ms, RoughnessLengthAnemometer_m, ZeroPlaneDisplacementHeightAnemometer_m, AnemometerHeight_m, WindSpeedBlendingHeight_m, Season, TargetLUCCodeZhang2001, ReferenceHeight_m, RoughnessLengthTargetLUC_m, ZeroPlaneDisplacementHeightTargetLUC_m, ParticleDiameter_m, ParticleDensity_kgm3
 #'
 #' @return A data frame repeating the InputTable plus additional columns with calculated values.
 #' @examples See vignette.
@@ -50,7 +50,7 @@ CalculateDepositionVelocity <- function(InputTable) {
     "TargetLUCCodeZhang2001", "ReferenceHeight_m",
     "RoughnessLengthTargetLUC_m", "ZeroPlaneDisplacementHeightTargetLUC_m",
     #Particle properties
-    "GeometricMassMedianDiameter_m", "ParticleDensity_kgm3"
+    "ParticleDiameter_m", "ParticleDensity_kgm3"
   )
   MissCols <- RequiredColumns[!(RequiredColumns %in% colnames(InputTable))]
   if ( length(MissCols) > 0 ) {
@@ -163,7 +163,7 @@ CalculateDepositionVelocity <- function(InputTable) {
       #_Gravitational settling velocity------
       SettlingVelocity_ms = CalculateSettlingVelocity (
         ParticleDensity_kgm3 = ParticleDensity_kgm3,
-        ParticleDiameter_m = GeometricMassMedianDiameter_m,
+        ParticleDiameter_m = ParticleDiameter_m,
         T_air_K = T_air_K,
         AirPressure_Pa = AirPressure_Pa,
         MeanFreePathOfAirMolecule_m = MeanFreePathOfAirMolecule_m,
@@ -174,7 +174,7 @@ CalculateDepositionVelocity <- function(InputTable) {
         DynamicViscosityAir = DynamicViscosityAir,
         KinematicViscosityOfAir_m2s = KinematicViscosityOfAir_m2s,
         T_air_K = T_air_K,
-        ParticleDiameter_m = GeometricMassMedianDiameter_m
+        ParticleDiameter_m = ParticleDiameter_m
       ),
       #_E_b-----
       #Loss efficiency by Brownian diffusion
@@ -196,7 +196,7 @@ CalculateDepositionVelocity <- function(InputTable) {
       #_E_In----
       #Loss efficiency by interception
       E_In = CalculateLossEfficiencyInterception(
-        ParticleDiameter_m = GeometricMassMedianDiameter_m,
+        ParticleDiameter_m = ParticleDiameter_m,
         CharacteristicRadius_m = CharacteristicRadius_m
       ),
       #_R_s-----
