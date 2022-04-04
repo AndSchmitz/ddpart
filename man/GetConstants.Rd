@@ -6,9 +6,6 @@
 \usage{
 GetConstants()
 }
-\arguments{
-\item{This}{function does not take any parameters.}
-}
 \value{
 A named list of parameters. "E_20" in the variable name indicates Emerson et al. (2020) as reference.
 }
