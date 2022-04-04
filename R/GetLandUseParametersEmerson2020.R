@@ -1,20 +1,24 @@
-#Land use specific parameters
-#Emerson et al. 2020
-#and
-#Zhang L, Gong S, Padro J, Barrie L. A size-segregated particle dry deposition scheme for an
-#atmospheric aerosol module. Atmospheric Environment 2001;35:549–560.
-#able 3
-GetLandUseParametersEmerson2020 <- function(
-  LUCs = -9,
-  Seasons = -9,
-  TargetPar = "undef"
+#' @title GetLandUseParametersZhang2001
+#'
+#' @description Get land use parameters according to Zhang et al. (2001) table 3. The function is vectorized with respect to parameters "LUC" and "Seasons". I.e. these two parameters must be vectors of same length.
+#' @param LUCs A vector of land use class codes (integer values). Currently, only land use classes 1-7 are implemented.
+#' @param Seasons A vector of season codes (integer values 1-5).
+#' @param TargetPar A string indicating which parameter to return from Zhang et al. (2001) table 3 ("z_0", "A", "alpha" or "gamma").
+#' @return A vector of values for parameter "TargetPar".
+#' @examples GetLandUseParametersZhang2001(LUCs = c(1,2), Seasons = c(2,5), TargetPar = "A")
+#' @export
+#' @import dplyr
+#' @references
+#' Zhang L, Gong S, Padro J, Barrie L. A size-segregated particle dry deposition scheme for an atmospheric aerosol module. Atmospheric Environment 2001;35:549–560.
+
+GetLandUseParametersZhang2001 <- function(
+  LUCs,
+  Seasons,
+  TargetPar
 ) {
 
-  #This function is vectorized
-  
-  #Table 3
-  #FIXME check vlaues again
-  ConstantTable <- tribble(
+  #From Zhang et al. 2001 table 3
+  LUCParsTable <- tribble(
     ~LUC,~Parameter,~Season,~Value,
     1,"z_0",1,0.8,
     1,"z_0",2,0.9,
@@ -37,9 +41,9 @@ GetLandUseParametersEmerson2020 <- function(
     2,"A",2,5,
     2,"A",3,5,
     2,"A",4,5,
+    2,"A",5,5,
     2,"alpha",999,0.6,
     2,"gamma",999,0.58,
-    3,"A",5,5,
     3,"z_0",1,0.85,
     3,"z_0",2,0.85,
     3,"z_0",3,0.8,
@@ -87,47 +91,46 @@ GetLandUseParametersEmerson2020 <- function(
     6,"A",4,5,
     6,"A",5,2,
     6,"alpha",999,1.2,
-    65,"gamma",999,0.54    
+    6,"gamma",999,0.54,
+    7,"z_0",1,0.1,
+    7,"z_0",2,0.1,
+    7,"z_0",3,0.02,
+    7,"z_0",4,0.02,
+    7,"z_0",5,0.05,
+    7,"A",1,2,
+    7,"A",2,2,
+    7,"A",3,5,
+    7,"A",4,5,
+    7,"A",5,2,
+    7,"alpha",999,1.2,
+    7,"gamma",999,0.54
   )
+  #Sanity check for number of rows in LUCParsTable
+  #7 LUCs, 5 seasons
+  # nrow(LUCParsTable) == (7 * (5 * 2 + 2))
 
-  # ValidLUCs <- c(
-  #   1, #Evergreen needleleaf trees
-  #   2, #Evergreen broadleaf trees
-  #   3, #Deciduous needleleaf trees
-  #   4, #Deciduous broadleaf trees
-  #   5, #Mixed broadleleaf and needleaf trees
-  #   6  #Grass
-  # )
-  # ValidSeasons <- c(
-  #   1, #Midsummer with lush vegetation
-  #   2, #Autumn with cropland that has not been harvested
-  #   3, #Late autumn after frost, no snow.
-  #   4, #Winter, snow on ground and sub-freezing.
-  #   5  #Transitional spring with partially green short annuals
-  # )
-  
-  
+
   #_Sanity checks of function arguments-----
-  LUCsFail <- unique(LUCs[!(LUCs %in% ConstantTable$LUC)])
+  LUCsFail <- unique(LUCs[!(LUCs %in% LUCParsTable$LUC)])
   if ( length(LUCsFail) > 0 ) {
     stop(paste("Some LUCs not valid:",paste(LUCsFail, collapse = ",")))
   }
-  SeasonsFail <- unique(Seasons[!(Seasons %in% ConstantTable$Season)])
+  SeasonsFail <- unique(Seasons[!(Seasons %in% LUCParsTable$Season)])
   if ( length(SeasonsFail) > 0 ) {
     stop(paste("Some Seasons not valid:",paste(SeasonsFail, collapse = ",")))
   }
-  if ( !(TargetPar %in% ConstantTable$Parameter)) {
-    stop(paste("Parameter",TargetPar,"is not in ConstantTable"))
+  if ( !(TargetPar %in% LUCParsTable$Parameter)) {
+    stop(paste("Parameter",TargetPar,"is not in LUCParsTable"))
   }
-  
-  #Merge target LUCs and Seasons with ConstantTable to extract
+
+  #Merge target LUCs and Seasons with LUCParsTable to extract
   #relevant information. Parameters z_0 and A are dependent on season,
   #parameters alpha and gamma only depend on LUC
   MergeBy = case_when(
     TargetPar %in% c("z_0","A") ~ c("LUC","Season"),
     TargetPar %in% c("alpha","gamma") ~ c("LUC")
   )
-  #merge() changes the order of rows! Define a column "Order" to 
+  #merge() changes the order of rows! Define a column "Order" to
   #reconstruct the original order.
   FilterDF <- data.frame(
     LUC = LUCs,
@@ -137,7 +140,7 @@ GetLandUseParametersEmerson2020 <- function(
       Order = 1:n()
     )
   SelectedPars <- merge(
-    x = ConstantTable,
+    x = LUCParsTable,
     y = FilterDF,
     by = MergeBy,
     all.y = T
@@ -147,11 +150,11 @@ GetLandUseParametersEmerson2020 <- function(
     ) %>%
     arrange(Order) %>%
     select(-Order)
-  
+
   if ( nrow(SelectedPars) == 0 ) {
     stop("nrow(SelectedPars) == 0")
   }
 
   return(SelectedPars$Value)
-  
+
 }

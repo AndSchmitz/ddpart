@@ -126,12 +126,12 @@ CalculateDepositionVelocity <- function(InputTable) {
   #Target-LUC dependent calculations----
   Results <- Results %>%
     mutate(
-      CharacteristicRadius_m = GetLandUseParametersEmerson2020(
+      CharacteristicRadius_m = GetLandUseParametersZhang2001(
         LUCs = TargetLUCCodeZhang2001,
         Seasons = Season,
         TargetPar = "A"
       ) / 1e3, #convert from mm to m
-      ImpactionParameterAlpha = GetLandUseParametersEmerson2020(
+      ImpactionParameterAlpha = GetLandUseParametersZhang2001(
         LUCs = TargetLUCCodeZhang2001,
         Seasons = Season,
         TargetPar = "alpha"

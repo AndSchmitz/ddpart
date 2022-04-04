@@ -7,7 +7,7 @@
 CalculateDepositionVelocity(InputTable)
 }
 \arguments{
-\item{InputTable}{A data frame with columns SunAngle_degree, T_air_K, AirPressure_Pa, GlobalRadiation_W_m2, RelHum_percent, CloudCover_percent, WindSpeed_AtAnemometerHeight_ms, RoughnessLengthAnemometer_m, ZeroPlaneDisplacementHeightAnemometer_m, AnemometerHeight_m, WindSpeedBlendingHeight_m, Season, TargetLUCCodeZhang2001, ReferenceHeight_m, RoughnessLengthTargetLUC_m, ZeroPlaneDisplacementHeightTargetLUC_m, ParticleDiameter_m, ParticleDensity_kgm3}
+\item{InputTable}{A data frame with columns SunAngle_degree, T_air_K, AirPressure_Pa, GlobalRadiation_W_m2, RelHum_percent, CloudCover_percent, WindSpeedAtAnemometerHeight_ms, RoughnessLengthAnemometer_m, ZeroPlaneDisplacementHeightAnemometer_m, AnemometerHeight_m, WindSpeedBlendingHeight_m, Season, TargetLUCCodeZhang2001, ReferenceHeight_m, RoughnessLengthTargetLUC_m, ZeroPlaneDisplacementHeightTargetLUC_m, ParticleDiameter_m, ParticleDensity_kgm3}
 }
 \value{
 A data frame repeating the InputTable plus additional columns with calculated values.
