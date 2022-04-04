@@ -56,7 +56,7 @@ InputTable_UnstableConditions <- data.frame(
   Label = "Relatively unstable conditions",
   RoughnessLengthAnemometer_m = 0.01,
   ZeroPlaneDisplacementHeightAnemometer_m = 7 * 0.01,
-  WindSpeed_AtAnemometerHeight_ms = 3,
+  WindSpeedAtAnemometerHeight_ms = 3,
   AnemometerHeight_m = 10,
   SunAngle_degree =  20,
   T_air_K = 30,
@@ -83,7 +83,7 @@ InputTable_UnstableConditions <- data.frame(
 InputTable_StableConditions <- InputTable_UnstableConditions %>%
   mutate(
     Label = "Relatively stable conditions",
-    WindSpeed_AtAnemometerHeight_ms = 1,
+    WindSpeedAtAnemometerHeight_ms = 1,
     RoughnessLengthAnemometer_m = 0.46,
     ZeroPlaneDisplacementHeightAnemometer_m = 7 * RoughnessLengthAnemometer_m,
     SunAngle_degree = -20,
@@ -110,7 +110,7 @@ Results <- CalculateDepositionVelocity(
 )
 
 TableDat <- Results %>%
-  select(Label, RoughnessLengthAnemometer_m, WindSpeed_AtAnemometerHeight_ms, PasquillClass, ObukhovLength_Anemometer_m) %>%
+  select(Label, RoughnessLengthAnemometer_m, WindSpeedAtAnemometerHeight_ms, PasquillClass, ObukhovLength_Anemometer_m) %>%
   distinct()
 kable(
   x = TableDat
@@ -136,7 +136,7 @@ Results <- Results %>%
       Label == "Relatively stable conditions" ~ 0.43,
       T ~ 999
     ),
-    WindSpeedAtBlendingHeight_ms_PowerLaw = WindSpeed_AtAnemometerHeight_ms * (WindSpeedBlendingHeight_m / AnemometerHeight_m)^PowerLawExponent
+    WindSpeedAtBlendingHeight_ms_PowerLaw = WindSpeedAtAnemometerHeight_ms * (WindSpeedBlendingHeight_m / AnemometerHeight_m)^PowerLawExponent
   ) %>%
   rename(
     WS_MO = WindSpeedAtBlendingHeight_ms,
@@ -214,7 +214,7 @@ This is reproduced in the following setup. Meteorological parameters are set up 
 InputTable <- data.frame(
   RoughnessLengthAnemometer_m = 0.0015,
   AnemometerHeight_m = 4,
-  WindSpeed_AtAnemometerHeight_ms = 7.8,
+  WindSpeedAtAnemometerHeight_ms = 7.8,
   WindSpeedBlendingHeight_m = c(0.5, 16),
   #
   ZeroPlaneDisplacementHeightAnemometer_m = 0.0015*7,
