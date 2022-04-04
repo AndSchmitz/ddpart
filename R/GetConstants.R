@@ -1,3 +1,16 @@
+#' @title GetConstants
+#'
+#' @description This function returns empirical constants for dry deposition sub-processes (Emerson et al. 2020, Zhang et al. 2020, etc.) and some other basic constants (Von Karman constant, Boltzmann's constant, etc.)
+#' @param This function does not take any parameters.
+#' @return A named list of parameters. "E_20" in the variable name indicates Emerson et al. (2020) as reference.
+#' @examples GetConstants()
+#' @export
+#' @references
+#' Zhang L, He Z. Technical Note: An empirical algorithm estimating dry deposition velocity of fine, coarse and giant particles. Atmospheric Chemistry and Physics 2014;14:3729–3737.
+#' Zhang L, Gong S, Padro J, Barrie L. A size-segregated particle dry deposition scheme for an atmospheric aerosol module. Atmospheric Environment 2001;35:549–560.
+#' Emerson EW, Hodshire AL, DeBolt HM, Bilsback KR, Pierce JR, McMeeking GR, Farmer DK. Revisiting particle dry deposition and its role in radiative effect estimates. Proceedings of the National Academy of Sciences 2020;117:26076–26082.
+
+
 GetConstants = function() {
     Constants = list(
     RoundingPrecision = 4,
@@ -25,16 +38,14 @@ GetConstants = function() {
     C_Im_E20 = 0.4,
     #Empirical constants for calculation of E_In from Emerson et al. 2020 table S1
     nu_E20 = 0.8,
-    C_In_E20 = 2.5,
-    #Particle size parametrization according to
-    #Zhang L, He Z. Technical Note: An empirical algorithm estimating dry deposition velocity of
-    #fine, coarse and giant particles. Atmospheric Chemistry and Physics 2014;14:3729–3737.
-    GeometricMassMedianDiameterPMcoarse_m = 4.5 * 1e-6, #PM2.5−10
-    GeometricStandardDeviationPMcoarse_m = 1.6 * 1e-6, #PM2.5−10
-    GeometricMassMedianDiameterPMfine_m = 2.2 * 1e-6, #PM2.5
-    GeometricStandardDeviationPMfine_m = 0.4 * 1e-6, #PM2.5
-    GeometricMassMedianDiameterPMgiant_m = 20 * 1e-6, #PM10+
-    GeometricStandardDeviationPMgiant_m = 1.6 * 1e-6 #PM10+
+    C_In_E20 = 2.5
+    # #Particle size parametrization according to Zhang et al. (2014)
+    # GeometricMassMedianDiameterPMcoarse_m = 4.5 * 1e-6, #PM2.5−10
+    # GeometricStandardDeviationPMcoarse_m = 1.6 * 1e-6, #PM2.5−10
+    # GeometricMassMedianDiameterPMfine_m = 2.2 * 1e-6, #PM2.5
+    # GeometricStandardDeviationPMfine_m = 0.4 * 1e-6, #PM2.5
+    # GeometricMassMedianDiameterPMgiant_m = 20 * 1e-6, #PM10+
+    # GeometricStandardDeviationPMgiant_m = 1.6 * 1e-6 #PM10+
   )
   return(Constants)
 }
