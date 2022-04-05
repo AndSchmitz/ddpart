@@ -19,7 +19,7 @@ CalculateFrictionVelocity <- function(
     Type = "Momentum"
   )
   StabilityCorrectionForMomentum2 <- CalculateStabilityCorrection(
-    Numerator = RoughnessLength_m / MoninObukhovLength_m,
+    Numerator = RoughnessLength_m,
     MoninObukhovLength_m = MoninObukhovLength_m,
     Type = "Momentum"
   )
