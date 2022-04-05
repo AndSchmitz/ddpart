@@ -10,6 +10,25 @@ CalculateFrictionVelocity <- function(
   MoninObukhovLength_m
 ) {
 
+  #Propagate NA
+  if (
+    is.na(WindSpeed_ms) |
+    is.na(AnemometerHeight_m) |
+    is.na(ZeroPlaneDisplacementHeight_m) |
+    is.na(RoughnessLength_m) |
+    is.na(MoninObukhovLength_m)
+  ) {
+    return(NA)
+  }
+
+  #Catch case AnemometerHeight_m < (ZeroPlaneDisplacementHeight_m + RoughnessLength_m)
+  #This causes calculation of log(negative number) [if AnemometerHeight_m < ZeroPlaneDisplacementHeight_m] or
+  #log(<1) which would result in a negative value of friction velocity.
+  if ( AnemometerHeight_m < (ZeroPlaneDisplacementHeight_m + RoughnessLength_m) ) {
+    stop("AnemometerHeight_m must not be lower than (ZeroPlaneDisplacementHeight_m + RoughnessLength_m).")
+  }
+
+
   #Van Karman constant is defined in helping function GetConstants()
   kappa <- GetConstants()$kappa
 

@@ -62,7 +62,6 @@ InputTable_UnstableConditions <- data.frame(
   AnemometerHeight_m = 10,
   SunAngle_degree =  20,
   T_air_K = 30,
-  RelHum_percent = 70,
   AirPressure_Pa = 1013.25 * 100,
   GlobalRadiation_W_m2 = 500,
   CloudCover_percent = 10,
@@ -70,16 +69,14 @@ InputTable_UnstableConditions <- data.frame(
   WindSpeedBlendingHeight_m = seq(5,MaxHeight_m,length.out = nHeightIntervals),
   TargetLUCCodeZhang2001 = 6, #grass
   #The following parameters do not matter for this use case:
+  SurfaceIsWet_bool = F,
   ReferenceHeight_m = 2.5,
   RoughnessLengthTargetLUC_m = 0.03,
   ZeroPlaneDisplacementHeightTargetLUC_m = 0.21,
   #Particle properties
   ParticleDiameter_m =  4.5 * 1e-6,
   ParticleDensity_kgm3 = 2 / 1e3 * 1e4
-) %>%
-  mutate(
-    SurfaceIsWet_bool = ifelse(RelHum_percent >= 85,T,F)
-  )
+)
 
 #Define input for stable conditions
 InputTable_StableConditions <- InputTable_UnstableConditions %>%
@@ -222,22 +219,19 @@ InputTable <- data.frame(
   ZeroPlaneDisplacementHeightAnemometer_m = 0.0015*7,
   SunAngle_degree =  20,
   T_air_K = 30,
-  RelHum_percent = 70,
   AirPressure_Pa = 1013.25 * 100,
   GlobalRadiation_W_m2 = 500,
   CloudCover_percent = 10,
   Season = 1, #midsummer
   TargetLUCCodeZhang2001 = 6, #grass
   #Irrelevant:
+  SurfaceIsWet_bool = F,
   ReferenceHeight_m = 2.5,
   RoughnessLengthTargetLUC_m = 0.03,
   ZeroPlaneDisplacementHeightTargetLUC_m = 0.21,
   ParticleDiameter_m =  4.5 * 1e-6,
   ParticleDensity_kgm3 = 2 / 1e3 * 1e4
-) %>%
-  mutate(
-    SurfaceIsWet_bool = ifelse(RelHum_percent >= 85,T,F)
-  )  
+)
 
 Results <- CalculateDepositionVelocity(
   InputTable = InputTable
@@ -266,45 +260,44 @@ Emerson et al. (2020) figure 2B shows the contribution of the four dry depositio
   
 
 ```{r Emerso 2B}
-
-#Define vector of particle diameters for X-axis
-d_p_vec <- 10^seq(-2,2, length.out = 100)
-tmp <- expand.grid(1:9,d_p_vec)
-d_p_vec <- tmp[,1] * tmp[,2]
-d_p_vec <- d_p_vec[d_p_vec <= 100]
-d_p_vec  <- d_p_vec * 1e-6
-
-#Define input
-InputTable <- data.frame(
-  #These parameters are tweaked to yield a friction velocity of approx 0.4 m/s.
-  RoughnessLengthAnemometer_m = 0.01,
-  ZeroPlaneDisplacementHeightAnemometer_m = 7 * 0.01,
-  WindSpeedAtAnemometerHeight_ms = 2,
-  AnemometerHeight_m = 10,
-  SunAngle_degree =  20,
-  T_air_K = 273 + 20,
-  RelHum_percent = 70,
-  AirPressure_Pa = 1013.25 * 100,
-  GlobalRadiation_W_m2 = 500,
-  CloudCover_percent = 20,
-  Season = 1, #midsummer
-  WindSpeedBlendingHeight_m = 50,
-  TargetLUCCodeZhang2001 = 1, #Evergreen needle leaf
-  ReferenceHeight_m = 20,
-  RoughnessLengthTargetLUC_m = 1.05,
-  ZeroPlaneDisplacementHeightTargetLUC_m = 0.7 * 20,
-  #Particle properties
-  ParticleDiameter_m =  d_p_vec,
-  ParticleDensity_kgm3 = 1500,
-  SurfaceIsWet_bool = F
-)
-
-
-Results <- CalculateDepositionVelocity(
-  InputTable = InputTable
-)
-print(unique(Results$FrictionVelocityTargetLUC_ms))
-str(Results)
+# 
+# #Define vector of particle diameters for X-axis
+# d_p_vec <- 10^seq(-2,2, length.out = 100)
+# tmp <- expand.grid(1:9,d_p_vec)
+# d_p_vec <- tmp[,1] * tmp[,2]
+# d_p_vec <- d_p_vec[d_p_vec <= 100]
+# d_p_vec  <- d_p_vec * 1e-6
+# 
+# #Define input
+# InputTable <- data.frame(
+#   #These parameters are tweaked to yield a friction velocity of approx 0.4 m/s.
+#   RoughnessLengthAnemometer_m = 0.01,
+#   ZeroPlaneDisplacementHeightAnemometer_m = 7 * 0.01,
+#   WindSpeedAtAnemometerHeight_ms = 2,
+#   AnemometerHeight_m = 10,
+#   SunAngle_degree =  20,
+#   T_air_K = 273 + 20,
+#   AirPressure_Pa = 1013.25 * 100,
+#   GlobalRadiation_W_m2 = 500,
+#   CloudCover_percent = 20,
+#   Season = 1, #midsummer
+#   WindSpeedBlendingHeight_m = 50,
+#   TargetLUCCodeZhang2001 = 1, #Evergreen needle leaf
+#   ReferenceHeight_m = 20,
+#   RoughnessLengthTargetLUC_m = 1.05,
+#   ZeroPlaneDisplacementHeightTargetLUC_m = 0.7 * 20,
+#   #Particle properties
+#   ParticleDiameter_m =  d_p_vec,
+#   ParticleDensity_kgm3 = 1500,
+#   SurfaceIsWet_bool = F
+# )
+# 
+# 
+# Results <- CalculateDepositionVelocity(
+#   InputTable = InputTable
+# )
+# print(unique(Results$FrictionVelocityTargetLUC_ms))
+# str(Results)
 
 ```
 

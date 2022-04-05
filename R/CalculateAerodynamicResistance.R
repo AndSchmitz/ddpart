@@ -21,6 +21,14 @@ CalculateAerodynamicResistance <- function(
     return(NA)
   }
 
+  #Catch case ReferenceHeight_m < (ZeroPlaneDisplacementHeight_m + RoughnessLength_m)
+  #This causes calculation of log(negative number) [if ReferenceHeight_m < ZeroPlaneDisplacementHeight_m] or
+  #log(<1) which would result in a negative Ra value.
+  if ( ReferenceHeight_m < (ZeroPlaneDisplacementHeight_m + RoughnessLength_m) ) {
+    stop("ReferenceHeight_m must not be lower than (ZeroPlaneDisplacementHeight_m + RoughnessLength_m).")
+  }
+
+
   #Catch case ReferenceHeight_m == (ZeroPlaneDisplacementHeight_m + RoughnessLength_m)
   #The aerodynamic resistance between ReferenceHeight_m and (ZeroPlaneDisplacementHeight_m + RoughnessLength_m)
   #is zero by definition.

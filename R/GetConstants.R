@@ -1,7 +1,6 @@
 #' @title GetConstants
 #'
 #' @description This function returns empirical constants for dry deposition sub-processes (Emerson et al. (2020), Zhang et al. (2020), etc.) and some other basic constants (Von Karman constant, Boltzmann's constant, etc.).
-#' @param none
 #' @return A named list of parameters. Variables that contain the string "E_20" in their name are taken from Emerson et al. (2020).
 #' @examples GetConstants()
 #' @export
