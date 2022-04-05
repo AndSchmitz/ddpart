@@ -13,7 +13,7 @@ CalculateWindSpeedAtTargetHeight <- function(
   #Propagate NA
   if (
     is.na(FrictionVelocity_ms) |
-    is.na(ReferenceHeight_m) |
+    is.na(TargetHeight_m) |
     is.na(ZeroPlaneDisplacementHeight_m) |
     is.na(RoughnessLength_m) |
     is.na(MoninObukhovLength_m)
