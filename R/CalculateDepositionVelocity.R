@@ -54,7 +54,7 @@ CalculateDepositionVelocity <- function(InputTable) {
   )
   MissCols <- RequiredColumns[!(RequiredColumns %in% colnames(InputTable))]
   if ( length(MissCols) > 0 ) {
-    stop(paste("The following columns are missing in InputTable:", paste(MissCols, sep = ",")))
+    stop(paste("The following columns are missing in InputTable:", paste(MissCols, collapse = ",")))
   }
 
 
@@ -62,7 +62,7 @@ CalculateDepositionVelocity <- function(InputTable) {
   Results <- InputTable %>%
     mutate(
       ParticleDiameter_m = CalculateHygroscopicSwelling(
-        DryParticleDiameter_m = ParticleDiameter_m,
+        DryParticleDiameter_m = DryParticleDiameter_m,
         AerosolType = AerosolType,
         RelHum_percent = RelHum_percent
       )
