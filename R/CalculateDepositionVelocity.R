@@ -25,7 +25,7 @@
 #' - Calculate meteorological parameters for the target land use type (Obukhov length, friction velocity, stability corrections), based on the wind speed at blending height and the surface properties of the target land use type.
 #'
 #' - Calculate aerodynamic resistance (Ra) between the reference height and the receptor and surface resistance (Rs)
-#' @param InputTable A data frame with columns SunAngle_degree, T_air_K, AirPressure_Pa, GlobalRadiation_W_m2, CloudCover_percent, WindSpeedAtAnemometerHeight_ms, RoughnessLengthAnemometer_m, ZeroPlaneDisplacementHeightAnemometer_m, AnemometerHeight_m, WindSpeedBlendingHeight_m, Season, TargetLUCCodeZhang2001, ReferenceHeight_m, RoughnessLengthTargetLUC_m, ZeroPlaneDisplacementHeightTargetLUC_m, ParticleDiameter_m, ParticleDensity_kgm3
+#' @param InputTable A data frame with columns SunAngle_degree, T_air_K, AirPressure_Pa, GlobalRadiation_W_m2, CloudCover_percent, WindSpeedAtAnemometerHeight_ms, RoughnessLengthAnemometer_m, ZeroPlaneDisplacementHeightAnemometer_m, AnemometerHeight_m, WindSpeedBlendingHeight_m, Season, TargetLUCCodeZhang2001, ReferenceHeight_m, RoughnessLengthTargetLUC_m, ZeroPlaneDisplacementHeightTargetLUC_m, DryParticleDiameter_m, ParticleDensity_kgm3, AerosolType. Set parameter AerosolType to "Dry" to disable calculation of hygroscopic swelling. Set parameter "AerosolType" to one of "SeaSalt", "Urban", "Rural", "AmmoniumSulfate" to enable hygroscopic swelling according to Zhang et al. eq. 10 (FIXME WITH CORRECTIONS see CalculateWetRadius())
 #'
 #' @return A data frame repeating the InputTable plus additional columns with calculated values.
 #' @examples See vignette.
@@ -50,7 +50,7 @@ CalculateDepositionVelocity <- function(InputTable) {
     "TargetLUCCodeZhang2001", "ReferenceHeight_m",
     "RoughnessLengthTargetLUC_m", "ZeroPlaneDisplacementHeightTargetLUC_m",
     #Particle properties
-    "ParticleDiameter_m", "ParticleDensity_kgm3"
+    "DryParticleDiameter_m", "ParticleDensity_kgm3","AerosolType"
   )
   MissCols <- RequiredColumns[!(RequiredColumns %in% colnames(InputTable))]
   if ( length(MissCols) > 0 ) {
