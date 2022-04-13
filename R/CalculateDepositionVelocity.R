@@ -6,7 +6,7 @@
 #'
 #' (2) information on the surface properties (land use class, roughness length and displacement height) and reference height (height of concentration measurements)
 #'
-#' (3) particle properties (diameter, density)
+#' (3) particle properties (dry particle diameter, density, optional: aerosol type to calculate hygroscopic swelling)
 #'
 #' The approach is designed for use cases where information on wind speed is not available directly for the target location / target land use type. For example, wind speeds are often modelled for or measured at grassland sites, but the dry deposition velocity is of interest at a close by for forest or cropland site. The approach therefore differentiates between two sites:
 #'
@@ -25,7 +25,7 @@
 #' - Calculate meteorological parameters for the target land use type (Obukhov length, friction velocity, stability corrections), based on the wind speed at blending height and the surface properties of the target land use type.
 #'
 #' - Calculate aerodynamic resistance (Ra) between the reference height and the receptor and surface resistance (Rs)
-#' @param InputTable A data frame with columns SunAngle_degree, T_air_K, AirPressure_Pa, GlobalRadiation_W_m2, CloudCover_percent, WindSpeedAtAnemometerHeight_ms, RoughnessLengthAnemometer_m, ZeroPlaneDisplacementHeightAnemometer_m, AnemometerHeight_m, WindSpeedBlendingHeight_m, Season, TargetLUCCodeZhang2001, ReferenceHeight_m, RoughnessLengthTargetLUC_m, ZeroPlaneDisplacementHeightTargetLUC_m, DryParticleDiameter_m, ParticleDensity_kgm3, AerosolType. Set parameter AerosolType to "Dry" to disable calculation of hygroscopic swelling. Set parameter "AerosolType" to one of "SeaSalt", "Urban", "Rural", "AmmoniumSulfate" to enable hygroscopic swelling according to Zhang et al. eq. 10 (FIXME WITH CORRECTIONS see CalculateWetRadius())
+#' @param InputTable A data frame with columns SunAngle_degree, T_air_K, AirPressure_Pa, GlobalRadiation_W_m2, CloudCover_percent, RelHum_percent WindSpeedAtAnemometerHeight_ms, RoughnessLengthAnemometer_m, ZeroPlaneDisplacementHeightAnemometer_m, AnemometerHeight_m, WindSpeedBlendingHeight_m, Season, TargetLUCCodeZhang2001, ReferenceHeight_m, RoughnessLengthTargetLUC_m, ZeroPlaneDisplacementHeightTargetLUC_m, DryParticleDiameter_m, ParticleDensity_kgm3, AerosolType. Set parameter AerosolType to "Dry" to disable calculation of hygroscopic swelling. Set parameter "AerosolType" to one of "SeaSalt", "Urban", "Rural", "AmmoniumSulfate" to enable hygroscopic swelling according to Zhang et al. eq. 10 (FIXME WITH CORRECTIONS see CalculateWetRadius())
 #'
 #' @return A data frame repeating the InputTable plus additional columns with calculated values.
 #' @examples See vignette.
@@ -42,7 +42,7 @@ CalculateDepositionVelocity <- function(InputTable) {
   RequiredColumns <- c(
     #Meteo
     "SunAngle_degree", "T_air_K", "AirPressure_Pa", "GlobalRadiation_W_m2",
-    "CloudCover_percent", "WindSpeedAtAnemometerHeight_ms",
+    "RelHum_percent","CloudCover_percent", "WindSpeedAtAnemometerHeight_ms",
     "RoughnessLengthAnemometer_m", "ZeroPlaneDisplacementHeightAnemometer_m",
     "AnemometerHeight_m", "WindSpeedBlendingHeight_m", "SurfaceIsWet_bool",
     "Season",
@@ -57,8 +57,19 @@ CalculateDepositionVelocity <- function(InputTable) {
     stop(paste("The following columns are missing in InputTable:", paste(MissCols, sep = ",")))
   }
 
-  #_Meteorological basics----
+
+  #_Update particle radius by hygroscopic swelling-----
   Results <- InputTable %>%
+    mutate(
+      ParticleDiameter_m = CalculateHygroscopicSwelling(
+        DryParticleDiameter_m = ParticleDiameter_m,
+        AerosolType = AerosolType,
+        RelHum_percent = RelHum_percent
+      )
+    )
+
+  #_Meteorological basics----
+  Results <- Results %>%
     mutate(
       #Define day or night depending on sun angle
       DayOrNight = case_when(
