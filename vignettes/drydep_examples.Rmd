@@ -61,7 +61,7 @@ InputTable_UnstableConditions <- data.frame(
   WindSpeedAtAnemometerHeight_ms = 3,
   AnemometerHeight_m = 10,
   SunAngle_degree =  20,
-  T_air_K = 30,
+  T_air_K = 273 + 20,
   RelHum_percent = 0, #Does not matter if AerosolType = "Dry",
   AirPressure_Pa = 1013.25 * 100,
   GlobalRadiation_W_m2 = 500,
@@ -220,7 +220,7 @@ InputTable <- data.frame(
   #
   ZeroPlaneDisplacementHeightAnemometer_m = 0.0015*7,
   SunAngle_degree =  20,
-  T_air_K = 30,
+  T_air_K = 273+20,
   RelHum_percent = 0, #Does not matter if AerosolType = "Dry",
   AirPressure_Pa = 1013.25 * 100,
   GlobalRadiation_W_m2 = 500,
@@ -422,7 +422,8 @@ InputTable_EmersonFig1 <- data.frame(
   ParticleDensity_kgm3 = 1200,
   #These parameters are assumed
   SurfaceIsWet_bool = F,
-  AerosolType = "Rural",
+  AerosolType = "Dry",
+  RelHum_percent = 0,
   #Reference height does not matter FIXME check correct otherwise at the top as well
   ReferenceHeight_m = 20,
   #These parameters are tweaked to yield a friction velocity of approx 0.4 m/s.
@@ -431,7 +432,6 @@ InputTable_EmersonFig1 <- data.frame(
   ZeroPlaneDisplacementHeightAnemometer_m = 7 * 0.03,
   WindSpeedAtAnemometerHeight_ms = 0.95,
   AnemometerHeight_m = 10,
-  RelHum_percent = 50,
   SunAngle_degree =  40,
   T_air_K = 273 + 20,
   AirPressure_Pa = 1013.25 * 100,
@@ -450,11 +450,27 @@ InputTable_EmersonFig1 <- data.frame(
     #0.78*20m = 15.6 for forest as in the EMEP model
     ZeroPlaneDisplacementHeightTargetLUC_m = 15.6
   )
+
+tmp1 <- InputTable_EmersonFig1 %>%
+  mutate(
+    SurfaceIsWet_bool = F
+  )
+# 
+# tmp2 <- InputTable_EmersonFig1 %>%
+#   mutate(
+#     WindSpeedAtAnemometerHeight_ms = 4
+#   )
+# 
+InputTable_EmersonFig1 <- bind_rows(
+  InputTable_EmersonFig1,
+  tmp1
+  # tmp2
+)
 ```
 
 
 ### Calculations
-```{r Emerso fig 1 calculations}
+```{r Emerso fig 1 calculations,  fig.width = 7, fig.height = 5, caption = "Test"}
 
 #Calculate vd and other outputs
 Results_EmersonFig1 <- CalculateDepositionVelocity(
@@ -472,7 +488,8 @@ ggplot(
   data = Results_EmersonFig1,
   mapping = aes(
     x = DryParticleDiameter_m*1e6,
-    y = V_d_RefHeight_ms*100
+    y = V_d_RefHeight_ms*100,
+    color = as.character(SurfaceIsWet_bool)
   )
 ) +
   # scale_color_manual(values = Colors) +
@@ -495,46 +512,18 @@ ggplot(
   xlab("Particle diameter (um)") +
   ylab("Deposition velocity (cm/s)") +
   theme(
-    legend.position = "bottom",
-    legend.title = element_blank()
+    legend.position = "bottom"
+    # legend.title = element_blank()
   )
 
 
-
-# #Plot separate dry deposition processes contributions
-# ProcessContribution <- Results %>%
-#   mutate(
-#     BounceCorrectionTerm = ifelse(
-#       test = SurfaceIsWet_bool,
-#       yes = 1,
-#       no = exp(-sqrt(StokesNumber))
-#     ),
-#     #Calculation of resistances and corresponding vd's for each process assuming contributions from other
-#     #processes are zero.
-#     R_s_E_b_only = 1 / (GetConstants()$epsilon_0 * FrictionVelocityTargetLUC_ms * BounceCorrectionTerm * E_b),
-#     V_d_E_b_only = 1 / (R_a_sm + R_s_E_b_only),
-#     R_s_E_Im_only = 1 / (GetConstants()$epsilon_0 * FrictionVelocityTargetLUC_ms * BounceCorrectionTerm * E_Im),
-#     V_d_E_Im_only = 1 / (R_a_sm + R_s_E_Im_only),
-#     R_s_E_In_only = 1 / (GetConstants()$epsilon_0 * FrictionVelocityTargetLUC_ms * BounceCorrectionTerm * E_In),
-#     V_d_E_In_only = 1 / (R_a_sm + R_s_E_In_only)
-#     #Sanity checked V_d_sum against V_d -> ok.
-#     # V_d_sum = V_d_E_b_only + V_d_E_Im_only + V_d_E_In_only + V_g
-#   ) %>%
-#   select(DryParticleDiameter_m,V_d_E_b_only,V_d_E_Im_only,V_d_E_In_only,V_d_RefHeight_ms, SettlingVelocity_ms) %>%
-#   pivot_longer(
-#     cols = -c("DryParticleDiameter_m"),
-#     names_to = "Component",
-#     values_to = "v"
-#   ) %>%
-#   mutate(
-#     ComponentName = case_when(
-#       Component == "V_d_E_b_only" ~ "Brownian",
-#       Component == "V_d_E_Im_only" ~ "Impaction",
-#       Component == "V_d_E_In_only" ~ "Interception",
-#       Component == "SettlingVelocity_ms" ~ "Gravitational settling",
-#       Component == "V_d_RefHeight_ms" ~ "Total dry deposition"
-#     )
-#   )
+tmp <- Results_EmersonFig1 %>%
+  filter(
+    ParticleDiameter_m == min(ParticleDiameter_m)
+  ) %>%
+  select(ParticleDiameter_m, FrictionVelocityTargetLUC_ms, E_b, E_In, E_Im, R_a_sm, R_s_sm) %>%
+  distinct()
+print(tmp)
 ```
 
 
@@ -542,9 +531,9 @@ ggplot(
 
 ### Definition of parameters
 
-```{r Hygroscopic swelling}
+```{r Hygroscopic swelling,  fig.width = 7, fig.height = 5, caption = "Test"}
 
-DryParticleDiameter_m <- c(0.1, 0.5, 4.5, 10) * 1e-6
+DryParticleDiameter_m <- c(0.1, 0.5, 1.5, 4.5) * 1e-6
 AerosolType <- c("Dry", "SeaSalt", "Urban", "Rural", "AmmoniumSulfate")
 RelHum_percent <- seq(0, 100, by=5)
 ExampleData <- expand_grid(DryParticleDiameter_m, AerosolType, RelHum_percent) %>%
@@ -555,6 +544,7 @@ ExampleData <- expand_grid(DryParticleDiameter_m, AerosolType, RelHum_percent) %
       AerosolType = AerosolType,
       RelHum_percent = RelHum_percent
     ),
+    RelChangeParticleDiameter_percent = round( (WetParticleDiameter_m - DryParticleDiameter_m) / DryParticleDiameter_m * 100, 2),
     FacetLabel = paste("Dry diameter =", DryParticleDiameter_m /  1e-6, "um")
   )
 
@@ -570,7 +560,36 @@ geom_line() +
 scale_y_continuous(labels = function(x) format(x, scientific = TRUE)) +
 facet_wrap( ~ FacetLabel, scales = "free_y") +
 xlab("Relative humidity (%)") +
-ylab("Wet particle diameter (um)")
+ylab("Wet particle diameter (um)") +
+guides(
+  color = guide_legend(title = "")
+) +
+theme(
+  legend.position = "bottom"
+)
+
+ggplot(
+  data = ExampleData,
+  mapping = aes(
+    x = RelHum_percent,
+    y = RelChangeParticleDiameter_percent,
+    color = AerosolType
+  )
+) +
+geom_line() +
+# scale_y_continuous(labels = function(x) format(x, scientific = TRUE)) +
+facet_wrap(
+  facets = ~ FacetLabel
+  # scales = "free_y"
+) +
+xlab("Relative humidity (%)") +
+ylab("Relative change in particle diameter (%)") +
+guides(
+  color = guide_legend(title = "")
+) +
+theme(
+  legend.position = "bottom"
+)
 ```
 
 

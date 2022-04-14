@@ -64,6 +64,7 @@ CalculateSchmidtNumber <- function(
   #2006
   #Eq. 9.73 page 416
   k <- GetConstants()$k
+  #FEATURE: Implement test - this results must match Seinfeld and Pandis Fig. 9.8 page 417
   BrownianDiffusivity <- k * T_air_K * CunninghamCorrection / (3 * pi * DynamicViscosityAir * ParticleDiameter_m)
 
   #Seinfeld JH, Pandis SN. Atmospheric Chemistry and Physics: From Air Pollution to Climate Change.
