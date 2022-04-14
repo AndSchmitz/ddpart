@@ -1,3 +1,16 @@
+#' @title CalculateHygroscopicSwelling
+#'
+#' @description Calculates increase in particle diameter due to water update according to Zhang et al. (2001) eq. 10 with some modifications. All parameters must be vectors of same lengths or of length 1.
+#' @param DryParticleDiameter_m The diameter of the particles before application of hygroscopic swelling (dry) in meter.
+#' @param AerosolType Hygroscopic swelling differs depending on aerosol type. Implemented types are (1) "Dry" for no swelling, (2) "SeaSalt", (3)  "Urban", (4) "Rural" and (5) "AmmoniumSulfate".
+#' @param RelHum_percent Relative humidty in percent.
+#' @return A vector if particle diameters after hygroscopic swelling in meter.
+#' @examples See vignette.
+#' @export
+#' @import dplyr
+#' @references
+#' Zhang L, Gong S, Padro J, Barrie L. A size-segregated particle dry deposition scheme for an atmospheric aerosol module. Atmospheric Environment 2001;35:549–560.
+
 CalculateHygroscopicSwelling <- function(
   DryParticleDiameter_m,
   AerosolType,
@@ -26,27 +39,27 @@ CalculateHygroscopicSwelling <- function(
     AerosolType = AerosolType,
     RelHum_percent = RelHum_percent
   ) %>%
+    mutate(
+      order = 1:n()
+    ) %>%
     merge(
       y = HygroscopicSwellingPars,
       by = "AerosolType"
     ) %>%
     mutate(
-      #FIXME: BOTH aspects need checking / communication
-      #wet particle radius
-      #Comment 1: It is assumed that "log" in Zhang et al. 2001 and in the original publication (Gerber 1985)
-      #stands for "log10" because a reference to powers of 10 seems to prevail in the
-      #original publication (Gerber 1985).
-      #Comment 2: While eq. 10 in Zhang et al. 2001 includes the brackets around the whole
+      #FIXME:
+      #While eq. 10 in Zhang et al. 2001 includes the brackets around the whole
       #equation, it misses the power of (1/3) at the end, which is present in the original
       #publication (Gerber 1985 eq. 15 and 22). Thus, ^(1/3) has been added.
       WetRadius_m = case_when(
         #No change if AerosolType == "Dry"
         AerosolType == "Dry" ~ DryRadius_m,
         #Calculation according to Zhang eq 10 otherwiese
-        T ~ ((C1 * DryRadius_m^C2) / (C3 * DryRadius_m^C4 - log10(RelHum_percent/100)) + DryRadius_m^3)^(1/3)
+        T ~ ((C1 * DryRadius_m^C2) / (C3 * DryRadius_m^C4 - log(RelHum_percent/100)) + DryRadius_m^3)^(1/3)
       ),
       WetDiameter_m = WetRadius_m * 2
-    )
+    ) %>%
+    arrange(order)
 
   return(Data$WetDiameter_m)
 }

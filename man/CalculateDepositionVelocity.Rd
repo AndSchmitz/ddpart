@@ -7,7 +7,7 @@
 CalculateDepositionVelocity(InputTable)
 }
 \arguments{
-\item{InputTable}{A data frame with columns SunAngle_degree, T_air_K, AirPressure_Pa, GlobalRadiation_W_m2, CloudCover_percent, RelHum_percent WindSpeedAtAnemometerHeight_ms, RoughnessLengthAnemometer_m, ZeroPlaneDisplacementHeightAnemometer_m, AnemometerHeight_m, WindSpeedBlendingHeight_m, Season, TargetLUCCodeZhang2001, ReferenceHeight_m, RoughnessLengthTargetLUC_m, ZeroPlaneDisplacementHeightTargetLUC_m, ParticleDiameter_m, ParticleDensity_kgm3, AerosolType. Set parameter AerosolType to "Dry" to disable calculation of hygroscopic swelling. Set parameter "AerosolType" to one of "SeaSalt", "Urban", "Rural", "AmmoniumSulfate" to enable hygroscopic swelling according to Zhang et al. eq. 10 (FIXME WITH CORRECTIONS see CalculateWetRadius())}
+\item{InputTable}{A data frame with columns SunAngle_degree, T_air_K, AirPressure_Pa, GlobalRadiation_W_m2, CloudCover_percent, RelHum_percent WindSpeedAtAnemometerHeight_ms, RoughnessLengthAnemometer_m, ZeroPlaneDisplacementHeightAnemometer_m, AnemometerHeight_m, WindSpeedBlendingHeight_m, Season, TargetLUCCodeZhang2001, ReferenceHeight_m, RoughnessLengthTargetLUC_m, ZeroPlaneDisplacementHeightTargetLUC_m, DryParticleDiameter_m, ParticleDensity_kgm3, AerosolType. Set parameter AerosolType to "Dry" to disable calculation of hygroscopic swelling. Set parameter "AerosolType" to one of "SeaSalt", "Urban", "Rural", "AmmoniumSulfate" to enable hygroscopic swelling according to Zhang et al. eq. 10 (FIXME WITH CORRECTIONS see CalculateWetRadius())}
 }
 \value{
 A data frame repeating the InputTable plus additional columns with calculated values.
@@ -19,7 +19,7 @@ Calculates the deposition velocity of particle according to the Zhang et al. (20
 
 (2) information on the surface properties (land use class, roughness length and displacement height) and reference height (height of concentration measurements)
 
-(3) particle properties (diameter, density)
+(3) particle properties (dry particle diameter, density, optional: aerosol type to calculate hygroscopic swelling)
 
 The approach is designed for use cases where information on wind speed is not available directly for the target location / target land use type. For example, wind speeds are often modelled for or measured at grassland sites, but the dry deposition velocity is of interest at a close by for forest or cropland site. The approach therefore differentiates between two sites:
 

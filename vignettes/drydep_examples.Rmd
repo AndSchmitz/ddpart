@@ -35,9 +35,8 @@ library(drydep)
 
 blending height concept
 
-# Examples and validation
 
-# Part 1: Vertical wind speed profile
+# Exampe 1: Vertical wind speed profile
 
 ## A) Comparison to power-law approach
 
@@ -249,7 +248,7 @@ kable(
 
 ```
 
-# Part 2: Dry deposition process
+# Example 2: Dry deposition velocities
 
 Emerson et al. (2020) figures 1 and 2 show the dry deposition velocity as a function of particle diameter for different settings (i.e. for different land use types, friction velocity, etc.). In the following, these figures are reproduced as a validation of the functions in the drydep package.
 
@@ -537,6 +536,43 @@ ggplot(
 #     )
 #   )
 ```
+
+
+# Example 3: Hygroscopic swelling
+
+### Definition of parameters
+
+```{r Hygroscopic swelling}
+
+DryParticleDiameter_m <- c(0.1, 0.5, 4.5, 10) * 1e-6
+AerosolType <- c("Dry", "SeaSalt", "Urban", "Rural", "AmmoniumSulfate")
+RelHum_percent <- seq(0, 100, by=5)
+ExampleData <- expand_grid(DryParticleDiameter_m, AerosolType, RelHum_percent) %>%
+  mutate(
+    DryParticleDiameter_m = DryParticleDiameter_m,
+    WetParticleDiameter_m = CalculateHygroscopicSwelling(
+      DryParticleDiameter_m = DryParticleDiameter_m,
+      AerosolType = AerosolType,
+      RelHum_percent = RelHum_percent
+    ),
+    FacetLabel = paste("Dry diameter =", DryParticleDiameter_m /  1e-6, "um")
+  )
+
+ggplot(
+  data = ExampleData,
+  mapping = aes(
+    x = RelHum_percent,
+    y = WetParticleDiameter_m,
+    color = AerosolType
+  )
+) +
+geom_line() +
+scale_y_continuous(labels = function(x) format(x, scientific = TRUE)) +
+facet_wrap( ~ FacetLabel, scales = "free_y") +
+xlab("Relative humidity (%)") +
+ylab("Wet particle diameter (um)")
+```
+
 
 # References
 
