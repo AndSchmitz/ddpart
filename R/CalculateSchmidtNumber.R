@@ -35,25 +35,28 @@ CalculateSchmidtNumber <- function(
   )
   d_p_um <- ParticleDiameter_m * 1e6
   if ( d_p_um < min(CunninghamCorrectionTable$d_p_um) ) {
-    stop(paste("No Cunningham correction factor for particles smaller than",min(CunninghamCorrectionTable$d_p_um),"provided."))
+    stop(paste("No Cunningham correction factor for particles smaller than",min(CunninghamCorrectionTable$d_p_um),"um provided."))
   }
+  #Assign Cunningham correction factor
   if ( d_p_um > max(CunninghamCorrectionTable$d_p_um) ) {
-    stop(paste("No Cunningham correction factor for particles larger than",max(CunninghamCorrectionTable$d_p_um),"provided."))
-  }
-  #Linearly interpolate Cunningham correction factor for particle size d_p_um
-  idx_d_p <- which(CunninghamCorrectionTable$d_p_um == d_p_um)
-  if ( length(idx_d_p) > 0 ) {
-    CunninghamCorrection <- CunninghamCorrectionTable$CunninghamCorrection[idx_d_p]
+    CunninghamCorrection <- CunninghamCorrectionTable$CunninghamCorrection[CunninghamCorrectionTable$d_p_um ==  max(CunninghamCorrectionTable$d_p_um)]
   } else {
-    idx_smaller_d_p_class <- max(which(CunninghamCorrectionTable$d_p_um < d_p_um))
-    idx_larger_d_p_class <- idx_smaller_d_p_class + 1
-    d_p_smaller <- CunninghamCorrectionTable$d_p_um[idx_smaller_d_p_class]
-    d_p_larger <- CunninghamCorrectionTable$d_p_um[idx_larger_d_p_class]
-    CCF_smaller <- CunninghamCorrectionTable$CunninghamCorrection[idx_smaller_d_p_class]
-    CCF_larger <- CunninghamCorrectionTable$CunninghamCorrection[idx_larger_d_p_class]
-    delta_d_p <- d_p_larger - d_p_smaller
-    delta_CCF <- CCF_larger - CCF_smaller
-    CunninghamCorrection <- CCF_smaller + delta_CCF * (d_p_um - d_p_smaller) / delta_d_p
+    idx_d_p <- which(CunninghamCorrectionTable$d_p_um == d_p_um)
+    if ( length(idx_d_p) > 0 ) {
+      #d_p is exactly matched in table
+      CunninghamCorrection <- CunninghamCorrectionTable$CunninghamCorrection[idx_d_p]
+    } else {
+      #Linearly interpolate Cunningham correction factor for particle size d_p_um
+      idx_smaller_d_p_class <- max(which(CunninghamCorrectionTable$d_p_um < d_p_um))
+      idx_larger_d_p_class <- idx_smaller_d_p_class + 1
+      d_p_smaller <- CunninghamCorrectionTable$d_p_um[idx_smaller_d_p_class]
+      d_p_larger <- CunninghamCorrectionTable$d_p_um[idx_larger_d_p_class]
+      CCF_smaller <- CunninghamCorrectionTable$CunninghamCorrection[idx_smaller_d_p_class]
+      CCF_larger <- CunninghamCorrectionTable$CunninghamCorrection[idx_larger_d_p_class]
+      delta_d_p <- d_p_larger - d_p_smaller
+      delta_CCF <- CCF_larger - CCF_smaller
+      CunninghamCorrection <- CCF_smaller + delta_CCF * (d_p_um - d_p_smaller) / delta_d_p
+    }
   }
 
 
