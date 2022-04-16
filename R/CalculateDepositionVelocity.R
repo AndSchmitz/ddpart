@@ -57,6 +57,17 @@ CalculateDepositionVelocity <- function(InputTable) {
     stop(paste("The following columns are missing in InputTable:", paste(MissCols, collapse = ",")))
   }
 
+  #Stokes number requires a classification whether the surface is
+  #"vegetated" or with otherwise rough surface (Zhang et al. 2001).
+  #The following LUCs are classified as non-vegetated,
+  #all other are considered vegetated.
+  NonVegetatedLUCs <- c(
+    8, #desert
+    9, #tundra
+    12, #ice cap and glacier
+    13, #inland water
+    14 #ocean
+  )
 
   #_Update particle radius by hygroscopic swelling-----
   Results <- InputTable %>%
@@ -191,12 +202,16 @@ CalculateDepositionVelocity <- function(InputTable) {
       #Loss efficiency by Brownian diffusion
       E_b = CalculateLossEfficiencyBrownianDiffusion(SchmidtNumber),
       #_Stokes number-----
+      SurfaceIsVegetated = case_when(
+        TargetLUCCodeZhang2001 %in% NonVegetatedLUCs ~ F,
+        T ~ T
+      ) %>%
       StokesNumber = CalculateStokesNumber(
         FrictionVelocity_ms = FrictionVelocityTargetLUC_ms,
         SettlingVelocity_ms = SettlingVelocity_ms,
         CharacteristicRadius_m = CharacteristicRadius_m,
         KinematicViscosityOfAir = KinematicViscosityOfAir,
-        SurfaceIsVegetated = T
+        SurfaceIsVegetated = SurfaceIsVegetated
       ),
       #_E_Im----
       #Loss efficiency by impaction
