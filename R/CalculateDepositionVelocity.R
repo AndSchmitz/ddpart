@@ -205,7 +205,7 @@ CalculateDepositionVelocity <- function(InputTable) {
       SurfaceIsVegetated = case_when(
         TargetLUCCodeZhang2001 %in% NonVegetatedLUCs ~ F,
         T ~ T
-      ) %>%
+      ),
       StokesNumber = CalculateStokesNumber(
         FrictionVelocity_ms = FrictionVelocityTargetLUC_ms,
         SettlingVelocity_ms = SettlingVelocity_ms,
