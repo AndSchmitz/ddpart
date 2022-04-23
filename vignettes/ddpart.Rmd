@@ -23,9 +23,9 @@ library(knitr)
 library(devtools)
 library(scales)
 devtools::install_github(
-  repo = "https://github.com/AndSchmitz/drydep"
+  repo = "https://github.com/AndSchmitz/ddpart"
 )
-library(drydep)
+library(ddpart)
 ```
 
 # Introduction
@@ -247,11 +247,11 @@ kable(
 
 # Example 2: Dry deposition velocities
 
-Emerson et al. (2020) figures 1 and 2 show the dry deposition velocity as a function of particle diameter for different settings (i.e. for different land use types, friction velocity, etc.). In the following, these figures are reproduced as a validation of the functions in the drydep package.
+Emerson et al. (2020) figures 1 and 2 show the dry deposition velocity as a function of particle diameter for different settings (i.e. for different land use types, friction velocity, etc.). In the following, these figures are reproduced as a validation of the functions in the ddpart package.
 
 ## A) Contributions from collection efficiencies
 
-Emerson et al. (2020) figure 2B shows the contribution of the four dry deposition sub-processes (Brownian motion, interception, impaction and gravitational settling) to the total dry deposition velocity. This figure is reconstructed with functions from the drydep package. 
+Emerson et al. (2020) figure 2B shows the contribution of the four dry deposition sub-processes (Brownian motion, interception, impaction and gravitational settling) to the total dry deposition velocity. This figure is reconstructed with functions from the ddpart package. 
 
 ### Definition of parameters
 
@@ -398,7 +398,7 @@ ggplot(
 
 ## B) Deposition velocities for different LUCs
 
-Emerson et al. (2020) figure 1 shows the dry deposition velocity for different land use classes. This figure is reconstructed with functions from the drydep package. 
+Emerson et al. (2020) figure 1 shows the dry deposition velocity for different land use classes. This figure is reconstructed with functions from the ddpart package. 
 
 ### Definition of parameters
 
