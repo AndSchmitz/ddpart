@@ -25,7 +25,45 @@
 #' - Calculate meteorological parameters for the target land use type (Obukhov length, friction velocity, stability corrections), based on the wind speed at blending height and the surface properties of the target land use type.
 #'
 #' - Calculate aerodynamic resistance (Ra) between the reference height and the receptor and surface resistance (Rs)
-#' @param InputTable A data frame with columns SunAngle_degree, T_air_K, AirPressure_Pa, GlobalRadiation_W_m2, CloudCover_percent, RelHum_percent WindSpeedAtAnemometerHeight_ms, RoughnessLengthAnemometer_m, ZeroPlaneDisplacementHeightAnemometer_m, AnemometerHeight_m, WindSpeedBlendingHeight_m, Season, TargetLUCCodeZhang2001, ReferenceHeight_m, RoughnessLengthTargetLUC_m, ZeroPlaneDisplacementHeightTargetLUC_m, DryParticleDiameter_m, ParticleDensity_kgm3, AerosolType. Set parameter AerosolType to "Dry" to disable calculation of hygroscopic swelling. Set parameter "AerosolType" to one of "SeaSalt", "Urban", "Rural", "AmmoniumSulfate" to enable hygroscopic swelling (see CalculateWetRadius()).
+#' @param InputTable A data frame with the following columns:
+#'
+#'  - SunAngle_degree: The sun angle in degree. Only used to determine if its "day" (> 0°) or "night" (< 0°) which is required for the determination of the Pasquill stability class (GetPasquillClass()). The sun angle can easily be calculated with oce::sunAngle().
+#'
+#'  - T_air_K: Air temperature in Kelvin.
+#'
+#'  - AirPressure_Pa: Air pressure in Pa. Required for the calculation of the mean free path of an air molecule, which is required for the calculation of the particle settling (sedimentation) velocity.
+#'
+#'  - GlobalRadiation_W_m2: Global radiation in W/m2. Required for the determination of the Pasquill stability class (GetPasquillClass()).
+#'
+#'  - CloudCover_percent: Cloud cover in percent. Required for the determination of the Pasquill stability class (GetPasquillClass()).
+#'
+#'  - WindSpeedAtAnemometerHeight_ms: Wind speed (m/s) at the the anemometer height. Required for GetPasquillClass() and CalculateFrictionVelocity().
+#'
+#'  - RoughnessLengthAnemometer_m: Roughness length (m) of the land cover for which the anemometer wind speed is provided. Required for multiple functions.
+#'
+#'  - ZeroPlaneDisplacementHeightAnemometer_m: Zero plane displacement height (m) of the land cover for which the anemometer wind speed is provided. Required for multiple functions.
+#'
+#'  - AnemometerHeight_m:
+#'
+#'  - WindSpeedBlendingHeight_m:
+#'
+#'  - Season:
+#'
+#'  - TargetLUCCodeZhang2001:
+#'
+#'  - ReferenceHeight_m:
+#'
+#'  - RoughnessLengthTargetLUC_m:
+#'
+#'  - ZeroPlaneDisplacementHeightTargetLUC_m:
+#'
+#'  - DryParticleDiameter_m:
+#'
+#'  - ParticleDensity_kgm3:
+#'
+#'  AerosolType: Set parameter AerosolType to "Dry" to disable calculation of hygroscopic swelling. Set parameter "AerosolType" to one of "SeaSalt", "Urban", "Rural", "AmmoniumSulfate" to enable hygroscopic swelling (see CalculateWetRadius()).
+#'
+#'  - RelHum_percent:
 #'
 #' @return A data frame repeating the InputTable plus additional columns with calculated values.
 #' @examples See vignette.

@@ -7,7 +7,45 @@
 CalculateDepositionVelocity(InputTable)
 }
 \arguments{
-\item{InputTable}{A data frame with columns SunAngle_degree, T_air_K, AirPressure_Pa, GlobalRadiation_W_m2, CloudCover_percent, RelHum_percent WindSpeedAtAnemometerHeight_ms, RoughnessLengthAnemometer_m, ZeroPlaneDisplacementHeightAnemometer_m, AnemometerHeight_m, WindSpeedBlendingHeight_m, Season, TargetLUCCodeZhang2001, ReferenceHeight_m, RoughnessLengthTargetLUC_m, ZeroPlaneDisplacementHeightTargetLUC_m, DryParticleDiameter_m, ParticleDensity_kgm3, AerosolType. Set parameter AerosolType to "Dry" to disable calculation of hygroscopic swelling. Set parameter "AerosolType" to one of "SeaSalt", "Urban", "Rural", "AmmoniumSulfate" to enable hygroscopic swelling according to Zhang et al. eq. 10 (FIXME WITH CORRECTIONS see CalculateWetRadius())}
+\item{InputTable}{A data frame with the following columns:
+
+ SunAngle_degree: The sun angle in degree. Only used to determine if its "day" (> 0 degree) or "night" (< 0 degree) which is required for the determination of the Pasquill stability class (ddpart::GetPasquillClass()). The sun angle can easily be calculated with oce::sunAngle().
+
+ T_air_K: Air temperature in Kelvin.
+
+ AirPressure_Pa: Air pressure in Pa.
+
+ GlobalRadiation_W_m2: Global radiation in W/m2.
+
+ CloudCover_percent
+
+ RelHum_percent:
+
+ WindSpeedAtAnemometerHeight_ms:
+
+ RoughnessLengthAnemometer_m:
+
+ ZeroPlaneDisplacementHeightAnemometer_m:
+
+ AnemometerHeight_m:
+
+ WindSpeedBlendingHeight_m:
+
+ Season:
+
+ TargetLUCCodeZhang2001:
+
+ ReferenceHeight_m:
+
+ RoughnessLengthTargetLUC_m:
+
+ ZeroPlaneDisplacementHeightTargetLUC_m:
+
+ DryParticleDiameter_m:
+
+ ParticleDensity_kgm3:
+
+ AerosolType: Set parameter AerosolType to "Dry" to disable calculation of hygroscopic swelling. Set parameter "AerosolType" to one of "SeaSalt", "Urban", "Rural", "AmmoniumSulfate" to enable hygroscopic swelling (see CalculateWetRadius()).}
 }
 \value{
 A data frame repeating the InputTable plus additional columns with calculated values.
