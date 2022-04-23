@@ -1,10 +1,10 @@
 ---
-title: "drydep_examples"
+title: "ddpart"
 output:
   rmarkdown::html_vignette:
     toc: true
 vignette: >
-  %\VignetteIndexEntry{drydep_examples}
+  %\VignetteIndexEntry{ddpart}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -12,13 +12,10 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>",
-  cache = FALSE,
-  echo = TRUE,
-  warning = FALSE,
-  message = FALSE  
+  comment = "#>"
 )
 ```
+
 
 ```{r setup}
 library(tidyverse)
