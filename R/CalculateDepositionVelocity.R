@@ -278,5 +278,27 @@ CalculateDepositionVelocity <- function(InputTable) {
     ) %>%
     ungroup()
 
+
+  #Sanity checks-----
+  Results <- Results %>%
+    mutate(
+      #Wind speed must be a monotonic function of height
+      WindSpeedOK <- case_when(
+        (AnemometerHeight_m <= WindSpeedBlendingHeight_m) & (WindSpeedAtAnemometerHeight_ms <= WindSpeedAtBlendingHeight_ms) ~ T,
+        (AnemometerHeight_m >= WindSpeedBlendingHeight_m) & (WindSpeedAtAnemometerHeight_ms >= WindSpeedAtBlendingHeight_ms) ~ T,
+        T ~ F
+      )
+    )
+
+  if ( !all(Results$WindSpeedOK) ) {
+    stop("Calculated WindSpeedAtBlendingHeight_ms is not a monotonic function of height (by comparison with WindSpeedAtAnemometerHeight_ms).")
+  }
+
+  Results <- Results %>%
+    select(-WindSpeedOK)
+
+
+
+  #Return resuts
   return(Results)
 }
