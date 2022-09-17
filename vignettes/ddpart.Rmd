@@ -1,5 +1,7 @@
 ---
 title: "ddpart"
+author: "Andreas Schmitz"
+date: "`r Sys.Date()`"
 output:
   rmarkdown::html_vignette:
     toc: true
@@ -16,16 +18,22 @@ knitr::opts_chunk$set(
 )
 ```
 
+# Package installation
 
-```{r setup}
-library(tidyverse)
-library(knitr)
-library(devtools)
-library(scales)
+Install the package
+```{r install}
 devtools::install_github(
   repo = "https://github.com/AndSchmitz/ddpart"
 )
 library(ddpart)
+```
+
+Dependencies for this vignette
+```{r deps}
+library(tidyverse)
+library(knitr)
+library(devtools)
+library(scales)
 ```
 
 # Introduction
