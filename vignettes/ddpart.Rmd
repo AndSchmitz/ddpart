@@ -299,8 +299,8 @@ InputTable_EmersonFig2B <- data.frame(
 ) %>%
   mutate(
     #These parameters do not matter because wind speed is tweak to reproduce friction velocity = 0.4 m/s
-    #z0 corresponding to LUC according to Zhang et al. (2001)
-    RoughnessLengthTargetLUC_m = GetLandUseParametersZhang2001(
+    #z0 corresponding to LUC
+    RoughnessLengthTargetLUC_m = GetLandUseParameters(
       LUCs = TargetLUCCodeZhang2001,
       Seasons = Season,
       TargetPar = "z_0"
@@ -428,10 +428,9 @@ InputTable_EmersonFig1 <- data.frame(
   #These parameters are assumed
   SurfaceIsWet_bool = F,
   AerosolType = "Dry",
-  RelHum_percent = 0,
-  #Reference height does not matter FIXME check correct otherwise at the top as well
+  RelHum_percent = 80,
+  #These parameters are tweaked to yield a friction velocity of approx 0.2 m/s.
   ReferenceHeight_m = 20,
-  #These parameters are tweaked to yield a friction velocity of approx 0.4 m/s.
   WindSpeedBlendingHeight_m = 50,
   RoughnessLengthAnemometer_m = 0.03,
   ZeroPlaneDisplacementHeightAnemometer_m = 7 * 0.03,
@@ -445,9 +444,9 @@ InputTable_EmersonFig1 <- data.frame(
   Season = 1 #midsummer
 ) %>%
   mutate(
-    #These parameters do not matter because wind speed is tweak to reproduce friction velocity = 0.4 m/s
-    #z0 corresponding to LUC according to Zhang et al. (2001)
-    RoughnessLengthTargetLUC_m = GetLandUseParametersZhang2001(
+    #These parameters do not matter because wind speed is tweak to reproduce friction velocity
+    #z0 corresponding to LUC
+    RoughnessLengthTargetLUC_m = GetLandUseParameters(
       LUCs = TargetLUCCodeZhang2001,
       Seasons = Season,
       TargetPar = "z_0"
@@ -456,21 +455,22 @@ InputTable_EmersonFig1 <- data.frame(
     ZeroPlaneDisplacementHeightTargetLUC_m = 15.6
   )
 
-tmp1 <- InputTable_EmersonFig1 %>%
-  mutate(
-    SurfaceIsWet_bool = F
-  )
+# tmp1 <- InputTable_EmersonFig1 %>%
+#   mutate(
+#     ReferenceHeight_m = 100
+#     #SurfaceIsWet_bool = F
+#   )
 # 
 # tmp2 <- InputTable_EmersonFig1 %>%
 #   mutate(
 #     WindSpeedAtAnemometerHeight_ms = 4
 #   )
 # 
-InputTable_EmersonFig1 <- bind_rows(
-  InputTable_EmersonFig1,
-  tmp1
-  # tmp2
-)
+# InputTable_EmersonFig1 <- bind_rows(
+#   InputTable_EmersonFig1,
+#   tmp1
+#   # tmp2
+# )
 ```
 
 
@@ -484,7 +484,7 @@ Results_EmersonFig1 <- CalculateDepositionVelocity(
 
 
 #Print resulting friction velocity
-#Is approx. 0.4 as in Emerson et al. (2020) figure 2B
+#Is approx. 0.2 as in Emerson et al. (2020) figure 1
 print(unique(Results_EmersonFig1$FrictionVelocityTargetLUC_ms))
 
  

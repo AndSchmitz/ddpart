@@ -3,5 +3,5 @@
 export(CalculateDepositionVelocity)
 export(CalculateHygroscopicSwelling)
 export(GetConstants)
-export(GetLandUseParametersZhang2001)
+export(GetLandUseParameters)
 import(dplyr)

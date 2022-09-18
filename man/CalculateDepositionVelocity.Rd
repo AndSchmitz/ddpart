@@ -4,7 +4,7 @@
 \alias{CalculateDepositionVelocity}
 \title{CalculateDepositionVelocity}
 \usage{
-CalculateDepositionVelocity(InputTable)
+CalculateDepositionVelocity(InputTable, Parametrization = "Emerson20")
 }
 \arguments{
 \item{InputTable}{A data frame with the following columns:
@@ -46,12 +46,14 @@ CalculateDepositionVelocity(InputTable)
  AerosolType: Set parameter AerosolType to "Dry" to disable calculation of hygroscopic swelling. Set parameter "AerosolType" to one of "SeaSalt", "Urban", "Rural", "AmmoniumSulfate" to enable hygroscopic swelling (see CalculateWetRadius()).
 
  - RelHum_percent:}
+
+\item{Parametrization}{A character with allowed value "Emerson20" or "Zhang01". Indicates which parametrization should be used.}
 }
 \value{
 A data frame repeating the InputTable plus additional columns with calculated values.
 }
 \description{
-Calculates the deposition velocity of particle according to the Zhang et al. (2001) and the Emerson et al. 2020 publications. Required inputs are:
+Calculates the deposition velocity of particle according to the Zhang et al. (2001) and the Emerson et al. (2020) publications. Required inputs are:
 
 (1) basic meteorological data (wind speed, global ration, relative humidity, cloud cover, air temperature, air pressure, surface wetness)
 

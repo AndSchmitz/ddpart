@@ -8,8 +8,8 @@ CalculateLossEfficiencyImpaction <- function(
   StokesNumber,
   ImpactionParameterAlpha
 ) {
-  C_Im <-GetConstants()$C_Im_E20
-  beta <- GetConstants()$beta_E20 
+  C_Im <-GetConstants()$C_Im
+  beta <- GetConstants()$beta
   E_Im <- C_Im * (StokesNumber / (ImpactionParameterAlpha + StokesNumber))^beta
   return(E_Im)
 }

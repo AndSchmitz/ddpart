@@ -1,21 +1,28 @@
-#' @title GetLandUseParametersZhang2001
+#' @title GetLandUseParameters
 #'
-#' @description Get land use parameters according to Zhang et al. (2001) table 3. The function is vectorized with respect to parameters "LUC" and "Seasons". I.e. these two parameters must be vectors of same length.
+#' @description Get land use parameters according to Zhang et al. (2001) table 3 or Emerson et al. (2020). Emerson20 differ only in parameter "gamma" from Zhang01 regarding land-use specific parameters. The function is vectorized with respect to parameters "LUC" and "Seasons". I.e. these two parameters must be vectors of same length.
 #' @param LUCs A vector of land use class codes (integer values). Currently, only land use classes 1-7 are implemented.
 #' @param Seasons A vector of season codes (integer values 1-5).
 #' @param TargetPar A string indicating which parameter to return from Zhang et al. (2001) table 3 ("z_0", "A", "alpha" or "gamma").
 #' @return A vector of values for parameter "TargetPar".
-#' @examples GetLandUseParametersZhang2001(LUCs = c(1,2), Seasons = c(2,5), TargetPar = "A")
+#' @examples GetLandUseParameters(LUCs = c(1,2), Seasons = c(2,5), TargetPar = "A")
 #' @export
 #' @import dplyr
 #' @references
 #' Zhang L, Gong S, Padro J, Barrie L. A size-segregated particle dry deposition scheme for an atmospheric aerosol module. Atmospheric Environment 2001;35:549–560.
 
-GetLandUseParametersZhang2001 <- function(
+GetLandUseParameters <- function(
   LUCs,
   Seasons,
-  TargetPar
+  TargetPar,
+  Parametrization = "Emerson20"
 ) {
+
+  #Sanity check
+  ValidParametrizations <- c("Emerson20", "Zhang01")
+  if ( !(Parametrization %in% ValidParametrizations) ) {
+    stop(paste("Parameter Parametrization must be on of", paste(ValidParametrizations, collapse = ",")))
+  }
 
   #From Zhang et al. 2001 table 3
   LUCParsTable <- tribble(
@@ -105,6 +112,10 @@ GetLandUseParametersZhang2001 <- function(
     7,"alpha",999,1.2,
     7,"gamma",999,0.54
   )
+  if ( Parametrization == "Emerson20" ) {
+    #Emerson et al. 2020 table S1
+    LUCParsTable$Value[LUCParsTable$Parameter ==  "gamma"] <- 2/3
+  }
   #Sanity check for number of rows in LUCParsTable
   #7 LUCs, 5 seasons
   # nrow(LUCParsTable) == (7 * (5 * 2 + 2))

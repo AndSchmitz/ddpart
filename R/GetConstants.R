@@ -10,8 +10,17 @@
 #' Emerson EW, Hodshire AL, DeBolt HM, Bilsback KR, Pierce JR, McMeeking GR, Farmer DK. Revisiting particle dry deposition and its role in radiative effect estimates. Proceedings of the National Academy of Sciences 2020;117:26076–26082.
 
 
-GetConstants = function() {
-    Constants = list(
+GetConstants = function(
+    Parametrization = "Emerson20"
+) {
+
+  #Sanity check
+  ValidParametrizations <- c("Emerson20", "Zhang01")
+  if ( !(Parametrization %in% ValidParametrizations) ) {
+    stop(paste("Parameter Parametrization must be on of", paste(ValidParametrizations, collapse = ",")))
+  }
+
+  Constants = list(
     RoundingPrecision = 4,
     g = 9.81,
     #Von Karman constant
@@ -29,22 +38,39 @@ GetConstants = function() {
     #Empirical constant for calculation of R_s from Zhang et al. 2001 eq. 5 also used in
     #Emerson et al. 2020
     epsilon_0 = 3,
-    #Empirical constants for calculation of E_b from Emerson et al. 2020 table S1
-    C_b_E20 = 0.2,
-    Gamma_E20 = 2/3,
+    #Empirical constants for calculation of E_b
+    C_b = case_when(
+      #Emerson et al. 2020 table S1
+      Parametrization == "Emerson20" ~ 0.2,
+      Parametrization == "Zhang01" ~ 1,
+      T ~ NA_real_
+    ),
     #Empirical constants for calculation of E_Im from Emerson et al. 2020 table S1
-    beta_E20 = 1.7,
-    C_Im_E20 = 0.4,
+    beta = case_when(
+      #Emerson et al. 2020 table S1
+      Parametrization == "Emerson20" ~ 1.7,
+      Parametrization == "Zhang01" ~ 2,
+      T ~ NA_real_
+    ),
+    C_Im = case_when(
+      #Emerson et al. 2020 table S1
+      Parametrization == "Emerson20" ~ 0.4,
+      Parametrization == "Zhang01" ~ 1,
+      T ~ NA_real_
+    ),
     #Empirical constants for calculation of E_In from Emerson et al. 2020 table S1
-    nu_E20 = 0.8,
-    C_In_E20 = 2.5
-    # #Particle size parametrization according to Zhang et al. (2014)
-    # GeometricMassMedianDiameterPMcoarse_m = 4.5 * 1e-6, #PM2.5−10
-    # GeometricStandardDeviationPMcoarse_m = 1.6 * 1e-6, #PM2.5−10
-    # GeometricMassMedianDiameterPMfine_m = 2.2 * 1e-6, #PM2.5
-    # GeometricStandardDeviationPMfine_m = 0.4 * 1e-6, #PM2.5
-    # GeometricMassMedianDiameterPMgiant_m = 20 * 1e-6, #PM10+
-    # GeometricStandardDeviationPMgiant_m = 1.6 * 1e-6 #PM10+
+    nu = case_when(
+      #Emerson et al. 2020 table S1
+      Parametrization == "Emerson20" ~ 0.8,
+      Parametrization == "Zhang01" ~ 2,
+      T ~ NA_real_
+    ),
+    C_In = case_when(
+      #Emerson et al. 2020 table S1
+      Parametrization == "Emerson20" ~ 2.5,
+      Parametrization == "Zhang01" ~ 0.5,
+      T ~ NA_real_
+    )
   )
   return(Constants)
 }

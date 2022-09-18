@@ -5,10 +5,10 @@
 #Eq. 3
 
 CalculateLossEfficiencyBrownianDiffusion <- function(
-  SchmidtNumber
+  SchmidtNumber,
+  BrownianDiffusionParameterGamma
 ) {
-  C_b <- GetConstants()$C_b_E20 
-  Gamma <- GetConstants()$Gamma_E20
-  E_b = C_b * SchmidtNumber^(-Gamma)
+  C_b <- GetConstants()$C_b
+  E_b = C_b * SchmidtNumber^(-BrownianDiffusionParameterGamma)
   return(E_b)
 }

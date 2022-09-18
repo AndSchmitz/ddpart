@@ -4,7 +4,7 @@
 \alias{GetConstants}
 \title{GetConstants}
 \usage{
-GetConstants()
+GetConstants(Parametrization = "Emerson20")
 }
 \value{
 A named list of parameters. Variables that contain the string "E_20" in their name are taken from Emerson et al. (2020).

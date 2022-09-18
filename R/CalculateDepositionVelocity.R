@@ -1,6 +1,6 @@
 #' @title CalculateDepositionVelocity
 #'
-#' @description Calculates the deposition velocity of particle according to the Zhang et al. (2001) and the Emerson et al. 2020 publications. Required inputs are:
+#' @description Calculates the deposition velocity of particle according to the Zhang et al. (2001) and the Emerson et al. (2020) publications. Required inputs are:
 #'
 #' (1) basic meteorological data (wind speed, global ration, relative humidity, cloud cover, air temperature, air pressure, surface wetness)
 #'
@@ -25,6 +25,9 @@
 #' - Calculate meteorological parameters for the target land use type (Obukhov length, friction velocity, stability corrections), based on the wind speed at blending height and the surface properties of the target land use type.
 #'
 #' - Calculate aerodynamic resistance (Ra) between the reference height and the receptor and surface resistance (Rs)
+#'
+#' @param Parametrization A character with allowed value "Emerson20" or "Zhang01". Indicates which parametrization should be used.
+#'
 #' @param InputTable A data frame with the following columns:
 #'
 #'  - SunAngle_degree: The sun angle in degree. Only used to determine if its "day" (> 0°) or "night" (< 0°) which is required for the determination of the Pasquill stability class (GetPasquillClass()). The sun angle can easily be calculated with oce::sunAngle().
@@ -74,7 +77,17 @@
 #' Emerson EW, Hodshire AL, DeBolt HM, Bilsback KR, Pierce JR, McMeeking GR, Farmer DK. Revisiting particle dry deposition and its role in radiative effect estimates. Proceedings of the National Academy of Sciences 2020;117:26076–26082.
 
 
-CalculateDepositionVelocity <- function(InputTable) {
+CalculateDepositionVelocity <- function(
+    InputTable,
+    Parametrization = "Emerson20"
+) {
+
+
+  #Sanity check parameter "Parametrization"
+  ValidParametrizations <- c("Emerson20", "Zhang01")
+  if ( !(Parametrization %in% ValidParametrizations) ) {
+    stop(paste("Parameter Parametrization must be on of", paste(ValidParametrizations, collapse = ",")))
+  }
 
   #Sanity-check for required column names
   RequiredColumns <- c(
@@ -186,12 +199,13 @@ CalculateDepositionVelocity <- function(InputTable) {
   #Target-LUC dependent calculations----
   Results <- Results %>%
     mutate(
-      CharacteristicRadius_m = GetLandUseParametersZhang2001(
+      CharacteristicRadius_m = GetLandUseParameters(
         LUCs = TargetLUCCodeZhang2001,
         Seasons = Season,
-        TargetPar = "A"
+        TargetPar = "A",
+        Parametrization = Parametrization
       ) / 1e3, #convert from mm to m
-      ImpactionParameterAlpha = GetLandUseParametersZhang2001(
+      ImpactionParameterAlpha = GetLandUseParameters(
         LUCs = TargetLUCCodeZhang2001,
         Seasons = Season,
         TargetPar = "alpha"
@@ -238,7 +252,16 @@ CalculateDepositionVelocity <- function(InputTable) {
       ),
       #_E_b-----
       #Loss efficiency by Brownian diffusion
-      E_b = CalculateLossEfficiencyBrownianDiffusion(SchmidtNumber),
+      BrownianDiffusionParameterGamma = GetLandUseParameters(
+        LUCs = TargetLUCCodeZhang2001,
+        Seasons = Season,
+        TargetPar = "gamma",
+        Parametrization = Parametrization
+      ),
+      E_b = CalculateLossEfficiencyBrownianDiffusion(
+        SchmidtNumber = SchmidtNumber,
+        BrownianDiffusionParameterGamma = BrownianDiffusionParameterGamma
+      ),
       #_Stokes number-----
       SurfaceIsVegetated = case_when(
         TargetLUCCodeZhang2001 %in% NonVegetatedLUCs ~ F,

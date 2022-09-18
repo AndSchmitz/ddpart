@@ -9,8 +9,8 @@ CalculateLossEfficiencyInterception <- function(
   CharacteristicRadius_m
 ) {
   #Loss efficiency from Interception
-  nu <- GetConstants()$nu_E20
-  C_In <- GetConstants()$C_In_E20
+  nu <- GetConstants()$nu
+  C_In <- GetConstants()$C_In
   E_In <- C_In * (ParticleDiameter_m / CharacteristicRadius_m)^nu
   return(E_In)
 }
