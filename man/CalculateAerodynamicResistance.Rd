@@ -31,12 +31,12 @@ Calculates aerodynamic resistance according to Erisman and Draaijers (1995) page
 
 # Aerodynamic resistance for extremely unstable stratification
 # over grassland
-PasquillClass = "A"
-RoughnessLength_m = 0.03
-WindSpeed_ms = 1.5
-AnemometerHeight_m = 10
-ReferenceHeight_m = 10
-ZeroPlaneDisplacementHeight_m = 7  *RoughnessLength_m
+PasquillClass <- "A"
+RoughnessLength_m <- 0.03
+WindSpeed_ms <- 1.5
+AnemometerHeight_m <- 10
+ReferenceHeight_m <- 10
+ZeroPlaneDisplacementHeight_m <- 7 * RoughnessLength_m
 
 MOL_m <- CalculateMoninObukhovLength(
   PasquillClass = PasquillClass,
@@ -46,15 +46,15 @@ FrictionVelocity_ms <- CalculateFrictionVelocity(
   WindSpeed_ms = WindSpeed_ms,
   AnemometerHeight_m = AnemometerHeight_m,
   ZeroPlaneDisplacementHeight_m = ZeroPlaneDisplacementHeight_m,
- RoughnessLength_m = RoughnessLength_m,
- MoninObukhovLength_m = MOL_m
+  RoughnessLength_m = RoughnessLength_m,
+  MoninObukhovLength_m = MOL_m
 )
 CalculateAerodynamicResistance(
- FrictionVelocity_ms = FrictionVelocity_ms,
- ReferenceHeight_m = ReferenceHeight_m,
- ZeroPlaneDisplacementHeight_m = ZeroPlaneDisplacementHeight_m,
- RoughnessLength_m = RoughnessLength_m,
- MoninObukhovLength_m = MOL_m
+  FrictionVelocity_ms = FrictionVelocity_ms,
+  ReferenceHeight_m = ReferenceHeight_m,
+  ZeroPlaneDisplacementHeight_m = ZeroPlaneDisplacementHeight_m,
+  RoughnessLength_m = RoughnessLength_m,
+  MoninObukhovLength_m = MOL_m
 )
 
 }

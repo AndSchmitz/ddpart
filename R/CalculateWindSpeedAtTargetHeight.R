@@ -10,41 +10,83 @@ CalculateWindSpeedAtTargetHeight <- function(
   MoninObukhovLength_m
 ) {
 
-  #Propagate NA
+
+  # Sanity checks
+  InputLength <- length(FrictionVelocity_ms)
   if (
-    is.na(FrictionVelocity_ms) |
-    is.na(TargetHeight_m) |
-    is.na(ZeroPlaneDisplacementHeight_m) |
-    is.na(RoughnessLength_m) |
-    is.na(MoninObukhovLength_m)
+    (length(TargetHeight_m) != InputLength) |
+    (length(ZeroPlaneDisplacementHeight_m) != InputLength) |
+    (length(RoughnessLength_m) != InputLength) |
+    (length(MoninObukhovLength_m) != InputLength)
   ) {
-    return(NA)
+    stop("All inputs must have same length.")
   }
 
-  #Catch case TargetHeight_m < (ZeroPlaneDisplacementHeight_m + RoughnessLength_m)
-  #This causes calculation of log(negative number) [if TargetHeight_m < ZeroPlaneDisplacementHeight_m] or
-  #log(<1) which would result in a negative value of wind speed.
-  if ( TargetHeight_m < (ZeroPlaneDisplacementHeight_m + RoughnessLength_m) ) {
-    stop("TargetHeight_m must not be lower than (ZeroPlaneDisplacementHeight_m + RoughnessLength_m).")
- }
+  #Define a function that works on one input row at a time.
+  CalculateWindSpeedAtTargetHeight_Scalar <- function(
+    FrictionVelocity_ms,
+    TargetHeight_m,
+    ZeroPlaneDisplacementHeight_m,
+    RoughnessLength_m,
+    MoninObukhovLength_m
+    ) {
 
-  #Van Karman constant is defined in helping function GetConstants()
-  kappa <- GetConstants()$kappa
+    #Propagate NA
+    if (
+      is.na(FrictionVelocity_ms) |
+      is.na(TargetHeight_m) |
+      is.na(ZeroPlaneDisplacementHeight_m) |
+      is.na(RoughnessLength_m) |
+      is.na(MoninObukhovLength_m)
+    ) {
+      return(NA)
+    }
 
-  #Call helping functions CalculateStabilityCorrectionForMomentum()
-  StabilityCorrectionForMomentum1 <- CalculateStabilityCorrection(
-    Numerator = (TargetHeight_m - ZeroPlaneDisplacementHeight_m),
-    MoninObukhovLength_m = MoninObukhovLength_m,
-    Type = "Momentum"
+    #Catch case TargetHeight_m < (ZeroPlaneDisplacementHeight_m + RoughnessLength_m)
+    #This causes calculation of log(negative number) [if TargetHeight_m < ZeroPlaneDisplacementHeight_m] or
+    #log(<1) which would result in a negative value of wind speed.
+    if ( TargetHeight_m < (ZeroPlaneDisplacementHeight_m + RoughnessLength_m) ) {
+      stop("TargetHeight_m must not be lower than (ZeroPlaneDisplacementHeight_m + RoughnessLength_m).")
+   }
+
+    #Van Karman constant is defined in helping function GetConstants()
+    kappa <- GetConstants()$kappa
+
+    #Call helping functions CalculateStabilityCorrectionForMomentum()
+    StabilityCorrectionForMomentum1 <- CalculateStabilityCorrection(
+      Numerator = (TargetHeight_m - ZeroPlaneDisplacementHeight_m),
+      MoninObukhovLength_m = MoninObukhovLength_m,
+      Type = "Momentum"
+    )
+    StabilityCorrectionForMomentum2 <- CalculateStabilityCorrection(
+      Numerator = RoughnessLength_m,
+      MoninObukhovLength_m = MoninObukhovLength_m,
+      Type = "Momentum"
+    )
+
+    WindSpeedAtTargetHeight_ms <- FrictionVelocity_ms / kappa * ( log((TargetHeight_m - ZeroPlaneDisplacementHeight_m)/RoughnessLength_m) - StabilityCorrectionForMomentum1 + StabilityCorrectionForMomentum2 )
+    WindSpeedAtTargetHeight_ms <- round(WindSpeedAtTargetHeight_ms,GetConstants()$RoundingPrecision)
+
+    return(WindSpeedAtTargetHeight_ms)
+
+  }   #end of scalar function
+
+
+  # Vectorize this function
+  CalculateWindSpeedAtTargetHeight_Vectorized <- Vectorize(
+    FUN = CalculateWindSpeedAtTargetHeight_Scalar,
+    USE.NAMES = F
   )
-  StabilityCorrectionForMomentum2 <- CalculateStabilityCorrection(
-    Numerator = RoughnessLength_m,
-    MoninObukhovLength_m = MoninObukhovLength_m,
-    Type = "Momentum"
+
+  # Call the vectorized function on the input
+  ReturnValue <- CalculateWindSpeedAtTargetHeight_Vectorized(
+    FrictionVelocity_ms,
+    TargetHeight_m,
+    ZeroPlaneDisplacementHeight_m,
+    RoughnessLength_m,
+    MoninObukhovLength_m
   )
 
-  WindSpeedAtTargetHeight_ms <- FrictionVelocity_ms / kappa * ( log((TargetHeight_m - ZeroPlaneDisplacementHeight_m)/RoughnessLength_m) - StabilityCorrectionForMomentum1 + StabilityCorrectionForMomentum2 )
-  WindSpeedAtTargetHeight_ms <- round(WindSpeedAtTargetHeight_ms,GetConstants()$RoundingPrecision)
+  return(ReturnValue)
 
-  return(WindSpeedAtTargetHeight_ms)
 }

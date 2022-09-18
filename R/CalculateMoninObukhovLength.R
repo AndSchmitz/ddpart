@@ -80,6 +80,7 @@ CalculateMoninObukhovLength <- function(PasquillClass,
 
   } #end of CalculateMoninObukhovLength_Scalar()
 
+
   #Vectorize this function
   CalculateMoninObukhovLength_Vectorized <- Vectorize(
     FUN = CalculateMoninObukhovLength_Scalar,

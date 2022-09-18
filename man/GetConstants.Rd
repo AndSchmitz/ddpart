@@ -4,19 +4,14 @@
 \alias{GetConstants}
 \title{GetConstants}
 \usage{
-GetConstants(Parametrization = "Emerson20")
+GetConstants()
 }
 \value{
-A named list of parameters. Variables that contain the string "E_20" in their name are taken from Emerson et al. (2020).
+A named list of constants.
 }
 \description{
-This function returns empirical constants for dry deposition sub-processes (Emerson et al. (2020), Zhang et al. (2020), etc.) and some other basic constants (Von Karman constant, Boltzmann's constant, etc.).
+This function returns some constants.
 }
 \examples{
 GetConstants()
-}
-\references{
-Zhang L, He Z. Technical Note: An empirical algorithm estimating dry deposition velocity of fine, coarse and giant particles. Atmospheric Chemistry and Physics 2014;14:3729–3737.
-Zhang L, Gong S, Padro J, Barrie L. A size-segregated particle dry deposition scheme for an atmospheric aerosol module. Atmospheric Environment 2001;35:549–560.
-Emerson EW, Hodshire AL, DeBolt HM, Bilsback KR, Pierce JR, McMeeking GR, Farmer DK. Revisiting particle dry deposition and its role in radiative effect estimates. Proceedings of the National Academy of Sciences 2020;117:26076–26082.
 }

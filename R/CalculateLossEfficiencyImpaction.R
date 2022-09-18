@@ -1,15 +1,39 @@
-#Loss efficiency by impaction (E_Im)
-#Emerson EW, Hodshire AL, DeBolt HM, Bilsback KR, Pierce JR, McMeeking GR, Farmer DK.
-#Revisiting particle dry deposition and its role in radiative effect estimates.
-#Proceedings of the National Academy of Sciences 2020;117:26076–26082.
-#Eq. 4
+#' @title CalculateLossEfficiencyImpaction
+#'
+#' @description Calculates loss efficiency by impaction according
+#' to Emerson et al. (2020) eq. 4.
+#'
+#' @param StokesNumber Stokes number
+#'
+#' @param ImpactionParameterAlpha A land-use specific empirical paramete
+#'
+#' @param Parametrization A character defining which parametrization to use.
+#' Valid values are "Emerson20" and "Zhang01"
+#'
+#' @return Stokes number
+#'
+#' @export
+#'
+#' @references Zhang L, Gong S, Padro J, Barrie L. A size-segregated particle
+#' dry deposition scheme for an atmospheric aerosol module.
+#' Atmospheric Environment 2001;35:549–560.
 
-CalculateLossEfficiencyImpaction <- function(
-  StokesNumber,
-  ImpactionParameterAlpha
-) {
-  C_Im <-GetConstants()$C_Im
-  beta <- GetConstants()$beta
+CalculateLossEfficiencyImpaction <- function(StokesNumber,
+                                             ImpactionParameterAlpha,
+                                             Parametrization) {
+
+  # Sanity checks
+  InputLength <- length(StokesNumber)
+  if (
+    (length(ImpactionParameterAlpha) != InputLength) |
+    (length(Parametrization) != InputLength)
+  ) {
+    stop("All inputs must have same length.")
+  }
+
+  C_Im <- GetParameters(Parametrization, "C_Im")
+  beta <- GetParameters(Parametrization, "beta")
   E_Im <- C_Im * (StokesNumber / (ImpactionParameterAlpha + StokesNumber))^beta
   return(E_Im)
+
 }

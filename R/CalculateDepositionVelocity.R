@@ -82,7 +82,6 @@ CalculateDepositionVelocity <- function(
     Parametrization = "Emerson20"
 ) {
 
-
   #Sanity check parameter "Parametrization"
   ValidParametrizations <- c("Emerson20", "Zhang01")
   if ( !(Parametrization %in% ValidParametrizations) ) {
@@ -138,18 +137,18 @@ CalculateDepositionVelocity <- function(
         SunAngle_degree >= 0 ~ "Day",
         SunAngle_degree <  0 ~ "Night"
       ),
-      DynamicViscosityAir = CalculateDynamicViscosityOfAir(T_air_K),
+      DynamicViscosityAir_kgms = CalculateDynamicViscosityOfAir(T_air_K),
       MeanFreePathOfAirMolecule_m = CalculateMeanFreePath(
         T_air_K,
         AirPressure_Pa,
-        DynamicViscosityAir
+        DynamicViscosityAir_kgms
       ),
-      AirDensity_kgm3 = CalculateSurfaceAirDensity(
+      AirDensity_kgm3 = CalculateAirDensity(
         AirPressure_Pa,
         T_air_K
       ),
       KinematicViscosityOfAir_m2s = CalculateKinematicViscosityOfAir(
-        DynamicViscosityAir,
+        DynamicViscosityAir_kgms,
         AirDensity_kgm3
       )
     )
@@ -175,7 +174,7 @@ CalculateDepositionVelocity <- function(
       #_Friction/stability parameters for WMO grassland------
       ObukhovLength_Anemometer_m = CalculateMoninObukhovLength(
         PasquillClass = PasquillClass,
-        z_0 = RoughnessLengthAnemometer_m
+        RoughnessLength_m = RoughnessLengthAnemometer_m
       ),
       FrictionVelocity_Anemometer_ms = CalculateFrictionVelocity(
         WindSpeed_ms = WindSpeedAtAnemometerHeight_ms,
@@ -208,7 +207,8 @@ CalculateDepositionVelocity <- function(
       ImpactionParameterAlpha = GetLandUseParameters(
         LUCs = TargetLUCCodeZhang2001,
         Seasons = Season,
-        TargetPar = "alpha"
+        TargetPar = "alpha",
+        Parametrization = Parametrization
       )
     ) %>%
     rowwise() %>% #for functions that do not accept vectors as inputs
@@ -217,7 +217,7 @@ CalculateDepositionVelocity <- function(
       #_Friction/stability parameters-----
       ObukhovLengthTargetLUC = CalculateMoninObukhovLength(
         PasquillClass = PasquillClass,
-        z_0 = RoughnessLengthTargetLUC_m
+        RoughnessLength_m = RoughnessLengthTargetLUC_m
       ),
       FrictionVelocityTargetLUC_ms = CalculateFrictionVelocity(
         WindSpeed_ms = WindSpeedAtBlendingHeight_ms,
@@ -235,17 +235,22 @@ CalculateDepositionVelocity <- function(
         MoninObukhovLength_m = ObukhovLengthTargetLUC
       ),
       #_Gravitational settling velocity------
+      MeanFreePathOfAirMolecule_m = CalculateMeanFreePath(
+        T_air_K = T_air_K,
+        AirPressure_Pa = AirPressure_Pa,
+        DynamicViscosityAir_kgms = DynamicViscosityAir_kgms
+      ),
       SettlingVelocity_ms = CalculateSettlingVelocity (
         ParticleDensity_kgm3 = ParticleDensity_kgm3,
         ParticleDiameter_m = ParticleDiameter_m,
-        T_air_K = T_air_K,
-        AirPressure_Pa = AirPressure_Pa,
+        # T_air_K = T_air_K,
+        # AirPressure_Pa = AirPressure_Pa,
         MeanFreePathOfAirMolecule_m = MeanFreePathOfAirMolecule_m,
-        DynamicViscosityAir = DynamicViscosityAir
+        DynamicViscosityAir_kgms = DynamicViscosityAir_kgms
       ),
       #_Schmidt number------
       SchmidtNumber = CalculateSchmidtNumber(
-        DynamicViscosityAir = DynamicViscosityAir,
+        DynamicViscosityAir_kgms = DynamicViscosityAir_kgms,
         KinematicViscosityOfAir_m2s = KinematicViscosityOfAir_m2s,
         T_air_K = T_air_K,
         ParticleDiameter_m = ParticleDiameter_m
@@ -260,7 +265,8 @@ CalculateDepositionVelocity <- function(
       ),
       E_b = CalculateLossEfficiencyBrownianDiffusion(
         SchmidtNumber = SchmidtNumber,
-        BrownianDiffusionParameterGamma = BrownianDiffusionParameterGamma
+        BrownianDiffusionParameterGamma = BrownianDiffusionParameterGamma,
+        Parametrization = Parametrization
       ),
       #_Stokes number-----
       SurfaceIsVegetated = case_when(
@@ -271,20 +277,22 @@ CalculateDepositionVelocity <- function(
         FrictionVelocity_ms = FrictionVelocityTargetLUC_ms,
         SettlingVelocity_ms = SettlingVelocity_ms,
         CharacteristicRadius_m = CharacteristicRadius_m,
-        KinematicViscosityOfAir = KinematicViscosityOfAir,
+        KinematicViscosityOfAir_m2s = KinematicViscosityOfAir_m2s,
         SurfaceIsVegetated = SurfaceIsVegetated
       ),
       #_E_Im----
       #Loss efficiency by impaction
       E_Im = CalculateLossEfficiencyImpaction(
         StokesNumber = StokesNumber,
-        ImpactionParameterAlpha = ImpactionParameterAlpha
+        ImpactionParameterAlpha = ImpactionParameterAlpha,
+        Parametrization = Parametrization
       ),
       #_E_In----
       #Loss efficiency by interception
       E_In = CalculateLossEfficiencyInterception(
         ParticleDiameter_m = ParticleDiameter_m,
-        CharacteristicRadius_m = CharacteristicRadius_m
+        CharacteristicRadius_m = CharacteristicRadius_m,
+        Parametrization = Parametrization
       ),
       #_R_s-----
       #Surface resistance
@@ -294,7 +302,8 @@ CalculateDepositionVelocity <- function(
         StokesNumber = StokesNumber,
         E_b = E_b,
         E_Im = E_Im,
-        E_In = E_In
+        E_In = E_In,
+        Parametrization = Parametrization
       ),
       #_V_d---------
       V_d_RefHeight_ms = SettlingVelocity_ms + 1 / (R_a_sm + R_s_sm)

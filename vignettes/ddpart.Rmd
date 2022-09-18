@@ -274,6 +274,7 @@ d_p_vec  <- d_p_vec * 1e-6
 
 
 InputTable_EmersonFig2B <- data.frame(
+  Parametrization = "Emerson20",
   #These parameters are documented in Emerson et al. (2020)
   TargetLUCCodeZhang2001 = 1, #Evergreen needle leaf
   DryParticleDiameter_m =  d_p_vec,
@@ -303,7 +304,8 @@ InputTable_EmersonFig2B <- data.frame(
     RoughnessLengthTargetLUC_m = GetLandUseParameters(
       LUCs = TargetLUCCodeZhang2001,
       Seasons = Season,
-      TargetPar = "z_0"
+      TargetPar = "z_0",
+      Parametrization = Parametrization
     ),
     #0.78*20m = 15.6 for forest as in the EMEP model
     ZeroPlaneDisplacementHeightTargetLUC_m = 15.6
@@ -332,11 +334,12 @@ ProcessContribution <- Results %>%
     ),
     #Calculation of resistances and corresponding vd's for each process assuming contributions from other
     #processes are zero.
-    R_s_E_b_only = 1 / (GetConstants()$epsilon_0 * FrictionVelocityTargetLUC_ms * BounceCorrectionTerm * E_b),
+    epsilon_0 = GetParameters(TargetParameter = "epsilon_0", Parametrization = Parametrization),
+    R_s_E_b_only = 1 / (epsilon_0 * FrictionVelocityTargetLUC_ms * BounceCorrectionTerm * E_b),
     V_d_E_b_only = 1 / (R_a_sm + R_s_E_b_only),
-    R_s_E_Im_only = 1 / (GetConstants()$epsilon_0 * FrictionVelocityTargetLUC_ms * BounceCorrectionTerm * E_Im),
+    R_s_E_Im_only = 1 / (epsilon_0 * FrictionVelocityTargetLUC_ms * BounceCorrectionTerm * E_Im),
     V_d_E_Im_only = 1 / (R_a_sm + R_s_E_Im_only),
-    R_s_E_In_only = 1 / (GetConstants()$epsilon_0 * FrictionVelocityTargetLUC_ms * BounceCorrectionTerm * E_In),
+    R_s_E_In_only = 1 / (epsilon_0 * FrictionVelocityTargetLUC_ms * BounceCorrectionTerm * E_In),
     V_d_E_In_only = 1 / (R_a_sm + R_s_E_In_only)
     #Sanity checked V_d_sum against V_d -> ok.
     # V_d_sum = V_d_E_b_only + V_d_E_Im_only + V_d_E_In_only + V_g
