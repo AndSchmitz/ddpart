@@ -64,8 +64,8 @@ CalculateAerodynamicResistance <- function(FrictionVelocity_ms,
   }
 
   # Define a function that works on one input row at a time.
-  CalculateAerodynamicResistance_Scalar <- function(WindSpeed_ms,
-                                                    AnemometerHeight_m,
+  CalculateAerodynamicResistance_Scalar <- function(FrictionVelocity_ms,
+                                                    ReferenceHeight_m,
                                                     ZeroPlaneDisplacementHeight_m,
                                                     RoughnessLength_m,
                                                     MoninObukhovLength_m) {
@@ -130,8 +130,8 @@ CalculateAerodynamicResistance <- function(FrictionVelocity_ms,
 
   # Call the vectorized function on the input
   ReturnValue <- CalculateAerodynamicResistance_Vectorized(
-    WindSpeed_ms,
-    AnemometerHeight_m,
+    FrictionVelocity_ms,
+    ReferenceHeight_m,
     ZeroPlaneDisplacementHeight_m,
     RoughnessLength_m,
     MoninObukhovLength_m
