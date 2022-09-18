@@ -22,7 +22,7 @@ CalculateFrictionVelocity(
 \item{MoninObukhovLength_m}{Monin-Obkukhiv length in m. Monin-Obkukhiv length for neutral stratification (Pasquill class D) is "infinity". This case is encoded by a value defined in GetConstants()$InfLength in this package.}
 }
 \value{
-A vector of friction velocity values in m.
+A friction velocity value in m.
 }
 \description{
 Calculates friction velocity according to Erisman and Draaijers (1995) page 67 equation 3.25.
@@ -36,7 +36,7 @@ MOL_m <- CalculateMoninObukhovLength(
   RoughnessLength_m = 0.03
 )
 CalculateFrictionVelocity(
-  WindSpeed_ms = 5,
+  WindSpeed_ms = 1.5,
   AnemometerHeight_m = 10,
   ZeroPlaneDisplacementHeight_m = 0.21,
   RoughnessLength_m = 0.03,
@@ -50,7 +50,7 @@ MOL_m <- CalculateMoninObukhovLength(
   RoughnessLength_m = 0.03
 )
 CalculateFrictionVelocity(
-  WindSpeed_ms = 5,
+  WindSpeed_ms = 7,
   AnemometerHeight_m = 10,
   ZeroPlaneDisplacementHeight_m = 0.21,
   RoughnessLength_m = 0.03,

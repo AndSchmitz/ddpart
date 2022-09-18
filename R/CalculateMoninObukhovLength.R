@@ -31,6 +31,8 @@
 
 CalculateMoninObukhovLength <- function(PasquillClass,
                                         RoughnessLength_m) {
+
+  #Parameters
   PasquillObukhovPars <- tribble(
     ~PasquillClass, ~a, ~b,
     "A", -0.096, 0.029,
@@ -41,25 +43,56 @@ CalculateMoninObukhovLength <- function(PasquillClass,
     "F", 0.035, -0.036
   )
 
-  if (!(PasquillClass %in% PasquillObukhovPars$PasquillClass)) {
-    stop(paste("Error in function CalculateMoninObukhovLength(): Pasquill class", PasquillClass, "not implemented."))
+
+  #Sanity checks
+  PasquillClassFail <- PasquillClass[!(PasquillClass %in% PasquillObukhovPars$PasquillClass)]
+  if ( length(PasquillClassFail) > 0 ) {
+    stop(paste("Valid Pasquill classes are:", paste(PasquillObukhovPars$PasquillClass, collapse = ",")))
+  }
+  if ( length(PasquillClass) != length(RoughnessLength_m) ) {
+    stop("PasquillClass and RoughnessLength_m must be vectors of same length.")
   }
 
-  idx <- which(PasquillObukhovPars$PasquillClass == PasquillClass)
-  a <- PasquillObukhovPars$a[idx]
-  b <- PasquillObukhovPars$b[idx]
-  if ((a == 0) & (b == 0)) {
-    # Monin-Obukhov-length goes to infinity in the limit of perfectly neutral
-    # conditions. See for example Erisman JW, Draaijers GPJ. Atmospheric Deposition In Relation
-    # to Acidification and Eutrophication. 1995. Page 66.
-    # This case is coded as GetConstants()$InfLength
-    return(GetConstants()$InfLength)
-  } else {
-    # SP06 eq. 16.83
-    # log() in SP06 means log10 as reconstructed from example calculation given
-    # immediately below SP06 eq. 16.83 (page 751)
-    L <- 1 / (a + b * log10(RoughnessLength_m))
-    L <- round(L, GetConstants()$RoundingPrecision)
-    return(L)
-  }
+  #Define a function that works on one Pasquill class and one roughness
+  #length at a time.
+  CalculateMoninObukhovLength_Scalar <- function(PasquillClass,
+                                                 RoughnessLength_m) {
+
+
+
+    idx <- which(PasquillObukhovPars$PasquillClass == PasquillClass)
+    a <- PasquillObukhovPars$a[idx]
+    b <- PasquillObukhovPars$b[idx]
+    if ((a == 0) & (b == 0)) {
+      # Monin-Obukhov-length goes to infinity in the limit of perfectly neutral
+      # conditions. See for example Erisman JW, Draaijers GPJ. Atmospheric Deposition In Relation
+      # to Acidification and Eutrophication. 1995. Page 66.
+      # This case is coded as GetConstants()$InfLength
+      return(GetConstants()$InfLength)
+    } else {
+      # SP06 eq. 16.83
+      # log() in SP06 means log10 as reconstructed from example calculation given
+      # immediately below SP06 eq. 16.83 (page 751)
+      L <- 1 / (a + b * log10(RoughnessLength_m))
+      L <- round(L, GetConstants()$RoundingPrecision)
+      return(L)
+    }
+
+  } #end of CalculateMoninObukhovLength_Scalar()
+
+  #Vectorize this function
+  CalculateMoninObukhovLength_Vectorized <- Vectorize(
+    FUN = CalculateMoninObukhovLength_Scalar,
+    USE.NAMES = F
+  )
+
+  #Call the vectorized function on the input
+  ReturnValue <- CalculateMoninObukhovLength_Vectorized(
+    PasquillClass,
+    RoughnessLength_m
+  )
+
+  #Return
+  return(ReturnValue)
+
 }
