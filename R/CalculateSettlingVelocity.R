@@ -13,6 +13,7 @@
 #' @return Gravitation settling velocity in m/s.
 #'
 #' @export
+#'
 #' @references Zhang L, Gong S, Padro J, Barrie L. A size-segregated particle dry deposition scheme for an atmospheric aerosol module. Atmospheric Environment 2001;35:549–560.
 
 

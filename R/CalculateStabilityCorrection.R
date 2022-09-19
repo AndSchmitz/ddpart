@@ -12,18 +12,16 @@ CalculateStabilityCorrection <- function(Numerator, # sometimes (z-d), sometimes
   InputLength <- length(Numerator)
   if (
     (length(MoninObukhovLength_m) != InputLength) |
-    (length(Type) != InputLength)
+      (length(Type) != InputLength)
   ) {
     stop("All inputs must have same length.")
   }
 
-  #Define a function that works on one input row at a time.
-  CalculateStabilityCorrection_Scalar <- function(
-    Numerator, # sometimes (z-d), sometimes z0,
-    MoninObukhovLength_m,
-    Type # Heat or Momentum
-  )  {
-
+  # Define a function that works on one input row at a time.
+  CalculateStabilityCorrection_Scalar <- function(Numerator, # sometimes (z-d), sometimes z0,
+                                                  MoninObukhovLength_m,
+                                                  Type # Heat or Momentum
+  ) {
     if (!(Type %in% c("Heat", "Momentum"))) {
       stop("(Numerator / MoninObukhovLength_m) \"Type\" must be either \"Heat\" or \"Momentum\".")
     }
@@ -66,8 +64,7 @@ CalculateStabilityCorrection <- function(Numerator, # sometimes (z-d), sometimes
     }
 
     return(StabilityCorrection)
-
-  } #end of scalar function
+  } # end of scalar function
 
   # Vectorize this function
   CalculateStabilityCorrection_Vectorized <- Vectorize(
@@ -83,5 +80,4 @@ CalculateStabilityCorrection <- function(Numerator, # sometimes (z-d), sometimes
   )
 
   return(ReturnValue)
-
 }

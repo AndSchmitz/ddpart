@@ -26,7 +26,7 @@ CalculateLossEfficiencyImpaction <- function(StokesNumber,
   InputLength <- length(StokesNumber)
   if (
     (length(ImpactionParameterAlpha) != InputLength) |
-    (length(Parametrization) != InputLength)
+      (length(Parametrization) != InputLength)
   ) {
     stop("All inputs must have same length.")
   }
@@ -35,5 +35,4 @@ CalculateLossEfficiencyImpaction <- function(StokesNumber,
   beta <- GetParameters(Parametrization, "beta")
   E_Im <- C_Im * (StokesNumber / (ImpactionParameterAlpha + StokesNumber))^beta
   return(E_Im)
-
 }

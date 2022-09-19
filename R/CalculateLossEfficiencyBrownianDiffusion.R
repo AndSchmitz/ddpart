@@ -38,5 +38,4 @@ CalculateLossEfficiencyBrownianDiffusion <- function(SchmidtNumber,
   C_b <- GetParameters(Parametrization, "C_b")
   E_b <- C_b * SchmidtNumber^(-BrownianDiffusionParameterGamma)
   return(E_b)
-
 }

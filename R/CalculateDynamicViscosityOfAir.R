@@ -11,9 +11,7 @@
 #' @references Seinfeld JH, Pandis SN. Atmospheric Chemistry and Physics: From Air Pollution to Climate Change. Wiley; 2006.
 
 
-CalculateDynamicViscosityOfAir <- function(
-  T_air_Kelvin
-) {
-  DynamicViscosityAir_kgms <- 1.8 * 1e-5 * (T_air_Kelvin/298)^0.85
+CalculateDynamicViscosityOfAir <- function(T_air_Kelvin) {
+  DynamicViscosityAir_kgms <- 1.8 * 1e-5 * (T_air_Kelvin / 298)^0.85
   return(DynamicViscosityAir_kgms)
 }

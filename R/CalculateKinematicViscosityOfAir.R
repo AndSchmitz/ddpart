@@ -10,13 +10,14 @@
 #' @return Kinematic viscosity of air in kg/(m*s).
 #'
 #' @export
+#'
 #' @references Dixon JC. The Shock Absorber Handbook. John Wiley & Sons; October 22, 2007.
 
 CalculateKinematicViscosityOfAir <- function(DynamicViscosityAir_kgms,
                                              AirDensity_kgm3) {
 
-  #Sanity checks
-  InputLength = length(DynamicViscosityAir_kgms)
+  # Sanity checks
+  InputLength <- length(DynamicViscosityAir_kgms)
   if (
     (length(AirDensity_kgm3) != InputLength)
   ) {

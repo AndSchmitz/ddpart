@@ -22,26 +22,24 @@
 #' Atmospheric Environment 2001;35:549–560.
 
 
-CalculateStokesNumber <- function(
-  FrictionVelocity_ms,
-  SettlingVelocity_ms,
-  CharacteristicRadius_m,
-  KinematicViscosityOfAir_m2s,
-  SurfaceIsVegetated
-) {
+CalculateStokesNumber <- function(FrictionVelocity_ms,
+                                  SettlingVelocity_ms,
+                                  CharacteristicRadius_m,
+                                  KinematicViscosityOfAir_m2s,
+                                  SurfaceIsVegetated) {
 
   # Sanity checks
   InputLength <- length(FrictionVelocity_ms)
   if (
     (length(SettlingVelocity_ms) != InputLength) |
-    (length(CharacteristicRadius_m) != InputLength) |
-    (length(KinematicViscosityOfAir_m2s) != InputLength) |
-    (length(SurfaceIsVegetated) != InputLength)
+      (length(CharacteristicRadius_m) != InputLength) |
+      (length(KinematicViscosityOfAir_m2s) != InputLength) |
+      (length(SurfaceIsVegetated) != InputLength)
   ) {
     stop("All inputs must have same length.")
   }
 
-  if ( any(is.na(SurfaceIsVegetated)) ) {
+  if (any(is.na(SurfaceIsVegetated))) {
     stop("Could not determine whether surface is vegetated.")
   }
 

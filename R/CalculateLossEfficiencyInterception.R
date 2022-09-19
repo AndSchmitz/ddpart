@@ -20,22 +20,20 @@
 #'  2020;117:26076–26082.
 
 
-CalculateLossEfficiencyInterception <- function(
-  ParticleDiameter_m,
-  CharacteristicRadius_m,
-  Parametrization
-) {
+CalculateLossEfficiencyInterception <- function(ParticleDiameter_m,
+                                                CharacteristicRadius_m,
+                                                Parametrization) {
 
-  #Sanity checks
-  InputLength = length(ParticleDiameter_m)
+  # Sanity checks
+  InputLength <- length(ParticleDiameter_m)
   if (
     (length(CharacteristicRadius_m) != InputLength) |
-    (length(Parametrization) != InputLength)
+      (length(Parametrization) != InputLength)
   ) {
     stop("All inputs must have same length.")
   }
 
-  #Loss efficiency from Interception
+  # Loss efficiency from Interception
   nu <- GetParameters(Parametrization, "nu")
   C_In <- GetParameters(Parametrization, "C_In")
   E_In <- C_In * (ParticleDiameter_m / CharacteristicRadius_m)^nu

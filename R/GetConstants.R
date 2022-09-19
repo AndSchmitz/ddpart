@@ -8,22 +8,22 @@
 #' @export
 
 
-GetConstants = function() {
-
-  Constants = list(
-    RoundingPrecision = 4,
+GetConstants <- function() {
+  Constants <- list(
+    # Precision used for rounding at various occasions in this package
+    RoundingPrecision = 10,
     g = 9.81,
-    #Von Karman constant
-    #https://en.wikipedia.org/wiki/Von_K%C3%A1rm%C3%A1n_constant
+    # Von Karman constant
+    # https://en.wikipedia.org/wiki/Von_K%C3%A1rm%C3%A1n_constant
     kappa = 0.41,
-    #Universal gas constant
-    R = 8.314, #m3 * Pa / (K * mol)
-    #Molar mass of dry air
-    #Seinfeld and Pandis eq. 1.2
-    M = 28.97/1000, #kg/mol
-    #Boltzmann's constant
-    k = 1.38 * 1e-23, #J/K
-    #Coding for infinite Monin-Obukhov length
+    # Universal gas constant
+    R = 8.314, # m3 * Pa / (K * mol)
+    # Molar mass of dry air
+    # Seinfeld and Pandis eq. 1.2
+    M = 28.97 / 1000, # kg/mol
+    # Boltzmann's constant
+    k = 1.38 * 1e-23, # J/K
+    # Coding for infinite Monin-Obukhov length
     InfLength = -9999
   )
 

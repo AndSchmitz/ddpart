@@ -51,19 +51,19 @@ CalculateFrictionVelocity <- function(WindSpeed_ms,
                                       RoughnessLength_m,
                                       MoninObukhovLength_m) {
 
-  #Sanity checks
-  InputLength = length(WindSpeed_ms)
+  # Sanity checks
+  InputLength <- length(WindSpeed_ms)
   if (
     (length(AnemometerHeight_m) != InputLength) |
-    (length(ZeroPlaneDisplacementHeight_m) != InputLength) |
-    (length(RoughnessLength_m) != InputLength) |
-    (length(MoninObukhovLength_m) != InputLength)
+      (length(ZeroPlaneDisplacementHeight_m) != InputLength) |
+      (length(RoughnessLength_m) != InputLength) |
+      (length(MoninObukhovLength_m) != InputLength)
   ) {
     stop("All inputs must be vectors of same length.")
   }
 
 
-  #Define a function that works on one input row at a time.
+  # Define a function that works on one input row at a time.
   CalculateFrictionVelocity_Scalar <- function(WindSpeed_ms,
                                                AnemometerHeight_m,
                                                ZeroPlaneDisplacementHeight_m,
@@ -110,15 +110,15 @@ CalculateFrictionVelocity <- function(WindSpeed_ms,
       stop("Calculation of friction velocity failed.")
     }
     return(FrictionVelocity_ms)
-  } #end of CalculateFrictionVelocity_Scalar
+  } # end of CalculateFrictionVelocity_Scalar
 
-  #Vectorize this function
+  # Vectorize this function
   CalculateFrictionVelocity_Vectorized <- Vectorize(
     FUN = CalculateFrictionVelocity_Scalar,
     USE.NAMES = F
   )
 
-  #Call the vectorized function on the input
+  # Call the vectorized function on the input
   ReturnValue <- CalculateFrictionVelocity_Vectorized(
     WindSpeed_ms,
     AnemometerHeight_m,
@@ -127,7 +127,6 @@ CalculateFrictionVelocity <- function(WindSpeed_ms,
     MoninObukhovLength_m
   )
 
-  #Return
+  # Return
   return(ReturnValue)
-
 }

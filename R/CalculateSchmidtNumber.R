@@ -14,6 +14,7 @@
 #' @return Schmidt number
 #'
 #' @export
+#'
 #' @references Seinfeld JH, Pandis SN. Atmospheric Chemistry and Physics: From Air Pollution to Climate Change. Wiley; 2006.
 
 CalculateSchmidtNumber <- function(DynamicViscosityAir_kgms,

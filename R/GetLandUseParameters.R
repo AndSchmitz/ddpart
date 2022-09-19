@@ -149,15 +149,15 @@ GetLandUseParameters <- function(LUCs,
       stop(paste("Parameter Parametrization must be on of", paste(ValidParametrizations, collapse = ",")))
     }
 
-    if ( (TargetPar == "gamma") & (Parametrization == "Emerson20") )  {
+    if ((TargetPar == "gamma") & (Parametrization == "Emerson20")) {
       # Emerson et al. 2020 table S1
-      return(2/3)
+      return(2 / 3)
     }
 
     # Return already here if TargetPar == "SurfaceIsVegetated"
     NonVegetatedLUCs <- c(12:15, 8)
     if (TargetPar == "SurfaceIsVegetated") {
-      if ( LUC %in% NonVegetatedLUCs ) {
+      if (LUC %in% NonVegetatedLUCs) {
         return(F)
       } else {
         return(T)
@@ -165,8 +165,8 @@ GetLandUseParameters <- function(LUCs,
     }
 
 
-    #gamma and alpha are season-independent
-    if ( TargetPar %in% c("gamma", "alpha") ) {
+    # gamma and alpha are season-independent
+    if (TargetPar %in% c("gamma", "alpha")) {
       idx <- which(
         (LUCParsTable$LUC == LUC) &
           (LUCParsTable$Parameter == TargetPar)
@@ -178,12 +178,12 @@ GetLandUseParameters <- function(LUCs,
           (LUCParsTable$Season == Season)
       )
     }
-    if ( length(idx) != 1 ) {
+    if (length(idx) != 1) {
       stop(paste("Could not find matching row in land use parameters for LUC", LUC, TargetPar, "season", Season))
     }
     return(LUCParsTable$Value[idx])
 
-    #Old directly vectorized code
+    # Old directly vectorized code
     # # Merge target LUCs and Seasons with LUCParsTable to extract
     # # relevant information. Parameters z_0 and A are dependent on season,
     # # parameters alpha and gamma only depend on LUC

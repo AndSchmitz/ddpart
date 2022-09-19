@@ -32,7 +32,7 @@
 CalculateMoninObukhovLength <- function(PasquillClass,
                                         RoughnessLength_m) {
 
-  #Parameters
+  # Parameters
   PasquillObukhovPars <- tribble(
     ~PasquillClass, ~a, ~b,
     "A", -0.096, 0.029,
@@ -44,22 +44,19 @@ CalculateMoninObukhovLength <- function(PasquillClass,
   )
 
 
-  #Sanity checks
+  # Sanity checks
   PasquillClassFail <- PasquillClass[!(PasquillClass %in% PasquillObukhovPars$PasquillClass)]
-  if ( length(PasquillClassFail) > 0 ) {
+  if (length(PasquillClassFail) > 0) {
     stop(paste("Valid Pasquill classes are:", paste(PasquillObukhovPars$PasquillClass, collapse = ",")))
   }
-  if ( length(PasquillClass) != length(RoughnessLength_m) ) {
+  if (length(PasquillClass) != length(RoughnessLength_m)) {
     stop("PasquillClass and RoughnessLength_m must be vectors of same length.")
   }
 
-  #Define a function that works on one Pasquill class and one roughness
-  #length at a time.
+  # Define a function that works on one Pasquill class and one roughness
+  # length at a time.
   CalculateMoninObukhovLength_Scalar <- function(PasquillClass,
                                                  RoughnessLength_m) {
-
-
-
     idx <- which(PasquillObukhovPars$PasquillClass == PasquillClass)
     a <- PasquillObukhovPars$a[idx]
     b <- PasquillObukhovPars$b[idx]
@@ -77,23 +74,21 @@ CalculateMoninObukhovLength <- function(PasquillClass,
       L <- round(L, GetConstants()$RoundingPrecision)
       return(L)
     }
+  } # end of CalculateMoninObukhovLength_Scalar()
 
-  } #end of CalculateMoninObukhovLength_Scalar()
 
-
-  #Vectorize this function
+  # Vectorize this function
   CalculateMoninObukhovLength_Vectorized <- Vectorize(
     FUN = CalculateMoninObukhovLength_Scalar,
     USE.NAMES = F
   )
 
-  #Call the vectorized function on the input
+  # Call the vectorized function on the input
   ReturnValue <- CalculateMoninObukhovLength_Vectorized(
     PasquillClass,
     RoughnessLength_m
   )
 
-  #Return
+  # Return
   return(ReturnValue)
-
 }
