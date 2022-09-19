@@ -5,20 +5,20 @@
 \title{CalculateSchmidtNumber}
 \usage{
 CalculateSchmidtNumber(
-  DynamicViscosityAir,
+  DynamicViscosityAir_kgms,
   KinematicViscosityOfAir_m2s,
   T_air_K,
   ParticleDiameter_m
 )
 }
 \arguments{
+\item{DynamicViscosityAir_kgms}{Dynamic viscosity of air in kg/(m*s). E.g. provided by CalculateDynamicViscosityOfAir().}
+
 \item{KinematicViscosityOfAir_m2s}{Kinematic viscosity of air in m2/2. E.g. provided by CalculateKinematicViscosityOfAir().}
 
 \item{T_air_K}{Air temperature in Kelvin.}
 
 \item{ParticleDiameter_m}{Particle diameter in m.}
-
-\item{DynamicViscosityAir_kgms}{Dynamic viscosity of air in kg/(m*s). E.g. provided by CalculateDynamicViscosityOfAir().}
 }
 \value{
 Schmidt number

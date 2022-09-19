@@ -8,7 +8,7 @@ CalculateStokesNumber(
   FrictionVelocity_ms,
   SettlingVelocity_ms,
   CharacteristicRadius_m,
-  KinematicViscosityOfAir_kgms,
+  KinematicViscosityOfAir_m2s,
   SurfaceIsVegetated
 )
 }
@@ -19,7 +19,7 @@ CalculateStokesNumber(
 
 \item{CharacteristicRadius_m}{Characteristic radius of receptor surface in m}
 
-\item{KinematicViscosityOfAir_kgms}{Kinematic viscosity of air in kg/(m*s)}
+\item{KinematicViscosityOfAir_m2s}{Kinematic viscosity of air in m2/s}
 
 \item{SurfaceIsVegetated}{Boolean value indicating whether the receptor
 surface is a vegetation surface}

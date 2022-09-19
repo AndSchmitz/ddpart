@@ -4,7 +4,7 @@
 \alias{GetParameters}
 \title{GetParameters}
 \usage{
-GetParameters(Parametrization)
+GetParameters(Parametrization, TargetParameter)
 }
 \value{
 A named list of parameters.

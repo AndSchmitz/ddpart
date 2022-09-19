@@ -4,9 +4,11 @@
 \alias{CalculateKinematicViscosityOfAir}
 \title{CalculateKinematicViscosityOfAir}
 \usage{
-CalculateKinematicViscosityOfAir(DynamicViscosityAir, AirDensity_kgm3)
+CalculateKinematicViscosityOfAir(DynamicViscosityAir_kgms, AirDensity_kgm3)
 }
 \arguments{
+\item{DynamicViscosityAir_kgms}{Dynamic viscosity of air in kg/(m*s).}
+
 \item{T_air_K}{Air temperature in Kelvin.}
 }
 \value{

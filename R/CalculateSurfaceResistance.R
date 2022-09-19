@@ -1,6 +1,37 @@
-#Surface resistance
-#Zhang L, Gong S, Padro J, Barrie L. A size-segregated particle dry deposition scheme for an
-#atmospheric aerosol module. Atmospheric Environment 2001;35:549–560.
+#' @title CalculateSurfaceResistance
+#'
+#' @description Calculates the surface resistance (R_s) according to Zhang et
+#' al. (2001).
+#'
+#' @param SurfaceIsWet Indicator whether the receptor surface is wet (for
+#' bounce correction term), boolean.
+#'
+#' @param FrictionVelocity_ms Friction velocity in m/s.
+#'
+#' @param StokesNumber Stokes number.
+#' in m.
+#'
+#' @param E_b Loss efficiency by brownian diffusion.
+#' in m.
+#' #'
+#' @param E_Im Loss efficiency by impaction.
+#' in m.
+#' #'
+#' @param E_In Loss efficiency by interception.
+#' in m.
+#'
+#' @param Parametrization A character defining which parametrization to use.
+#' Valid values are "Emerson20" and "Zhang01"
+#'
+#' @return Surface resistance in s/m.
+#'
+#' @export
+#'
+#' @references Zhang L, Gong S, Padro J, Barrie L. A size-segregated particle
+#' dry deposition scheme for an atmospheric aerosol module. Atmospheric
+#' Environment 2001;35:549–560.
+
+
 CalculateSurfaceResistance <- function(
   SurfaceIsWet,
   FrictionVelocity_ms,
