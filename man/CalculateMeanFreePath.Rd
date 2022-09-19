@@ -21,14 +21,14 @@ Calculates the mean free path of an air molecule according to
 Seinfeld and Pandis (2006) page 399 eq. 9.6.
 }
 \examples{
-#Validation against example Seinfeld and Pandis eq 9.7 page 399
+# Validation against example Seinfeld and Pandis eq 9.7 page 399
 T_air_K <- 298
-AirPressure_Pa = 101325
-DynamicViscosityAir_kgms = 1.8e-5
-MeanFreePath_m <- CalculateMeanFreePath(T_air_K,AirPressure_Pa,DynamicViscosityAir_kgms)
+AirPressure_Pa <- 101325
+DynamicViscosityAir_kgms <- 1.8e-5
+MeanFreePath_m <- CalculateMeanFreePath(T_air_K, AirPressure_Pa, DynamicViscosityAir_kgms)
 MeanFreePath_um <- MeanFreePath_m * 1e6
 print(MeanFreePath_um)
-#0.0651 um as given in SP06
+# 0.0651 um as given in SP06
 
 }
 \references{

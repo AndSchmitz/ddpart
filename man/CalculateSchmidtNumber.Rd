@@ -27,6 +27,50 @@ Schmidt number
 Calculates the Schmidt number according to Seinfeld and
 Pandis (2006) page 574
 }
+\examples{
+
+# Reproduce relation between brownian diffusivity and particle diameter as shown
+# in Seinfeld and Pandis (2006) page 417 Figure 9.8
+library(dplyr)
+PlotData <- data.frame(
+  T_air_K = 20,
+  AirPressure_Pa = 101325,
+  ParticleDiameter_m = 10^seq(-9, -5, length.out = 50)
+) \%>\%
+  mutate(
+    DynamicViscosityAir_kgms = CalculateDynamicViscosityOfAir(T_air_K),
+    AirDensity_kgm3 = CalculateAirDensity(
+      AirPressure_Pa = AirPressure_Pa,
+      T_air_K = T_air_K
+    ),
+    KinematicViscosityOfAir_m2s = CalculateKinematicViscosityOfAir(
+      DynamicViscosityAir_kgms = DynamicViscosityAir_kgms,
+      AirDensity_kgm3 = AirDensity_kgm3
+    ),
+    SchmidtNumber = CalculateSchmidtNumber(
+      DynamicViscosityAir_kgms = DynamicViscosityAir_kgms,
+      KinematicViscosityOfAir_m2s = KinematicViscosityOfAir_m2s,
+      T_air_K = T_air_K,
+      ParticleDiameter_m = ParticleDiameter_m
+    ),
+    # Calculate brownian diffusivity from results
+    BrownianDiffusivity_m2s = KinematicViscosityOfAir_m2s / SchmidtNumber,
+    # For plotting:
+    BrownianDiffusivity_cm2s = BrownianDiffusivity_m2s * 1e4,
+    ParticleDiameter_um = ParticleDiameter_m * 1e6
+  )
+
+library(ggplot2)
+ggplot(
+  data = PlotData,
+  mapping = aes(
+    x = log10(ParticleDiameter_um),
+    y = log10(BrownianDiffusivity_cm2s)
+  )
+) +
+  geom_line()
+
+}
 \references{
 Seinfeld JH, Pandis SN. Atmospheric Chemistry and Physics: From Air Pollution to Climate Change. Wiley; 2006.
 }

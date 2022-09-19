@@ -16,7 +16,7 @@ Density of air in kg/m3.
 }
 \description{
 Calculates the density of air according to Seinfeld and Pandis
-(2006) page 735 eq. 16.36
+(2006) page 735 eq. 16.36.
 }
 \references{
 Seinfeld JH, Pandis SN. Atmospheric Chemistry and Physics: From Air Pollution to Climate Change. Wiley; 2006.

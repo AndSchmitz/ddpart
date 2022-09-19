@@ -11,21 +11,25 @@ CalculateHygroscopicSwelling(
 )
 }
 \arguments{
-\item{DryParticleDiameter_m}{The diameter of the particles before application of hygroscopic swelling (dry) in meter.}
+\item{DryParticleDiameter_m}{The diameter of the particles before application
+of hygroscopic swelling (dry) in m.}
 
-\item{AerosolType}{Hygroscopic swelling differs depending on aerosol type. Implemented types are (1) "Dry" for no swelling, (2) "SeaSalt", (3)  "Urban", (4) "Rural" and (5) "AmmoniumSulfate".}
+\item{AerosolType}{Hygroscopic swelling differs depending on aerosol type.
+Implemented types are (1) "Dry" for no swelling, (2) "SeaSalt", (3)  "Urban",
+(4) "Rural" and (5) "AmmoniumSulfate".}
 
-\item{RelHum_percent}{Relative humidty in percent.}
+\item{RelHum_percent}{Relative humidity in percent.}
 }
 \value{
-A vector if particle diameters after hygroscopic swelling in meter.
+A vector of particle diameters after hygroscopic swelling in m.
 }
 \description{
-Calculates increase in particle diameter due to water update according to Zhang et al. (2001) eq. 10 with some modifications. All parameters must be vectors of same lengths or of length 1.
-}
-\examples{
-See vignette.
+Calculates increase in particle diameter due to water update
+according to Zhang et al. (2001) eq. 10 with some modifications.
+All parameters must be vectors of same lengths.
 }
 \references{
-Zhang L, Gong S, Padro J, Barrie L. A size-segregated particle dry deposition scheme for an atmospheric aerosol module. Atmospheric Environment 2001;35:549–560.
+Zhang L, Gong S, Padro J, Barrie L. A size-segregated particle dry deposition
+scheme for an atmospheric aerosol module. Atmospheric Environment
+2001;35:549–560.
 }
