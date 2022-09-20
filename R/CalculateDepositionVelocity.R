@@ -82,7 +82,7 @@
 
 
 CalculateDepositionVelocity <- function(InputTable,
-                                        Parametrization = "Emerson20") {
+                                        Parametrization) {
 
   # Sanity check parameter "Parametrization"
   ValidParametrizations <- c("Emerson20", "Zhang01")
@@ -200,12 +200,12 @@ CalculateDepositionVelocity <- function(InputTable,
   # Target-LUC dependent calculations----
   Results <- Results %>%
     mutate(
-      CharacteristicRadius_m = GetLandUseParameters(
+      CharacteristicRadius_m = 0.001 * GetLandUseParameters(
         LUCs = TargetLUCCodeZhang2001,
         Seasons = Season,
-        TargetPar = "A",
+        TargetPar = "A_mm",
         Parametrization = Parametrization
-      ) / 1e3, # convert from mm to m
+      ),
       ImpactionParameterAlpha = GetLandUseParameters(
         LUCs = TargetLUCCodeZhang2001,
         Seasons = Season,

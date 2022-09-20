@@ -13,7 +13,7 @@ GetLandUseParameters(LUCs, Seasons, Parametrization, TargetPar)
 
 \item{Parametrization}{A character indicating which parametrization to use ("Emerson20" or "Zhang01")}
 
-\item{TargetPar}{A character indicating which parameter to return from Zhang et al. (2001) table 3 ("z_0", "A", "alpha" or "gamma").}
+\item{TargetPar}{A character indicating which parameter to return from Zhang et al. (2001) table 3 ("z_0_m", "A_mm", "alpha" or "gamma").}
 }
 \value{
 A vector of values for parameter "TargetPar".
@@ -22,7 +22,7 @@ A vector of values for parameter "TargetPar".
 Get land use parameters according to Zhang et al. (2001) table 3 or Emerson et al. (2020). Emerson20 differ only in parameter "gamma" from Zhang01 regarding land-use specific parameters. The function is vectorized with respect to parameters "LUC" and "Seasons". I.e. these two parameters must be vectors of same length.
 }
 \examples{
-GetLandUseParameters(LUCs = c(1, 2), Seasons = c(2, 5), TargetPar = "A")
+GetLandUseParameters(LUCs = c(1, 2), Seasons = c(2, 5), TargetPar = "A_mm")
 }
 \references{
 Zhang L, Gong S, Padro J, Barrie L. A size-segregated particle dry deposition scheme for an atmospheric aerosol module. Atmospheric Environment 2001;35:549–560.

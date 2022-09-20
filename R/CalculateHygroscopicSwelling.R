@@ -31,8 +31,7 @@ CalculateHygroscopicSwelling <- function(DryParticleDiameter_m,
   # Sanity checks
   InputLength <- length(DryParticleDiameter_m)
   if (
-    (length(AnemometerHeight_m) != InputLength) |
-      (length(AerosolType) != InputLength) |
+    (length(AerosolType) != InputLength) |
       (length(RelHum_percent) != InputLength)
   ) {
     stop("All inputs must be vectors of same length.")

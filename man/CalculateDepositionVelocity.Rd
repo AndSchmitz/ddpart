@@ -4,7 +4,7 @@
 \alias{CalculateDepositionVelocity}
 \title{CalculateDepositionVelocity}
 \usage{
-CalculateDepositionVelocity(InputTable, Parametrization = "Emerson20")
+CalculateDepositionVelocity(InputTable, Parametrization)
 }
 \arguments{
 \item{InputTable}{A data frame with the following columns:

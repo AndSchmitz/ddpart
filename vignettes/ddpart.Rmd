@@ -30,10 +30,11 @@ library(ddpart)
 
 Dependencies for this vignette
 ```{r deps}
-library(tidyverse)
+# library(tidyverse)
 library(knitr)
-library(devtools)
+# library(devtools)
 library(scales)
+library(ggplot2)
 ```
 
 # Introduction
@@ -304,7 +305,7 @@ InputTable_EmersonFig2B <- data.frame(
     RoughnessLengthTargetLUC_m = GetLandUseParameters(
       LUCs = TargetLUCCodeZhang2001,
       Seasons = Season,
-      TargetPar = "z_0",
+      TargetPar = "z_0_m",
       Parametrization = Parametrization
     ),
     #0.78*20m = 15.6 for forest as in the EMEP model
@@ -317,7 +318,8 @@ InputTable_EmersonFig2B <- data.frame(
 
 #Calculate vd and other outputs
 Results <- CalculateDepositionVelocity(
-  InputTable = InputTable_EmersonFig2B
+  InputTable = InputTable_EmersonFig2B,
+  Parametrization = "Emerson20"
 )
 
 #Print resulting friction velocity
@@ -424,6 +426,7 @@ d_p_vec  <- d_p_vec * 1e-6
 
 
 InputTable_EmersonFig1 <- data.frame(
+  Parametrization = "Emerson20",
   #These parameters are documented in Emerson et al. (2020)
   TargetLUCCodeZhang2001 = 1, #Evergreen needle leaf
   DryParticleDiameter_m =  d_p_vec,
@@ -452,7 +455,8 @@ InputTable_EmersonFig1 <- data.frame(
     RoughnessLengthTargetLUC_m = GetLandUseParameters(
       LUCs = TargetLUCCodeZhang2001,
       Seasons = Season,
-      TargetPar = "z_0"
+      TargetPar = "z_0_m",
+      Parametrization = Parametrization
     ),
     #0.78*20m = 15.6 for forest as in the EMEP model
     ZeroPlaneDisplacementHeightTargetLUC_m = 15.6
@@ -482,7 +486,8 @@ InputTable_EmersonFig1 <- data.frame(
 
 #Calculate vd and other outputs
 Results_EmersonFig1 <- CalculateDepositionVelocity(
-  InputTable = InputTable_EmersonFig1
+  InputTable = InputTable_EmersonFig1,
+  Parametrization = Parametrization
 )
 
 
