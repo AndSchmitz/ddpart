@@ -15,4 +15,5 @@ Suggests:
 VignetteBuilder: knitr
 RoxygenNote: 7.1.2
 Depends: 
+    dplyr,
     R (>= 2.10)
