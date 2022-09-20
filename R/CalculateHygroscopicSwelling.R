@@ -18,7 +18,7 @@
 #' @export
 #'
 #' @import dplyr
-#' ``
+#'
 #' @references
 #' Zhang L, Gong S, Padro J, Barrie L. A size-segregated particle dry deposition
 #' scheme for an atmospheric aerosol module. Atmospheric Environment

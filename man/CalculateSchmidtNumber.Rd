@@ -31,12 +31,16 @@ Pandis (2006) page 574
 
 # Reproduce relation between brownian diffusivity and particle diameter as shown
 # in Seinfeld and Pandis (2006) page 417 Figure 9.8
-library(dplyr)
+library(ggplot2)
+data(diffusion_validation)
 PlotData <- data.frame(
+  #Set standard atmospheric conditions
   T_air_K = 20,
   AirPressure_Pa = 101325,
+  #Set particle diameter according to Seinfeld and Pandis (2006)
   ParticleDiameter_m = 10^seq(-9, -5, length.out = 50)
 ) \%>\%
+  #Calculation of quantities related to diffusion
   mutate(
     DynamicViscosityAir_kgms = CalculateDynamicViscosityOfAir(T_air_K),
     AirDensity_kgm3 = CalculateAirDensity(
@@ -53,22 +57,46 @@ PlotData <- data.frame(
       T_air_K = T_air_K,
       ParticleDiameter_m = ParticleDiameter_m
     ),
-    # Calculate brownian diffusivity from results
+    # Calculate brownian diffusivity from intermediate results
     BrownianDiffusivity_m2s = KinematicViscosityOfAir_m2s / SchmidtNumber,
     # For plotting:
     BrownianDiffusivity_cm2s = BrownianDiffusivity_m2s * 1e4,
-    ParticleDiameter_um = ParticleDiameter_m * 1e6
+    ParticleDiameter_um = ParticleDiameter_m * 1e6,
+    Type = "Results from ddpart"
   )
 
-library(ggplot2)
-ggplot(
-  data = PlotData,
-  mapping = aes(
-    x = log10(ParticleDiameter_um),
-    y = log10(BrownianDiffusivity_cm2s)
+#Plot
+ggplot()  +
+  geom_line(
+    data = diffusion_validation \%>\%
+      mutate(
+        Type = "Validation data from Seinfeld and Pandis (2006)"
+      ),
+    mapping = aes(
+      x = log10(ParticleDiameter_um),
+      y = log10(DiffusionCoefficient_cm2s),
+      color = Type
+    )
+  ) +
+  geom_point(
+    data = PlotData,
+    mapping = aes(
+      x = log10(ParticleDiameter_um),
+      y = log10(BrownianDiffusivity_cm2s),
+      color = Type
+    ),
+    shape = "x"
+  ) +
+  annotate(
+    geom = "text",
+    x = -0,
+    y = -3,
+    label = "Small differences likely related\nto errors from extraction of
+    validation data from PDF figure."
+  ) +
+  theme(
+    legend.position = "bottom"
   )
-) +
-  geom_line()
 
 }
 \references{
