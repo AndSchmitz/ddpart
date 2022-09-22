@@ -1,8 +1,8 @@
 #' @title CalculateHygroscopicSwelling
 #'
 #' @description Calculates increase in particle diameter due to water update
-#' according to Zhang et al. (2001) eq. 10 or Gerber (1985), see Details.
-#' All parameters must be vectors of same lengths.
+#' according to Zhang et al. (2001) eq. 10. All parameters must be vectors of
+#' same lengths.
 #'
 #' @param DryParticleDiameter_m The diameter of the particles before application
 #' of hygroscopic swelling (dry) in m.
@@ -13,19 +13,6 @@
 #'
 #' @param RelHum_percent Relative humidity in percent.
 #'
-#' @param UseCorrectedFormula A boolean indicating whether to use the
-#' (potentially wrong) formulation of hygroscopic swelling according to eq. 10
-#' in Zhang et al. (2001) (UseCorrectedFormula = FALSE) or whether to use the
-#' original formulation according to Gerber 1985 eq. 15 and 22
-#' (UseCorrectedFormula = TRUE). See Details.
-#'
-#' @details Zhang et al. (2001) provides Gerber (1985) as reference for the
-#' formulation of hygroscopic swelling (eq. 10). However, the formulations in
-#' Zhang et al. (2001) eq. 10 and Gerber (1985) (eq. 15 and 22) are not equal.
-#' Gerber (1985) raises the whole equation used by Zhang et al. (2001) to the
-#' power of 1/3. Therefore, if "UseCorrectedFormula = TRUE", the whole
-#' expression from Zhang et al. (2001) is raised to the power of 1/3.
-#'
 #' @return A vector of particle diameters after accounting for hygroscopic
 #' swelling in m.
 #'
@@ -35,26 +22,21 @@
 #'
 #' @references
 #'
-#'  - Zhang L, Gong S, Padro J, Barrie L. A size-segregated particle dry deposition
+#' Zhang L, Gong S, Padro J, Barrie L. A size-segregated particle dry deposition
 #' scheme for an atmospheric aerosol module. Atmospheric Environment
 #' 2001;35:549–560.
-#'
-#' - Gerber HE. 1985. Relative - Humidity Parameterization of the Navy Aerosol
-#'Model (NAM). NAVAL RESEARCH LAB WASHINGTON DC; December 30, 1985. Available
-#'at: https://apps.dtic.mil/sti/citations/ADA163209.
+
 
 
 CalculateHygroscopicSwelling <- function(DryParticleDiameter_m,
                                          AerosolType,
-                                         RelHum_percent,
-                                         UseCorrectedFormula) {
+                                         RelHum_percent) {
 
   # Sanity checks
   InputLength <- length(DryParticleDiameter_m)
   if (
     (length(AerosolType) != InputLength) |
-      (length(RelHum_percent) != InputLength) |
-      (length(UseCorrectedFormula) != InputLength)
+      (length(RelHum_percent) != InputLength)
   ) {
     stop("All inputs must be vectors of same length.")
   }
@@ -91,13 +73,10 @@ CalculateHygroscopicSwelling <- function(DryParticleDiameter_m,
       # equation, it misses the power of (1/3) at the end, which is present in
       #the original publication (Gerber 1985 eq. 15 and 22).
       ValueZhang = (C1 * DryRadius_m^C2) / (C3 * DryRadius_m^C4 - log(RelHum_percent / 100)) + DryRadius_m^3,
-      ValueGerber = ValueZhang^(1/3),
       WetRadius_m = case_when(
         # No change if AerosolType == "Dry"
         AerosolType == "Dry" ~ DryRadius_m,
-        ((AerosolType != "Dry") & (UseCorrectedFormula)) ~ ValueZhang,
-        ((AerosolType != "Dry") & (!UseCorrectedFormula)) ~ ValueGerber,
-        T ~ NA_real_
+        T ~ ValueZhang
       ),
       WetDiameter_m = WetRadius_m * 2
     ) %>%
@@ -105,3 +84,4 @@ CalculateHygroscopicSwelling <- function(DryParticleDiameter_m,
 
   return(Data$WetDiameter_m)
 }
+
