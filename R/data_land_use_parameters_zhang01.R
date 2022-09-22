@@ -27,6 +27,4 @@
 #' Farmer DK. Revisiting particle dry deposition and its role in radiative
 #' effect estimates. Proceedings of the National Academy of Sciences
 #' 2020;117:26076–26082.
-
-
-"vd_windspeed_validation_zhang01"
+"land_use_parameters_zhang01"
