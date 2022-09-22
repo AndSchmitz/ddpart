@@ -27,10 +27,18 @@ swelling in m.
 \description{
 Calculates increase in particle diameter due to water update
 according to Zhang et al. (2001) eq. 10. All parameters must be vectors of
-same lengths.
+same lengths. Note that a correction has been applied to Zhang et al.
+(2001) eq. 10: The whole equation is raised to the power of 1/3, following
+the original publication provided by Zhang et al. (2001) as reference
+(Gerber 1985). Without this correction, the wet diameter is often smaller
+compared to the dry diameter.
 }
 \references{
 Zhang L, Gong S, Padro J, Barrie L. A size-segregated particle dry deposition
 scheme for an atmospheric aerosol module. Atmospheric Environment
 2001;35:549–560.
+
+Gerber HE. 1985. Relative - Humidity Parameterization of the Navy Aerosol
+Model (NAM). NAVAL RESEARCH LAB WASHINGTON DC; December 30, 1985.
+Available at: https://apps.dtic.mil/sti/citations/ADA163209.
 }

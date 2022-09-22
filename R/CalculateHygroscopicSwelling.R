@@ -2,7 +2,11 @@
 #'
 #' @description Calculates increase in particle diameter due to water update
 #' according to Zhang et al. (2001) eq. 10. All parameters must be vectors of
-#' same lengths.
+#' same lengths. Note that a correction has been applied to Zhang et al.
+#' (2001) eq. 10: The whole equation is raised to the power of 1/3, following
+#' the original publication provided by Zhang et al. (2001) as reference
+#' (Gerber 1985). Without this correction, the wet diameter is often smaller
+#' compared to the dry diameter.
 #'
 #' @param DryParticleDiameter_m The diameter of the particles before application
 #' of hygroscopic swelling (dry) in m.
@@ -25,6 +29,11 @@
 #' Zhang L, Gong S, Padro J, Barrie L. A size-segregated particle dry deposition
 #' scheme for an atmospheric aerosol module. Atmospheric Environment
 #' 2001;35:549–560.
+#'
+#' Gerber HE. 1985. Relative - Humidity Parameterization of the Navy Aerosol
+#' Model (NAM). NAVAL RESEARCH LAB WASHINGTON DC; December 30, 1985.
+#' Available at: https://apps.dtic.mil/sti/citations/ADA163209.
+
 
 
 
@@ -69,14 +78,15 @@ CalculateHygroscopicSwelling <- function(DryParticleDiameter_m,
       by = "AerosolType"
     ) %>%
     mutate(
+      ValueZhang = (C1 * DryRadius_m^C2) / (C3 * DryRadius_m^C4 - log(RelHum_percent / 100)) + DryRadius_m^3,
       # While eq. 10 in Zhang et al. 2001 includes the brackets around the whole
       # equation, it misses the power of (1/3) at the end, which is present in
       #the original publication (Gerber 1985 eq. 15 and 22).
-      ValueZhang = (C1 * DryRadius_m^C2) / (C3 * DryRadius_m^C4 - log(RelHum_percent / 100)) + DryRadius_m^3,
+      ValueZhangCorrected = ValueZhang^(1/3),
       WetRadius_m = case_when(
         # No change if AerosolType == "Dry"
         AerosolType == "Dry" ~ DryRadius_m,
-        T ~ ValueZhang
+        T ~ ValueZhangCorrected
       ),
       WetDiameter_m = WetRadius_m * 2
     ) %>%
