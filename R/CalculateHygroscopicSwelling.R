@@ -95,8 +95,8 @@ CalculateHygroscopicSwelling <- function(DryParticleDiameter_m,
       WetRadius_m = case_when(
         # No change if AerosolType == "Dry"
         AerosolType == "Dry" ~ DryRadius_m,
-        (AerosolType != "Dry") & (UseCorrectedFormula) ~ T ~ ValueZhang,
-        (AerosolType != "Dry") & (!UseCorrectedFormula) ~ T ~ ValueGerber,
+        ((AerosolType != "Dry") & (UseCorrectedFormula)) ~ ValueZhang,
+        ((AerosolType != "Dry") & (!UseCorrectedFormula)) ~ ValueGerber,
         T ~ NA_real_
       ),
       WetDiameter_m = WetRadius_m * 2
