@@ -30,325 +30,201 @@ library(ddpart)
 
 Dependencies for this vignette
 ```{r deps}
-# library(tidyverse)
+library(tidyr)
 library(knitr)
-# library(devtools)
 library(scales)
 library(ggplot2)
 ```
 
-# Introduction
+# Validation
 
-blending height concept
+Emerson et al. (2020) figures 1 and 2 show the dry deposition velocity as a a
+function of particle diameter for different settings (i.e. for different land
+use types, friction velocity, etc.). In the following, these figures are
+reproduced as a validation of the functions in the ddpart package.
 
+## Contribution from DD sub-processes
 
-# Exampe 1: Vertical wind speed profile
-
-## A) Comparison to power-law approach
-
-The following code calculates the wind speed profile for two example cases (stable and unstable conditions) according to two approaches:
- 1. According to Monin-Obukhov similarity theory, as generally used in this package. The implementation follows Seinfeld and Pandis (2006) chapter 16.4.3.
- 2. For comparison, also the simpler power-law equation for the wind speed profile is shown, according to Seinfeld and Pandis (2006) chapter 16.4.5.
-
-### Set parameters
-
-The following code defines the parameters for the setup. Roughness length, radiation, wind speed, etc. are chosen to yield two specific values of the Monin-Obukhov lenght (L=-10 (relatively unstable conditions), L = 100 (relatively stable conditions)). The parameter *WindSpeedBlendingHeight_m* is set to several different values between 5 and 50 m. 
-
-```{r WindSpeedProfile_SetParameters}
-
-nHeightIntervals <- 20
-MaxHeight_m <- 50
-
-#Define input for unstable conditions
-InputTable_UnstableConditions <- data.frame(
-  Label = "Relatively unstable conditions",
-  RoughnessLengthAnemometer_m = 0.01,
-  ZeroPlaneDisplacementHeightAnemometer_m = 7 * 0.01,
-  WindSpeedAtAnemometerHeight_ms = 3,
-  AnemometerHeight_m = 10,
-  SunAngle_degree =  20,
-  T_air_K = 273 + 20,
-  RelHum_percent = 0, #Does not matter if AerosolType = "Dry",
-  AirPressure_Pa = 1013.25 * 100,
-  GlobalRadiation_W_m2 = 500,
-  CloudCover_percent = 10,
-  Season = 1, #midsummer
-  WindSpeedBlendingHeight_m = seq(5,MaxHeight_m,length.out = nHeightIntervals),
-  TargetLUCCodeZhang2001 = 6, #grass
-  #The following parameters do not matter for this use case:
-  SurfaceIsWet_bool = F,
-  ReferenceHeight_m = 2.5,
-  RoughnessLengthTargetLUC_m = 0.03,
-  ZeroPlaneDisplacementHeightTargetLUC_m = 0.21,
-  #Particle properties
-  DryParticleDiameter_m =  4.5 * 1e-6,
-  ParticleDensity_kgm3 = 2 / 1e3 * 1e4,
-  AerosolType = "Dry"
-)
-
-#Define input for stable conditions
-InputTable_StableConditions <- InputTable_UnstableConditions %>%
-  mutate(
-    Label = "Relatively stable conditions",
-    WindSpeedAtAnemometerHeight_ms = 1,
-    RoughnessLengthAnemometer_m = 0.46,
-    ZeroPlaneDisplacementHeightAnemometer_m = 7 * RoughnessLengthAnemometer_m,
-    SunAngle_degree = -20,
-    CloudCover_percent = 80
-  )
-
-#Combine inputs
-InputTable <- bind_rows(
-  InputTable_UnstableConditions,
-  InputTable_StableConditions
-)
-
-```
-
-### Calculate wind speed profile according to Monin-Obukhov theory
-
-For each row of the *InputTable*, the wrapper function *CalculateDepositionVelocity()* is called and the wind speed at the respective blending height (among other parameters) is calculated.
-
-```{r WindSpeedProfile_CallFunction, echo=FALSE}
-
-#Calculate wind speed at blending height (and other aspects like dry deposition velocity)
-Results <- CalculateDepositionVelocity(
-  InputTable = InputTable
-)
-
-TableDat <- Results %>%
-  select(Label, RoughnessLengthAnemometer_m, WindSpeedAtAnemometerHeight_ms, PasquillClass, ObukhovLength_Anemometer_m) %>%
-  distinct()
-kable(
-  x = TableDat
-)
-```
-
-### Calculate wind speed profile according to power-law approach
-
-Seinfeld and Pandis (2006) chapter 16.4.5 empirical equation for the mean wind speed:
-
-$u(TargetHeight) = u(AnemometerHeight) * (TargetHeight / AnemometerHeight)^p$
-
-Exponent p taken from Seinfeld and Pandis (2006) figure 16.9 a):
-
-- p = 0.087 for z0 = 0.01 and L=-10 (relatively unstable conditions)
-- p = 0.43 for z0 = 0.46 and L = 100 (relatively stable conditions)
-
-```{r WindSpeedProfile_AddPowerLawApproach}
-Results <- Results %>%
-  mutate(
-    PowerLawExponent = case_when(
-      Label == "Relatively unstable conditions" ~ 0.087,
-      Label == "Relatively stable conditions" ~ 0.43,
-      T ~ 999
-    ),
-    WindSpeedAtBlendingHeight_ms_PowerLaw = WindSpeedAtAnemometerHeight_ms * (WindSpeedBlendingHeight_m / AnemometerHeight_m)^PowerLawExponent
-  ) %>%
-  rename(
-    WS_MO = WindSpeedAtBlendingHeight_ms,
-    WS_PowerLaw = WindSpeedAtBlendingHeight_ms_PowerLaw
-  )
-
-PlotData <- Results %>%
-  select(Label, WindSpeedBlendingHeight_m, WS_MO, WS_PowerLaw) %>%
-  pivot_longer(
-    cols = c("WS_MO","WS_PowerLaw"),
-    values_to = "WS",
-    names_to = "WS_type"
-  ) %>%
-  mutate(
-    Approach = case_when(
-      WS_type == "WS_PowerLaw" ~ "Power law approximation",
-      WS_type == "WS_MO" ~ "Monin-Obukhov theory",
-      T ~ "UNDEF"
-    )
-  )
-```
-
-### Results
-
-The power law approach and the approach according to Monin-Obukhov theory yield similar vertical wind speed profiles. Differences likely result from the fact that the power law approach is only an approximation to the more accurate Monin-Obukhov theory approach.
-
-```{r WindSpeedProfile_Plot, fig.width = 7, fig.height = 5}
-
-ggplot(
-  data = PlotData,
-  mapping = aes(
-    x = WS,
-    y = WindSpeedBlendingHeight_m,
-    color = Approach,
-    shape = Label,
-    group = interaction(Label, Approach)
-  )
-) +
-geom_point() +
-geom_line() +
-ylim(0,max(Results$WindSpeedBlendingHeight_m)) +
-xlab("Wind speed (m/s)") +
-ylab("Height (m)") +
-guides(
-  color = guide_legend(
-    title = ""
-  ),
-  shape = guide_legend(
-    title = ""
-  )
-) +
-theme(
-  legend.position = "bottom",
-  legend.box="vertical"
-)
-```
-
-## B) Comparison to an example in Seinfeld and Pandis (2006)
-
-Seinfeld and Panis (2006) page 745 provide the following example:
-
- - Known:
-    - z0 = 0.0015 m
-    - Anemometer height = 4 m
-    - Wind speed = 7.8 m/s
-    - Neutral atmopsheric stability
- - Derived:
-    - Friction velocity = 0.4 m/s
-    - Wind speed in 0.5 m = 5.8 m/s
-    - Wind speed in 16 m = 9.3 m/s
-
-This is reproduced in the following setup. Meteorological parameters are set up to yield Pasquill class D (neutral stability).
-
-```{r WindSpeedExample}
-InputTable <- data.frame(
-  RoughnessLengthAnemometer_m = 0.0015,
-  AnemometerHeight_m = 4,
-  WindSpeedAtAnemometerHeight_ms = 7.8,
-  WindSpeedBlendingHeight_m = c(0.5, 16),
-  #
-  ZeroPlaneDisplacementHeightAnemometer_m = 0.0015*7,
-  SunAngle_degree =  20,
-  T_air_K = 273+20,
-  RelHum_percent = 0, #Does not matter if AerosolType = "Dry",
-  AirPressure_Pa = 1013.25 * 100,
-  GlobalRadiation_W_m2 = 500,
-  CloudCover_percent = 10,
-  Season = 1, #midsummer
-  TargetLUCCodeZhang2001 = 6, #grass
-  #Irrelevant:
-  SurfaceIsWet_bool = F,
-  ReferenceHeight_m = 2.5,
-  RoughnessLengthTargetLUC_m = 0.03,
-  ZeroPlaneDisplacementHeightTargetLUC_m = 0.21,
-  DryParticleDiameter_m =  4.5 * 1e-6,
-  ParticleDensity_kgm3 = 2 / 1e3 * 1e4,
-  AerosolType = "Dry"
-)
-
-Results <- CalculateDepositionVelocity(
-  InputTable = InputTable
-)
-
-kable(
-  x = Results %>%
-    select(PasquillClass, WindSpeedBlendingHeight_m, FrictionVelocity_Anemometer_ms, WindSpeedAtBlendingHeight_ms)
-)
-
-```
-
-# Example 2: Dry deposition velocities
-
-Emerson et al. (2020) figures 1 and 2 show the dry deposition velocity as a function of particle diameter for different settings (i.e. for different land use types, friction velocity, etc.). In the following, these figures are reproduced as a validation of the functions in the ddpart package.
-
-## A) Contributions from collection efficiencies
-
-Emerson et al. (2020) figure 2B shows the contribution of the four dry deposition sub-processes (Brownian motion, interception, impaction and gravitational settling) to the total dry deposition velocity. This figure is reconstructed with functions from the ddpart package. 
+Emerson et al. (2020) figure 2 shows the contribution of the four dry deposition
+sub-processes (Brownian motion, interception, impaction and gravitational
+settling) to the total dry deposition velocity. This figure is reconstructed
+with functions from the ddpart package. 
 
 ### Definition of parameters
 
 ```{r Emerson fig 2B parameters}
 
-#Vector of particle diameters
-d_p_vec <- 10^seq(-2,2, length.out = 100)
-tmp <- expand.grid(1:9,d_p_vec)
-d_p_vec <- tmp[,1] * tmp[,2]
+# Vector of particle diameters
+d_p_vec <- 10^seq(-2, 2, length.out = 5)
+tmp <- expand.grid(1:9, d_p_vec)
+d_p_vec <- tmp[, 1] * tmp[, 2]
 d_p_vec <- d_p_vec[d_p_vec <= 100]
-d_p_vec  <- d_p_vec * 1e-6
+d_p_vec <- d_p_vec * 1e-6
 
-
-InputTable_EmersonFig2B <- data.frame(
+InputPars <- data.frame(
+  R_a_sm = 0,
   Parametrization = "Emerson20",
-  #These parameters are documented in Emerson et al. (2020)
-  TargetLUCCodeZhang2001 = 1, #Evergreen needle leaf
-  DryParticleDiameter_m =  d_p_vec,
-  ParticleDensity_kgm3 = 1500,
-  #These parameters are assumed
-  AerosolType = "Dry",
-  SurfaceIsWet_bool = F,
-  #Parameter reference height does not matter
-  ReferenceHeight_m = 20,
-  #These parameters are tweaked to yield a friction velocity of approx 0.4 m/s.
-  WindSpeedBlendingHeight_m = 50,
-  RoughnessLengthAnemometer_m = 0.03,
-  ZeroPlaneDisplacementHeightAnemometer_m = 7 * 0.03,
-  WindSpeedAtAnemometerHeight_ms = 2.25,
-  AnemometerHeight_m = 10,
-  SunAngle_degree =  40,
-  T_air_K = 273 + 20,
-  RelHum_percent = 0, #Does not matter if AerosolType = "Dry",
-  AirPressure_Pa = 1013.25 * 100,
-  GlobalRadiation_W_m2 = 500,
-  CloudCover_percent = 50,
-  Season = 1 #midsummer
+  LUC = 1,
+  Season = 1,
+  ParticleDensity_kgm3 = 1200,
+  FrictionVelocity_ms = 0.4
 ) %>%
   mutate(
-    #These parameters do not matter because wind speed is tweak to reproduce friction velocity = 0.4 m/s
-    #z0 corresponding to LUC
-    RoughnessLengthTargetLUC_m = GetLandUseParameters(
-      LUCs = TargetLUCCodeZhang2001,
+    RoughnessLength_m = GetLandUseParameters(
+      LUCs = LUC,
       Seasons = Season,
       TargetPar = "z_0_m",
       Parametrization = Parametrization
     ),
-    #0.78*20m = 15.6 for forest as in the EMEP model
-    ZeroPlaneDisplacementHeightTargetLUC_m = 15.6
+    #These parameters are guessed
+    #Standard temperatur and pressure
+    T_air_K = 293.15,
+    AirPressure_Pa = 101325,
+    SurfaceIsWet_bool = F,
+    #FIXME document
+    ZeroPlaneDisplacementHeight_m = 7 * RoughnessLength_m
   )
+
+#Duplicate input for Zhang01 parametrization
+tmp <- InputPars %>%
+  mutate(
+    Parametrization = "Zhang01"
+  )
+InputPars <- bind_rows(InputPars, tmp)
+
+Input <- expand_grid(
+  InputPars,
+  ParticleDiameter_m = d_p_vec
+)
 ```
 
 ### Calculations
-```{r Emerso fig 2B calculations}
 
-#Calculate vd and other outputs
-Results <- CalculateDepositionVelocity(
-  InputTable = InputTable_EmersonFig2B,
-  Parametrization = "Emerson20"
-)
-
-#Print resulting friction velocity
-#Is approx. 0.4 as in Emerson et al. (2020) figure 2B
-print(unique(Results$FrictionVelocityTargetLUC_ms))
+```{r Emerson fig 2B Calculations}
+Output <- Input %>%
+  mutate(
+    #Meteo basics
+    DynamicViscosityAir_kgms = CalculateDynamicViscosityOfAir(
+      T_air_K = T_air_K
+    ),
+    AirDensity_kgm3 = CalculateAirDensity(
+      AirPressure_Pa,
+      T_air_K
+    ),
+    KinematicViscosityOfAir_m2s = CalculateKinematicViscosityOfAir(
+      DynamicViscosityAir_kgms = DynamicViscosityAir_kgms,
+      AirDensity_kgm3 = AirDensity_kgm3
+    ),
+    MeanFreePathOfAirMolecule_m = CalculateMeanFreePath(
+      T_air_K = T_air_K,
+      AirPressure_Pa = AirPressure_Pa,
+      DynamicViscosityAir_kgms = DynamicViscosityAir_kgms
+    ),
+    #Deposition processes------
+    SettlingVelocity_ms = CalculateSettlingVelocity (
+      ParticleDensity_kgm3 = ParticleDensity_kgm3,
+      ParticleDiameter_m = ParticleDiameter_m,
+      MeanFreePathOfAirMolecule_m = MeanFreePathOfAirMolecule_m,
+      DynamicViscosityAir_kgms = DynamicViscosityAir_kgms
+    ),
+    #_Schmidt number------
+    SchmidtNumber = CalculateSchmidtNumber(
+      DynamicViscosityAir_kgms = DynamicViscosityAir_kgms,
+      KinematicViscosityOfAir_m2s = KinematicViscosityOfAir_m2s,
+      T_air_K = T_air_K,
+      ParticleDiameter_m = ParticleDiameter_m
+    ),
+    #_E_b-----
+    #Loss efficiency by Brownian diffusion
+    BrownianDiffusionParameterGamma = GetLandUseParameters(
+      LUCs = LUC,
+      Seasons = Season,
+      TargetPar = "gamma",
+      Parametrization = Parametrization
+    ),
+    E_b = CalculateLossEfficiencyBrownianDiffusion(
+      SchmidtNumber = SchmidtNumber,
+      BrownianDiffusionParameterGamma = BrownianDiffusionParameterGamma,
+      Parametrization = Parametrization
+    ),
+    #_Stokes number-----
+    SurfaceIsVegetated = GetLandUseParameters(
+      LUCs = LUC,
+      Seasons = Season,
+      TargetPar = "SurfaceIsVegetated",
+      Parametrization = Parametrization
+    ),
+    CharacteristicRadius_m = GetLandUseParameters(
+      LUCs = LUC,
+      Seasons = Season,
+      TargetPar = "A_mm",
+      Parametrization = Parametrization
+    ) * 1e-3,
+    StokesNumber = CalculateStokesNumber(
+      FrictionVelocity_ms = FrictionVelocity_ms,
+      SettlingVelocity_ms = SettlingVelocity_ms,
+      CharacteristicRadius_m = CharacteristicRadius_m,
+      KinematicViscosityOfAir_m2s = KinematicViscosityOfAir_m2s,
+      SurfaceIsVegetated = SurfaceIsVegetated
+    ),
+    #_E_Im----
+    #Loss efficiency by impaction
+    ImpactionParameterAlpha = GetLandUseParameters(
+      LUCs = LUC,
+      Seasons = Season,
+      TargetPar = "alpha",
+      Parametrization = Parametrization
+    ),
+    E_Im = CalculateLossEfficiencyImpaction(
+      StokesNumber = StokesNumber,
+      ImpactionParameterAlpha = ImpactionParameterAlpha,
+      Parametrization = Parametrization
+    ),
+    #_E_In----
+    #Loss efficiency by interception
+    E_In = CalculateLossEfficiencyInterception(
+      ParticleDiameter_m = ParticleDiameter_m,
+      CharacteristicRadius_m = CharacteristicRadius_m,
+      Parametrization = Parametrization
+    ),
+    #_R_s-----
+    #Surface resistance
+    R_s_sm = CalculateSurfaceResistance(
+      SurfaceIsWet = SurfaceIsWet_bool,
+      FrictionVelocity_ms = FrictionVelocity_ms,
+      StokesNumber = StokesNumber,
+      E_b = E_b,
+      E_Im = E_Im,
+      E_In = E_In,
+      Parametrization = Parametrization
+    ),
+    #_V_d---------
+    V_d_s = 1 / (R_a_sm + R_s_sm),
+    V_g = SettlingVelocity_ms,
+    V_d_ms = V_d_s + V_g,
+    Type = "Results from ddpart"
+  )
 
 #Plot separate dry deposition processes contributions
-ProcessContribution <- Results %>%
+ProcessContributions <- Output %>%
   mutate(
     BounceCorrectionTerm = ifelse(
       test = SurfaceIsWet_bool,
       yes = 1,
       no = exp(-sqrt(StokesNumber))
     ),
-    #Calculation of resistances and corresponding vd's for each process assuming contributions from other
-    #processes are zero.
+    #Calculation of resistances and corresponding vd's for each process
     epsilon_0 = GetParameters(TargetParameter = "epsilon_0", Parametrization = Parametrization),
-    R_s_E_b_only = 1 / (epsilon_0 * FrictionVelocityTargetLUC_ms * BounceCorrectionTerm * E_b),
+    R_s_E_b_only = 1 / (epsilon_0 * FrictionVelocity_ms * BounceCorrectionTerm * E_b),
     V_d_E_b_only = 1 / (R_a_sm + R_s_E_b_only),
-    R_s_E_Im_only = 1 / (epsilon_0 * FrictionVelocityTargetLUC_ms * BounceCorrectionTerm * E_Im),
+    R_s_E_Im_only = 1 / (epsilon_0 * FrictionVelocity_ms * BounceCorrectionTerm * E_Im),
     V_d_E_Im_only = 1 / (R_a_sm + R_s_E_Im_only),
-    R_s_E_In_only = 1 / (epsilon_0 * FrictionVelocityTargetLUC_ms * BounceCorrectionTerm * E_In),
+    R_s_E_In_only = 1 / (epsilon_0 * FrictionVelocity_ms * BounceCorrectionTerm * E_In),
     V_d_E_In_only = 1 / (R_a_sm + R_s_E_In_only)
-    #Sanity checked V_d_sum against V_d -> ok.
-    # V_d_sum = V_d_E_b_only + V_d_E_Im_only + V_d_E_In_only + V_g
   ) %>%
-  select(DryParticleDiameter_m,V_d_E_b_only,V_d_E_Im_only,V_d_E_In_only,V_d_RefHeight_ms, SettlingVelocity_ms) %>%
+  select(Parametrization,ParticleDiameter_m,V_d_E_b_only,V_d_E_Im_only,V_d_E_In_only,V_d_ms, SettlingVelocity_ms) %>%
   pivot_longer(
-    cols = -c("DryParticleDiameter_m"),
+    cols = -c("Parametrization", "ParticleDiameter_m"),
     names_to = "Component",
     values_to = "v"
   ) %>%
@@ -357,31 +233,61 @@ ProcessContribution <- Results %>%
       Component == "V_d_E_b_only" ~ "Brownian",
       Component == "V_d_E_Im_only" ~ "Impaction",
       Component == "V_d_E_In_only" ~ "Interception",
-      Component == "SettlingVelocity_ms" ~ "Gravitational settling",
-      Component == "V_d_RefHeight_ms" ~ "Total dry deposition"
+      Component == "SettlingVelocity_ms" ~ "Settling",
+      Component == "V_d_ms" ~ "Total"
     )
   )
 ```
 
+### Plots
 
-### Results
-
-The following figure reproduces Emerson et al. (2020) figure 2B.
-
-```{r Emerso fig 2B plotting, fig.width = 7, fig.height = 5, caption = "Test"}
-Colors <- c("black","blue","orange","darkred","purple")
-names(Colors) <- c("Total dry deposition","Brownian","Gravitational settling","Interception","Impaction")
-ggplot(
-  data = ProcessContribution %>%
-    filter(
-      # Component == "V_d_E_b_only"
+```{r Emerson fig 2B Plots}
+#Load data extracted from Emerson et al. (2020)
+#FIXME ADD dataset description
+data(dd_subprocess_validation)
+ValidationData <- dd_subprocess_validation %>%
+  mutate(
+    Label = factor(
+      x = Parametrization,
+      levels = c("Zhang01", "Emerson20")
     ),
-  mapping = aes(
-    x = DryParticleDiameter_m*1e6,
-    y = v*100,
-    color = ComponentName
+    Type = "Extracted from Emerson et al. (2020)"
   )
-) +
+ProcessContributions <- ProcessContributions %>%
+  mutate(
+    Label = factor(
+      x = Parametrization,
+      levels = c("Zhang01", "Emerson20")
+    ),
+    Type = "Calculated with ddpart"    
+  )
+
+Colors <- c("black","blue","orange","darkred","purple")
+names(Colors) <- c("Total","Brownian","Settling","Interception","Impaction")
+Shapes <- 3
+names(Shapes) = "Calculated with ddpart"
+
+ggplot() +
+  geom_line(
+    data = ValidationData,
+    mapping = aes(
+      x = ParticleDiameter_um,
+      y = DepositionVelocity_cms,
+      color = Process,
+      linetype = Type
+    )
+  ) +
+  geom_point(
+    data = ProcessContributions,
+    mapping = aes(
+      x = ParticleDiameter_m*1e6,
+      y = v*100,
+      color = ComponentName,
+      shape = Type
+    ),
+    size = 2
+  ) +
+  scale_shape_manual(values = Shapes) +
   scale_color_manual(values = Colors) +
   scale_x_log10(
     breaks = trans_breaks("log10", function(x) 10^x),
@@ -395,216 +301,14 @@ ggplot(
     expand = expansion(mult = c(0, 0))
   ) +
   annotation_logticks() +
-  geom_line(
-    size = 2
-  ) +
-  # ylim(-3,2) +
   xlab("Particle diameter (um)") +
   ylab("Deposition velocity (cm/s)") +
   theme(
     legend.position = "bottom",
     legend.title = element_blank()
-  )
-
-```
-
-
-## B) Deposition velocities for different LUCs
-
-Emerson et al. (2020) figure 1 shows the dry deposition velocity for different land use classes. This figure is reconstructed with functions from the ddpart package. 
-
-### Definition of parameters
-
-```{r Emerson fig 1 parameters}
-
-#Vector of particle diameters
-d_p_vec <- 10^seq(-2,2, length.out = 100)
-tmp <- expand.grid(1:9,d_p_vec)
-d_p_vec <- tmp[,1] * tmp[,2]
-d_p_vec <- d_p_vec[d_p_vec <= 100]
-d_p_vec  <- d_p_vec * 1e-6
-
-
-InputTable_EmersonFig1 <- data.frame(
-  Parametrization = "Emerson20",
-  #These parameters are documented in Emerson et al. (2020)
-  TargetLUCCodeZhang2001 = 1, #Evergreen needle leaf
-  DryParticleDiameter_m =  d_p_vec,
-  ParticleDensity_kgm3 = 1200,
-  #These parameters are assumed
-  SurfaceIsWet_bool = F,
-  AerosolType = "Dry",
-  RelHum_percent = 80,
-  #These parameters are tweaked to yield a friction velocity of approx 0.2 m/s.
-  ReferenceHeight_m = 20,
-  WindSpeedBlendingHeight_m = 50,
-  RoughnessLengthAnemometer_m = 0.03,
-  ZeroPlaneDisplacementHeightAnemometer_m = 7 * 0.03,
-  WindSpeedAtAnemometerHeight_ms = 0.95,
-  AnemometerHeight_m = 10,
-  SunAngle_degree =  40,
-  T_air_K = 273 + 20,
-  AirPressure_Pa = 1013.25 * 100,
-  GlobalRadiation_W_m2 = 500,
-  CloudCover_percent = 50,
-  Season = 1 #midsummer
-) %>%
-  mutate(
-    #These parameters do not matter because wind speed is tweak to reproduce friction velocity
-    #z0 corresponding to LUC
-    RoughnessLengthTargetLUC_m = GetLandUseParameters(
-      LUCs = TargetLUCCodeZhang2001,
-      Seasons = Season,
-      TargetPar = "z_0_m",
-      Parametrization = Parametrization
-    ),
-    #0.78*20m = 15.6 for forest as in the EMEP model
-    ZeroPlaneDisplacementHeightTargetLUC_m = 15.6
-  )
-
-# tmp1 <- InputTable_EmersonFig1 %>%
-#   mutate(
-#     ReferenceHeight_m = 100
-#     #SurfaceIsWet_bool = F
-#   )
-# 
-# tmp2 <- InputTable_EmersonFig1 %>%
-#   mutate(
-#     WindSpeedAtAnemometerHeight_ms = 4
-#   )
-# 
-# InputTable_EmersonFig1 <- bind_rows(
-#   InputTable_EmersonFig1,
-#   tmp1
-#   # tmp2
-# )
-```
-
-
-### Calculations
-```{r Emerso fig 1 calculations,  fig.width = 7, fig.height = 5, caption = "Test"}
-
-#Calculate vd and other outputs
-Results_EmersonFig1 <- CalculateDepositionVelocity(
-  InputTable = InputTable_EmersonFig1,
-  Parametrization = Parametrization
-)
-
-
-#Print resulting friction velocity
-#Is approx. 0.2 as in Emerson et al. (2020) figure 1
-print(unique(Results_EmersonFig1$FrictionVelocityTargetLUC_ms))
-
- 
-
-ggplot(
-  data = Results_EmersonFig1,
-  mapping = aes(
-    x = DryParticleDiameter_m*1e6,
-    y = V_d_RefHeight_ms*100,
-    color = as.character(SurfaceIsWet_bool)
-  )
-) +
-  # scale_color_manual(values = Colors) +
-  scale_x_log10(
-    breaks = trans_breaks("log10", function(x) 10^x),
-    labels = trans_format("log10", math_format(10^.x)),
-    expand = expansion(mult = c(0, 0))
   ) +
-  scale_y_log10(
-    breaks = trans_breaks("log10", function(x) 10^x),
-    labels = trans_format("log10", math_format(10^.x)),
-    limits = c(1e-3,1e2),
-    expand = expansion(mult = c(0, 0))
-  ) +
-  annotation_logticks() +
-  geom_line(
-    size = 2
-  ) +
-  # ylim(-3,2) +
-  xlab("Particle diameter (um)") +
-  ylab("Deposition velocity (cm/s)") +
-  theme(
-    legend.position = "bottom"
-    # legend.title = element_blank()
-  )
-
-
-tmp <- Results_EmersonFig1 %>%
-  filter(
-    ParticleDiameter_m == min(ParticleDiameter_m)
-  ) %>%
-  select(ParticleDiameter_m, FrictionVelocityTargetLUC_ms, E_b, E_In, E_Im, R_a_sm, R_s_sm) %>%
-  distinct()
-print(tmp)
+  facet_wrap( ~Label)
 ```
-
-
-# Example 3: Hygroscopic swelling
-
-### Definition of parameters
-
-```{r Hygroscopic swelling,  fig.width = 7, fig.height = 5, caption = "Test"}
-
-DryParticleDiameter_m <- c(0.1, 0.5, 1.5, 4.5) * 1e-6
-AerosolType <- c("Dry", "SeaSalt", "Urban", "Rural", "AmmoniumSulfate")
-RelHum_percent <- seq(0, 100, by=5)
-ExampleData <- expand_grid(DryParticleDiameter_m, AerosolType, RelHum_percent) %>%
-  mutate(
-    DryParticleDiameter_m = DryParticleDiameter_m,
-    WetParticleDiameter_m = CalculateHygroscopicSwelling(
-      DryParticleDiameter_m = DryParticleDiameter_m,
-      AerosolType = AerosolType,
-      RelHum_percent = RelHum_percent
-    ),
-    RelChangeParticleDiameter_percent = round( (WetParticleDiameter_m - DryParticleDiameter_m) / DryParticleDiameter_m * 100, 2),
-    FacetLabel = paste("Dry diameter =", DryParticleDiameter_m /  1e-6, "um")
-  )
-
-ggplot(
-  data = ExampleData,
-  mapping = aes(
-    x = RelHum_percent,
-    y = WetParticleDiameter_m,
-    color = AerosolType
-  )
-) +
-geom_line() +
-scale_y_continuous(labels = function(x) format(x, scientific = TRUE)) +
-facet_wrap( ~ FacetLabel, scales = "free_y") +
-xlab("Relative humidity (%)") +
-ylab("Wet particle diameter (um)") +
-guides(
-  color = guide_legend(title = "")
-) +
-theme(
-  legend.position = "bottom"
-)
-
-ggplot(
-  data = ExampleData,
-  mapping = aes(
-    x = RelHum_percent,
-    y = RelChangeParticleDiameter_percent,
-    color = AerosolType
-  )
-) +
-geom_line() +
-# scale_y_continuous(labels = function(x) format(x, scientific = TRUE)) +
-facet_wrap(
-  facets = ~ FacetLabel
-  # scales = "free_y"
-) +
-xlab("Relative humidity (%)") +
-ylab("Relative change in particle diameter (%)") +
-guides(
-  color = guide_legend(title = "")
-) +
-theme(
-  legend.position = "bottom"
-)
-```
-
 
 # References
 
@@ -613,5 +317,3 @@ Seinfeld JH, Pandis SN. Atmospheric Chemistry and Physics: From Air Pollution to
 Zhang L, Gong S, Padro J, Barrie L. A size-segregated particle dry deposition scheme for an atmospheric aerosol module. Atmospheric Environment 2001;35:549–560.
 
 Emerson EW, Hodshire AL, DeBolt HM, Bilsback KR, Pierce JR, McMeeking GR, Farmer DK. Revisiting particle dry deposition and its role in radiative effect estimates. Proceedings of the National Academy of Sciences 2020;117:26076–26082.
-
-
