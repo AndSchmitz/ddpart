@@ -59,8 +59,7 @@ CalculateSurfaceResistance <- function(SurfaceIsWet,
   # Bounce correction
   # Zhang et al. 2001 eq9
   BounceCorrectionTerm <- rep(x = 1, times = InputLength)
-  BounceCorrectionTerm[!SurfaceIsWet] <- exp(-sqrt(StokesNumber))
-
+  BounceCorrectionTerm[!SurfaceIsWet] <- exp(-sqrt(StokesNumber[!SurfaceIsWet]))
   R_s <- 1 / (epsilon_0 * FrictionVelocity_ms * BounceCorrectionTerm * (E_b + E_Im + E_In))
   return(R_s)
 }
