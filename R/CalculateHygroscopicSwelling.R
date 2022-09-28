@@ -4,9 +4,8 @@
 #' according to Zhang et al. (2001) eq. 10. All parameters must be vectors of
 #' same lengths. Note that a correction has been applied to Zhang et al.
 #' (2001) eq. 10: The whole equation is raised to the power of 1/3, following
-#' the original publication provided by Zhang et al. (2001) as reference
-#' (Gerber 1985). Without this correction, the wet diameter is often smaller
-#' compared to the dry diameter.
+#' the original publication mentioned by Zhang: Gerber (1985). Without this
+#' correction, the wet diameter is often smaller compared to the dry diameter.
 #'
 #' @param DryParticleDiameter_m The diameter of the particles before application
 #' of hygroscopic swelling (dry) in m.
@@ -19,6 +18,40 @@
 #'
 #' @return A vector of particle diameters after accounting for hygroscopic
 #' swelling in m.
+#'
+#' @examples
+#'
+#' library(tidyr)
+#' library(ggplot2)
+#'
+#' DryParticleDiameter_m <- c(0.01, 1, 5, 10) * 1e-6
+#' AerosolType <- c("SeaSalt", "Rural", "Dry")
+#' RelHum_percent <- seq(60, 100, by = 0.5)
+#' Input <- expand.grid(
+#'   DryParticleDiameter_m = DryParticleDiameter_m,
+#'   AerosolType = AerosolType,
+#'   RelHum_percent = RelHum_percent
+#' )
+#'
+#' Output <- Input %>%
+#'   mutate(
+#'     WetParticleDiameter_m = CalculateHygroscopicSwelling(
+#'       DryParticleDiameter_m = DryParticleDiameter_m,
+#'       AerosolType = AerosolType,
+#'       RelHum_percent = RelHum_percent
+#'     )
+#'   )
+#'
+#' ggplot(
+#'   data = Output,
+#'   mapping = aes(
+#'     x = RelHum_percent,
+#'     y = WetParticleDiameter_m,
+#'     color = as.factor(DryParticleDiameter_m),
+#'     linetype = AerosolType
+#'   )
+#' ) +
+#'   geom_line()
 #'
 #' @export
 #'
@@ -81,8 +114,8 @@ CalculateHygroscopicSwelling <- function(DryParticleDiameter_m,
       ValueZhang = (C1 * DryRadius_m^C2) / (C3 * DryRadius_m^C4 - log(RelHum_percent / 100)) + DryRadius_m^3,
       # While eq. 10 in Zhang et al. 2001 includes the brackets around the whole
       # equation, it misses the power of (1/3) at the end, which is present in
-      #the original publication (Gerber 1985 eq. 15 and 22).
-      ValueZhangCorrected = ValueZhang^(1/3),
+      # the original publication (Gerber 1985 eq. 15 and 22).
+      ValueZhangCorrected = ValueZhang^(1 / 3),
       WetRadius_m = case_when(
         # No change if AerosolType == "Dry"
         AerosolType == "Dry" ~ DryRadius_m,
@@ -94,4 +127,3 @@ CalculateHygroscopicSwelling <- function(DryParticleDiameter_m,
 
   return(Data$WetDiameter_m)
 }
-

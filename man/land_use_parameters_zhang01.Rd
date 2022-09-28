@@ -5,7 +5,7 @@
 \alias{land_use_parameters_zhang01}
 \title{Land-use specific parameters according to Zhang et al. (2001) table 3}
 \format{
-A data frame with 120 rows and 4 columns:
+A data frame with 120 rows and 4 columns.
 }
 \usage{
 data(land_use_parameters_zhang01)

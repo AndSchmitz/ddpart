@@ -9,81 +9,126 @@ CalculateDepositionVelocity(InputTable)
 \arguments{
 \item{InputTable}{A data frame with the following columns:
 
- - SunAngle_degree: The sun angle in degree. Only used to determine if its "day" (> 0°) or "night" (< 0°) which is required for the determination of the Pasquill stability class (GetPasquillClass()). The sun angle can easily be calculated with oce::sunAngle().
+  - SunAngle_degree: The sun angle in degree. Only used to determine if its
+  "day" (> 0°) or "night" (< 0°) which is required for the determination of
+  the Pasquill stability class (GetPasquillClass()). The sun angle can easily
+  be calculated with oce::sunAngle().
 
- - T_air_K: Air temperature in Kelvin.
+  - T_air_K: Air temperature in Kelvin.
 
- - AirPressure_Pa: Air pressure in Pa. Required for the calculation of the mean free path of an air molecule, which is required for the calculation of the particle settling (sedimentation) velocity.
+  - AirPressure_Pa: Air pressure in Pa. Required for the calculation of the
+  mean free path of an air molecule, which is required for the calculation of
+  the particle settling (sedimentation) velocity.
 
- - GlobalRadiation_W_m2: Global radiation in W/m2. Required for the determination of the Pasquill stability class (GetPasquillClass()).
+  - GlobalRadiation_W_m2: Global radiation in W/m2. Required for the
+  determination of the Pasquill stability class (GetPasquillClass()).
 
- - CloudCover_percent: Cloud cover in percent. Required for the determination of the Pasquill stability class (GetPasquillClass()).
+  - CloudCover_percent: Cloud cover in percent. Required for the
+  determination of the Pasquill stability class (GetPasquillClass()).
 
- - WindSpeedAtAnemometerHeight_ms: Wind speed (m/s) at the the anemometer height. Required for GetPasquillClass() and CalculateFrictionVelocity().
+  - WindSpeedAtAnemometerHeight_ms: Wind speed (m/s) at the the anemometer
+  height. Required for GetPasquillClass() and CalculateFrictionVelocity().
 
- - RoughnessLength_m: Roughness length (m) of the land cover for which the anemometer wind speed is provided. Required for multiple functions.
+  - RoughnessLength_m: Roughness length (m) of the land cover for which the
+  anemometer wind speed is provided. Required for multiple functions.
 
- - ZeroPlaneDisplacementHeight_m: Zero plane displacement height (m) of the land cover for which the anemometer wind speed is provided. Required for multiple functions.
+  - ZeroPlaneDisplacementHeight_m: Zero plane displacement height (m) of the
+  land cover for which the anemometer wind speed is provided. Required for
+  multiple functions.
 
- - AnemometerHeight_m:
+  - AnemometerHeight_m: Height to which the wind speed data refers
 
- - WindSpeedBlendingHeight_m:
+  - SurfaceIsWet_bool: Boolean indicating whether the surface is wet, in
+  which case the particle rebound effect is disabled. Can be set e.g.
+  depending on relative humidity and/or precipitation events.
 
- - Season:
+  - LUCZhang2001: Integer determining the land use class according to Zhang
+  et al. (2001) table 2.
 
- - LUCZhang2001:
+  - ReferenceHeight_m: Aeordynamic resistance is calculated between
+  ReferenceHeight_m and the effective receptor height (RoughnessLength_m +
+  ZeroPlaneDisplacementHeight_m).
 
- - ReferenceHeight_m:
+  - RoughnessLength_m: Roughness length of the land use class.
 
- - RoughnessLength_m:
+  - ZeroPlaneDisplacementHeight_m: Zero-plane displacement height of the land
+   use class.
 
- - ZeroPlaneDisplacementHeight_m:
+  - Season: Integer determining the season according to Zhang
+  et al. (2001) table 2.
 
- - DryParticleDiameter_m:
+  - DryParticleDiameter_m: Particle diameter in m before the growth particles
+  due to water uptake is taken into account (see parameter "AerosolType").
 
- - ParticleDensity_kgm3:
+  - ParticleDensity_kgm3: Density of the particles in kg/m3.
 
- AerosolType: Set parameter AerosolType to "Dry" to disable calculation of hygroscopic swelling. Set parameter "AerosolType" to one of "SeaSalt", "Urban", "Rural", "AmmoniumSulfate" to enable hygroscopic swelling (see CalculateWetRadius()).
+  - AerosolType: ´Set parameter AerosolType to "Dry" to disable calculation of
+  hygroscopic swelling. Set parameter "AerosolType" to one of "SeaSalt",
+  "Urban", "Rural", "AmmoniumSulfate" to enable hygroscopic swelling
+  according to Zhang et al. (2001). See CalculateHygroscopicSwelling() for
+  further details.
 
- - RelHum_percent:}
+  - RelHum_percent:
 
-\item{Parametrization}{A character with allowed value "Emerson20" or "Zhang01". Indicates which parametrization should be used.}
+  - Parametrization A character with allowed value "Emerson20" or "Zhang01".
+  Indicates which parametrization should be used.}
 }
 \value{
-A data frame repeating the InputTable plus additional columns with calculated values.
+A data frame repeating the InputTable plus additional columns with
+  calculated values.
 }
 \description{
-Calculates the deposition velocity of particle according to the Zhang et al. (2001) and the Emerson et al. (2020) publications. Required inputs are:
+Calculates the deposition velocity of particle according to the
+  Zhang et al. (2001) and the Emerson et al. (2020) publications.
 
-(1) basic meteorological data (wind speed, global ration, relative humidity, cloud cover, air temperature, air pressure, surface wetness)
+  This is a wrapper function over the various dry deposition sub-processes.
+  It is designed for use cases where information on wind speed is
+  available for the same land use type where deposition velocities should be
+  calculated (e.g. wind speed measured at 10 m anemometer height and
+  concentrations at 1.5 m, both over grassland.) Use
+  CalculateDepositionVelocity2() for situations where wind speed data is
+  available for one land use but dry deposition velocities should be
+  calculated for another land use.
 
-(2) information on the surface properties (land use class, roughness length and displacement height) and reference height (height of concentration measurements)
+  Required inputs are:
 
-(3) particle properties (dry particle diameter, density, optional: aerosol type to calculate hygroscopic swelling)
+  (1) basic meteorological data (wind speed, global ration, relative
+  humidity, cloud cover, air temperature, air pressure, surface wetness)
 
-The approach is designed for use cases where information on wind speed is not available directly for the target location / target land use type. For example, wind speeds are often modelled for or measured at grassland sites, but the dry deposition velocity is of interest at a close by for forest or cropland site. The approach therefore differentiates between two sites:
+  (2) information on the surface properties (land use class, roughness length
+  and displacement height) and reference height (height of concentration
+  measurements)
 
-- "anemometer site": Location/land use class where the wind speed measurements are available. Characterized by parameters "RoughnessLength_m" and "ZeroPlaneDisplacementHeight_m"
+  (3) particle properties (dry particle diameter, density, optional: aerosol
+  type to calculate hygroscopic swelling)
 
-- "target land use site": Location/land use class where the dry deposition velocity should be calculated. Characterized by parameters "RoughnessLength_m", "ZeroPlaneDisplacementHeight_m", "Season"
+  The calculation steps in CalculateDepositionVelocity() are:
 
-CalculateDepositionVelocity() vertically extrapolates the wind speed at "anemometer site" the to a "blending height" (e.g. 50 m) where atmospheric conditions are somewhat independent of the underlying surface. From the blending height, the parameters relevant for particle dry deposition to the target land use site (friction velocity, aerodynamic resistance, etc.) are be calculated. The approach can also be used for cases where wind speed data is available for the target land use type directly. The main calculation steps in CalculateDepositionVelocity() are:
+  1. Calculate meteorological basics (e.g. viscosity and density of air) and
+  whether its day of night (based on parameter SunAngle_degree).
 
-1. Calculate meteorological basics (e.g. viscosity and density of air) and whether its day of night (based on parameter SunAngle_degree)
+  2. Calculate the Pasquill class (general classification of atmospheric
+  stability).
 
-2. Calculate the Pasquill class (general classification of atmospheric stability) based on data at the anemometer location (e.g. grassland land use class). This classification is also applied to the target land use type.
+  3. Calculate other meteorological parameters (Monin-Obukhov length,
+  friction velocity, stability corrections).
 
-3. Calculate other meteorological parameters for the anemometer site (Obukhov length, friction velocity, stability corrections) and extrapolate wind speed to the blending height.
+  4. Calculate the aerodynamic resistance (Ra) between the reference height
+  and the effective height of the receptor (displacement height plus
+  roughness length). Calculate surface resistance (Rs) and
+  gravitation settling.
 
-- Calculate meteorological parameters for the target land use type (Obukhov length, friction velocity, stability corrections), based on the wind speed at blending height and the surface properties of the target land use type.
-
-- Calculate aerodynamic resistance (Ra) between the reference height and the receptor and surface resistance (Rs)
+  5. Calculate dry deposition velocity.
 }
 \examples{
-# See vignette
+# See vignette.
 
 }
 \references{
-Zhang L, Gong S, Padro J, Barrie L. A size-segregated particle dry deposition scheme for an atmospheric aerosol module. Atmospheric Environment 2001;35:549–560.
-Emerson EW, Hodshire AL, DeBolt HM, Bilsback KR, Pierce JR, McMeeking GR, Farmer DK. Revisiting particle dry deposition and its role in radiative effect estimates. Proceedings of the National Academy of Sciences 2020;117:26076–26082.
+Zhang L, Gong S, Padro J, Barrie L. A size-segregated particle
+dry deposition scheme for an atmospheric aerosol module. Atmospheric
+Environment 2001;35:549–560. Emerson EW, Hodshire AL, DeBolt HM, Bilsback KR,
+Pierce JR, McMeeking GR, Farmer DK. Revisiting particle dry deposition and
+its role in radiative effect estimates. Proceedings of the National Academy
+of Sciences 2020;117:26076–26082.
 }

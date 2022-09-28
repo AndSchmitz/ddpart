@@ -1,7 +1,24 @@
-# Pasquill stability class
-# Seinfeld JH, Pandis SN. Atmospheric Chemistry and Physics: From Air Pollution to Climate Change.
-# 2006
-# page 750
+#' @title GetPasquillClass
+#'
+#' @description Calculates Pasquill stability class according to Seinfeld and
+#' Pandis (2006) page 750.
+#'
+#' @param SurfaceWindSpeed_ms Wind speed at surface in m/s.
+#'
+#' @param DayOrNight Boolean indicating whther it is day or night.
+#'
+#' @param IncomingSolarRadiation_Wm2 Solar radiation in W/m2.
+#'
+#' @param CloudCover_percent Cloud cover in percent.
+#'
+#' @return Chracter string indicating the Pasquill stability class (A - F)
+#'
+#' @export
+#'
+#' @references Seinfeld JH, Pandis SN. Atmospheric Chemistry and Physics: From
+#' Air Pollution to Climate Change. 2006.
+
+
 
 GetPasquillClass <- function(SurfaceWindSpeed_ms,
                              DayOrNight,

@@ -29,9 +29,43 @@ Calculates increase in particle diameter due to water update
 according to Zhang et al. (2001) eq. 10. All parameters must be vectors of
 same lengths. Note that a correction has been applied to Zhang et al.
 (2001) eq. 10: The whole equation is raised to the power of 1/3, following
-the original publication provided by Zhang et al. (2001) as reference
-(Gerber 1985). Without this correction, the wet diameter is often smaller
-compared to the dry diameter.
+the original publication mentioned by Zhang: Gerber (1985). Without this
+correction, the wet diameter is often smaller compared to the dry diameter.
+}
+\examples{
+
+library(tidyr)
+library(ggplot2)
+
+DryParticleDiameter_m <- c(0.01, 1, 5, 10) * 1e-6
+AerosolType <- c("SeaSalt", "Rural", "Dry")
+RelHum_percent <- seq(60, 100, by = 0.5)
+Input <- expand.grid(
+  DryParticleDiameter_m = DryParticleDiameter_m,
+  AerosolType = AerosolType,
+  RelHum_percent = RelHum_percent
+)
+
+Output <- Input \%>\%
+  mutate(
+    WetParticleDiameter_m = CalculateHygroscopicSwelling(
+      DryParticleDiameter_m = DryParticleDiameter_m,
+      AerosolType = AerosolType,
+      RelHum_percent = RelHum_percent
+    )
+  )
+
+ggplot(
+  data = Output,
+  mapping = aes(
+    x = RelHum_percent,
+    y = WetParticleDiameter_m,
+    color = as.factor(DryParticleDiameter_m),
+    linetype = AerosolType
+  )
+) +
+  geom_line()
+
 }
 \references{
 Zhang L, Gong S, Padro J, Barrie L. A size-segregated particle dry deposition

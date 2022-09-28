@@ -1,7 +1,5 @@
 ---
 title: "ddpart"
-author: "Andreas Schmitz"
-date: "`r Sys.Date()`"
 output:
   rmarkdown::html_vignette:
     toc: true
@@ -11,6 +9,12 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+<!-- --- -->
+<!-- title: "ddpart" -->
+<!-- output: pdf_document -->
+<!-- toc: true -->
+<!-- --- -->
+
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -18,17 +22,36 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Package installation
+\newpage
 
-Install the package
-```{r install, message = FALSE}
+# Introduction
+
+This package is an implementation of the particle dry deposition model of Zhang
+et al. (2001) including the parametrization from Emerson et al. (2020). This
+vignette contains an example application of the package and validation against
+the original publication (Emerson et al. (2020)).
+
+Usually, the wrapper functions CalculateDepositionVelocity() or
+CalculateDepositionVelocity2() would be used. These functions include the
+calculation of atmospheric stability conditions (Monin-Obukhov-Length, friction
+velocity) via the Pasquill class approach. This has the advantage that common
+meteorological measurements (or modelled data) can be used as an input (e.g.
+air temperature, wind speed, etc.). If this is not required because direct data
+on friction velocity is available, the underlying functions to calculate the
+resistance components can be called directly to skip the Pasquill class
+approach. See section "Validation" for examples where this is the case.
+
+# Package installation and dependencies
+
+Install the package:
+```{r install, message = FALSE, results = 'hide'}
 devtools::install_github(
   repo = "https://github.com/AndSchmitz/ddpart"
 )
 library(ddpart)
 ```
 
-Dependencies for this vignette
+Dependencies for this vignette:
 ```{r deps}
 library(tidyr)
 library(knitr)
@@ -36,10 +59,16 @@ library(scales)
 library(ggplot2)
 ```
 
+\newpage
+
 # Usage example
 
+The following example shows how to use the package to calculate the dry
+deposition velocity of particles with 5 um diameter to grassland for a 48 h time
+series of meteorological data.
+
 ## Load and show example meteo time series
-```{r show meteo time series, fig.width=8, fig.height=12}
+```{r show meteo time series, fig.width=8, fig.height=10}
 meteo_time_series_long <- meteo_time_series %>%
   pivot_longer(
     cols = -c(TimeStampUTC)
@@ -52,28 +81,42 @@ ggplot(
     y = value
   )
 ) +
-geom_line() +
-facet_wrap( ~name, scales = "free_y", ncol = 3) +
+  geom_line() +
+  facet_wrap(~name, scales = "free_y", ncol = 3) +
   scale_x_datetime(guide = guide_axis(n.dodge = 2))
 ```
+Figure 1: Example time series of meteorological data.
 
 ## Calculate dry deposition velocity
+
+In the following code block, the function ddpart::CalculateDepositionVelocity()
+is used. This function requires a dataframe as input ("InputTable"). For each
+row of InputTable, a deposition velocity is calculated. The InputTable must
+contain all information required to calculate aerodynamic resistance and 
+surface resistance (e.g. roughness length, zero plane distance height,
+wind speed and anemomemter height, hight of measured (or modelled)
+concentration data (=reference height), etc.). See ?CalculateDepositionVelocity
+for a description.
+
+The function CalculateDepositionVelocity() is designed for the usual setup where
+both, wind speed measurements and concentrations measurements, are available
+over the same land use (e.g. both measured over grassland). For other cases,
+see ?CalculateDepositionVelocity2. For example, if wind speed data refers to
+grassland conditions (e.g. from meteorological models) but the dry deposition
+velocity should be calculated for other land uses (e.g. forest).
+
+
 ```{r calculate vd, fig.width=8, fig.height=8}
 
-
-#Final settings. RoughnessLength_m and ZeroPlaneDisplacementHeight_m must be
-#identical for wind speed measurements and for concentrations measurements
-#(i.e. both have been measured/modelled over the same land use type). If this
-#is not the case, use function CalculateDepositionVelocity2().
 InputTable <- meteo_time_series %>%
   mutate(
-    LUCZhang2001 = 6, #grassland
+    LUCZhang2001 = 6, # grassland
     RoughnessLength_m = 0.03,
     ZeroPlaneDisplacementHeight_m = 7 * RoughnessLength_m,
-    ReferenceHeight_m = 20, #Height of concentration measurements
-    DryParticleDiameter_m = 5 * 1e-6, #5 um particles
+    ReferenceHeight_m = 20, # Height of concentration measurements
+    DryParticleDiameter_m = 5 * 1e-6, # 5 um particles
     ParticleDensity_kgm3 = 2000,
-    AerosolType = "SeaSalt",
+    AerosolType = "SeaSalt", #Relevant for hygroscopic swelling
     Parametrization = "Emerson20"
   )
 
@@ -88,7 +131,7 @@ ResultsLong <- Results %>%
     DryDepositionVelocity_cms = V_d_RefHeight_ms * 100,
     WetParticleDiameter_um = ParticleDiameter_m * 1e6
   ) %>%
-  select(TimeStampUTC, DryDepositionVelocity_cms, WetParticleDiameter_um, WindSpeedAtAnemometerHeight_ms) %>%
+  select(TimeStampUTC, DryDepositionVelocity_cms) %>%
   pivot_longer(
     cols = -c(TimeStampUTC)
   )
@@ -101,9 +144,10 @@ ggplot(
   )
 ) +
   geom_line() +
-  facet_wrap( ~name, scales = "free_y", nrow = 3) +
+  facet_wrap(~name, scales = "free_y", nrow = 3) +
   scale_x_datetime(guide = guide_axis(n.dodge = 2))
 ```
+Figure 2: Dry deposition velocity calculated for the 48 hours of input data.
 
 \newpage
 
@@ -117,9 +161,7 @@ reproduced as a validation of the functions in the ddpart package.
 ## 1. Dry deposition velocity vs. particle size
 
 Emerson et al. (2020) figure 1 shows the dry deposition velocity for different
-land use classes. This figure is reconstructed with functions from the ddpart
-package. 
-
+land use classes.
 
 ### Definition of parameters
 
@@ -145,9 +187,9 @@ InputPars <- data.frame(
   # Standard temperature and pressure
   T_air_K = 293.15,
   AirPressure_Pa = 101325,
-  SurfaceIsWet_bool = TRUE  
+  SurfaceIsWet_bool = TRUE
 )
-  
+
 # Duplicate input for Zhang01 parametrization
 tmp <- InputPars %>%
   mutate(
@@ -177,7 +219,6 @@ Input <- expand_grid(
       AerosolType = AerosolType
     )
   )
-
 ```
 
 ### Calculations
@@ -290,7 +331,7 @@ Output <- Input %>%
 
 \newpage
 
-### Parameter table
+### Summary of parameters
 
 ```{r Emerson fig 1 Pars}
 
@@ -307,8 +348,8 @@ TableData <- Output %>%
   rename(
     Gamma = BrownianDiffusionParameterGamma
   ) %>%
-    mutate(
-      Gamma = round(Gamma,3),
+  mutate(
+    Gamma = round(Gamma, 3),
     C_b = GetParameters(Parametrization = Parametrization, TargetParameter = "C_b"),
     nu = GetParameters(Parametrization = Parametrization, TargetParameter = "nu"),
     C_In = GetParameters(Parametrization = Parametrization, TargetParameter = "C_In"),
@@ -337,12 +378,6 @@ kable(
 \newpage
 
 ### Plots
-
-FIXME - these deviations might be explained by some differences in the
-formulations of hygroscopic growth or the slip correction factors between
-Emerson et al. (2020) using the GEOS-CHEM model and the R implementation using
-hygroscopic growth from Zhang et al. (2001) and the slip correction from
-Seinfeld and Pandis (2006).
 
 ```{r Emerson fig 1 Plots, fig.width=8, fig.height=4}
 # Load data extracted from Emerson et al. (2020)
@@ -380,7 +415,7 @@ Output <- Output %>%
     LUCLabel = factor(
       x = LUCLabel,
       levels = c("Needleleaf forest", "Broadlead forest", "Grassland")
-    )    
+    )
   )
 
 Shapes <- c(3)
@@ -432,10 +467,16 @@ ggplot() +
     # legend.margin=margin()
   ) +
   facet_wrap(~LUCLabel)
-
 ```
-Figure 1: Dry deposition velocity as a function of particle diameter for needleleaf forest (LUC 1), evergreen broadleaf forest (LUC 2) and grassland (LUC 6) according to the Zhang et al. (2001) parametrization and the Emerson et al. (2020) parameterization. Lines represent data extracted from fig. 1 in Emerson et al. (2020). Results from the ddpart R package are indicated by "+". The figures show results at 0.2 m/s friction velocity and a particle density of 1200 kg/m3. Data from ddpart is generated for season 1 with aerodynamic resistance set to zero, wet surface, 85% relative humidity and corresponding hygroscopic swelling for aerosol of type "rural" (Zhang et al. (2001) eq. 10). Particle diameter refers to the dry particle diameter (i.e. before accounting for hygroscopic swelling).
+Figure 3: Dry deposition velocity as a function of particle diameter for needleleaf forest (LUC 1), evergreen broadleaf forest (LUC 2) and grassland (LUC 6) according to the Zhang et al. (2001) parametrization and the Emerson et al. (2020) parameterization. Lines represent data extracted from fig. 1 in Emerson et al. (2020). Results from the ddpart R package are indicated by "+". The figures show results at 0.2 m/s friction velocity and a particle density of 1200 kg/m3. Data from ddpart is generated for season 1 with aerodynamic resistance set to zero, wet surface, 85% relative humidity and corresponding hygroscopic swelling for aerosol of type "rural" (Zhang et al. (2001) eq. 10). Particle diameter refers to the dry particle diameter (i.e. before accounting for hygroscopic swelling).
 
+FIXME - these deviations might be explained by some differences in the
+formulations of hygroscopic growth or the slip correction factors between
+Emerson et al. (2020) using the GEOS-CHEM model and the R implementation using
+hygroscopic growth from Zhang et al. (2001) and the slip correction from
+Seinfeld and Pandis (2006).
+
+\newpage
 
 ## 2. Contribution from dry deposition sub-processes
 
@@ -482,7 +523,6 @@ Input <- expand_grid(
   InputPars,
   ParticleDiameter_m = d_p_vec
 )
-
 ```
 
 ### Calculations
@@ -628,7 +668,7 @@ ProcessContributions <- Output %>%
 
 \newpage
 
-### Parameter table
+### Summary of parameters
 
 ```{r Emerson fig 2 Pars}
 
@@ -645,8 +685,8 @@ TableData <- Output %>%
   rename(
     Gamma = BrownianDiffusionParameterGamma
   ) %>%
-    mutate(
-      Gamma = round(Gamma,3),
+  mutate(
+    Gamma = round(Gamma, 3),
     C_b = GetParameters(Parametrization = Parametrization, TargetParameter = "C_b"),
     nu = GetParameters(Parametrization = Parametrization, TargetParameter = "nu"),
     C_In = GetParameters(Parametrization = Parametrization, TargetParameter = "C_In"),
@@ -746,7 +786,7 @@ ggplot() +
   ) +
   facet_wrap(~Label)
 ```
-Figure 2: Contribution of Brownian diffusion, Gravitational settling, Interception and Impaction to the total dry deposition velocity according to the Zhang et al. (2001) parametrization (left panel) and the Emerson et al. (2020) parameterization (right panel). Lines indicate data extracted from fig. 2 in Emerson et al. (2020). Results from the ddpart R package are indicated by "+". The figures show results at 0.4 m/s friction velocity for needleleaf forest (LUC 1) and a particle density of 1500 kg/m3. Data from ddpart is generated for season 1 with aerodynamic resistance set to zero, no hygroscopic swelling and dry surface.
+Figure 4: Contribution of Brownian diffusion, Gravitational settling, Interception and Impaction to the total dry deposition velocity according to the Zhang et al. (2001) parametrization (left panel) and the Emerson et al. (2020) parameterization (right panel). Lines indicate data extracted from fig. 2 in Emerson et al. (2020). Results from the ddpart R package are indicated by "+". The figures show results at 0.4 m/s friction velocity for needleleaf forest (LUC 1) and a particle density of 1500 kg/m3. Data from ddpart is generated for season 1 with aerodynamic resistance set to zero, no hygroscopic swelling and dry surface.
 
 
 

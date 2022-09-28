@@ -4,86 +4,142 @@
 \alias{CalculateDepositionVelocity2}
 \title{CalculateDepositionVelocity2}
 \usage{
-CalculateDepositionVelocity2(InputTable, Parametrization)
+CalculateDepositionVelocity2(InputTable)
 }
 \arguments{
-\item{InputTable}{A data frame with the following columns:
+\item{InputTable}{A data frame with the all columns required by
+CalculateDepositionVelocity(), but:
 
- - SunAngle_degree: The sun angle in degree. Only used to determine if its "day" (> 0°) or "night" (< 0°) which is required for the determination of the Pasquill stability class (GetPasquillClass()). The sun angle can easily be calculated with oce::sunAngle().
+  - RoughnessLengthAnemometer_m: Roughness length (m) of the land cover for
+  which the anemometer wind speed is provided. Required for multiple
+  functions.
 
- - T_air_K: Air temperature in Kelvin.
+  - ZeroPlaneDisplacementHeightAnemometer_m: Zero plane displacement height
+  (m) of the land cover for which the anemometer wind speed is provided.
+  Required for multiple functions.
 
- - AirPressure_Pa: Air pressure in Pa. Required for the calculation of the mean free path of an air molecule, which is required for the calculation of the particle settling (sedimentation) velocity.
+  - WindSpeedBlendingHeight_m: Height in m to which the wind speed is
+  extrapolated. At this height, the wind speed is assumed to be independent
+  of the underlying land use.
 
- - GlobalRadiation_W_m2: Global radiation in W/m2. Required for the determination of the Pasquill stability class (GetPasquillClass()).
+  - TargetLUCCodeZhang2001: Integer determining the land use class of the
+  target land use according to Zhang et al. (2001) table 2.
 
- - CloudCover_percent: Cloud cover in percent. Required for the determination of the Pasquill stability class (GetPasquillClass()).
+  - RoughnessLengthTargetLUC_m: Roughness length (m) of the land cover for
+  which the dry deposition velocities are calculated.
 
- - WindSpeedAtAnemometerHeight_ms: Wind speed (m/s) at the the anemometer height. Required for GetPasquillClass() and CalculateFrictionVelocity().
-
- - RoughnessLengthAnemometer_m: Roughness length (m) of the land cover for which the anemometer wind speed is provided. Required for multiple functions.
-
- - ZeroPlaneDisplacementHeightAnemometer_m: Zero plane displacement height (m) of the land cover for which the anemometer wind speed is provided. Required for multiple functions.
-
- - AnemometerHeight_m:
-
- - WindSpeedBlendingHeight_m:
-
- - Season:
-
- - TargetLUCCodeZhang2001:
-
- - ReferenceHeight_m:
-
- - RoughnessLengthTargetLUC_m:
-
- - ZeroPlaneDisplacementHeightTargetLUC_m:
-
- - DryParticleDiameter_m:
-
- - ParticleDensity_kgm3:
-
- AerosolType: Set parameter AerosolType to "Dry" to disable calculation of hygroscopic swelling. Set parameter "AerosolType" to one of "SeaSalt", "Urban", "Rural", "AmmoniumSulfate" to enable hygroscopic swelling (see CalculateWetRadius()).
-
- - RelHum_percent:}
-
-\item{Parametrization}{A character with allowed value "Emerson20" or "Zhang01". Indicates which parametrization should be used.}
+  - ZeroPlaneDisplacementHeightTargetLUC_m: Zero plane displacement height
+  (m) of the land cover for which the dry deposition velocities are
+  calculated.}
 }
 \value{
-A data frame repeating the InputTable plus additional columns with calculated values.
+A data frame repeating the InputTable plus additional columns with
+  calculated values.
 }
 \description{
-Calculates the deposition velocity of particle according to the Zhang et al. (2001) and the Emerson et al. (2020) publications. Required inputs are:
+Calculates the deposition velocity of particle according to the
+  Zhang et al. (2001) and the Emerson et al. (2020) publications.
 
-(1) basic meteorological data (wind speed, global ration, relative humidity, cloud cover, air temperature, air pressure, surface wetness)
+  This is a wrapper function over the various dry deposition sub-processes.
+  It is designed for use cases where information on wind speed is
+  available for one land use but dry deposition velocities should be
+  calculated for another land use. For example, wind speed is available from
+  modelled data for standard WMO conditions (10 m over grassland) but the
+  dry deposition velocity should be calculated for forest. Use
+  CalculateDepositionVelocity() for the more typical case where wind speed
+  information is available for the sane land use type where dry deposition
+  should be calculated.
 
-(2) information on the surface properties (land use class, roughness length and displacement height) and reference height (height of concentration measurements)
+  The approach therefore differentiates between two sites:
 
-(3) particle properties (dry particle diameter, density, optional: aerosol type to calculate hygroscopic swelling)
+  - "anemometer site": Location/land use class where the wind speed
+  measurements are available. Characterized by parameters
+  "RoughnessLengthAnemometer_m" and "ZeroPlaneDisplacementHeightAnemometer_m"
 
-The approach is designed for use cases where information on wind speed is not available directly for the target location / target land use type. For example, wind speeds are often modelled for or measured at grassland sites, but the dry deposition velocity is of interest at a close by for forest or cropland site. The approach therefore differentiates between two sites:
+  - "target land use site": Location/land use class where the dry deposition
+  velocity should be calculated. Characterized by parameters
+  "RoughnessLengthTargetLUC_m", "ZeroPlaneDisplacementHeightTargetLUC_m",
+  "Season"
 
-- "anemometer site": Location/land use class where the wind speed measurements are available. Characterized by parameters "RoughnessLengthAnemometer_m" and "ZeroPlaneDisplacementHeightAnemometer_m"
+  CalculateDepositionVelocity2() vertically extrapolates the wind speed at
+  "anemometer site" the to a "blending height" (e.g. 50 m) where atmospheric
+  conditions are somewhat independent of the underlying surface. From the
+  blending height, the parameters relevant for particle dry deposition to the
+  target land use site (friction velocity, aerodynamic resistance, etc.) are
+  be calculated. The main calculation steps in CalculateDepositionVelocity()
+  are:
 
-- "target land use site": Location/land use class where the dry deposition velocity should be calculated. Characterized by parameters "RoughnessLengthTargetLUC_m", "ZeroPlaneDisplacementHeightTargetLUC_m", "Season"
+  1. Calculate meteorological basics (e.g. viscosity and density of air) and
+  whether its day of night (based on parameter SunAngle_degree)
 
-CalculateDepositionVelocity() vertically extrapolates the wind speed at "anemometer site" the to a "blending height" (e.g. 50 m) where atmospheric conditions are somewhat independent of the underlying surface. From the blending height, the parameters relevant for particle dry deposition to the target land use site (friction velocity, aerodynamic resistance, etc.) are be calculated. The approach can also be used for cases where wind speed data is available for the target land use type directly. The main calculation steps in CalculateDepositionVelocity() are:
+  2. Calculate the Pasquill class (general classification of atmospheric
+  stability) based on data at the anemometer location (e.g. grassland land
+  use class). This classification is also applied to the target land use
+  type.
 
-1. Calculate meteorological basics (e.g. viscosity and density of air) and whether its day of night (based on parameter SunAngle_degree)
+  3. Calculate other meteorological parameters for the anemometer site
+  (Obukhov length, friction velocity, stability corrections) and extrapolate
+  wind speed to the blending height, using CalculateWindSpeedAtTargetHeight()
 
-2. Calculate the Pasquill class (general classification of atmospheric stability) based on data at the anemometer location (e.g. grassland land use class). This classification is also applied to the target land use type.
+  4. Calculate meteorological parameters for the target land use type (Obukhov
+  length, friction velocity, stability corrections), based on the wind speed
+  at blending height and the surface properties of the target land use type.
 
-3. Calculate other meteorological parameters for the anemometer site (Obukhov length, friction velocity, stability corrections) and extrapolate wind speed to the blending height.
+  5. Calculate the aerodynamic resistance (Ra) between the reference height
+  and the effective height of the receptor / target land use type. Calculate
+  surface resistance (Rs) and gravitation settling.
 
-- Calculate meteorological parameters for the target land use type (Obukhov length, friction velocity, stability corrections), based on the wind speed at blending height and the surface properties of the target land use type.
-
-- Calculate aerodynamic resistance (Ra) between the reference height and the receptor and surface resistance (Rs)
+  6. Calculate dry deposition velocity to the target land use class.
 }
 \examples{
-# See vignette
+# Define some standard conditions
+Basics <- data.frame(
+  SunAngle_degree = 30,
+  T_air_K = 293.15,
+  AirPressure_Pa = 101325,
+  SurfaceIsWet_bool = F,
+  GlobalRadiation_W_m2 = 100,
+  RelHum_percent = 80,
+  CloudCover_percent = 80,
+  RoughnessLengthAnemometer_m = 0.03, # WMO grassland
+  ZeroPlaneDisplacementHeightAnemometer_m = 0.21,
+  AnemometerHeight_m = 10,
+  WindSpeedAtAnemometerHeight_ms = 5,
+  WindSpeedBlendingHeight_m = 50, # WS no longer dependent on LUC at 50m
+  Season = 1,
+  DryParticleDiameter_m = 5e-6,
+  ParticleDensity_kgm3 = 2000,
+  AerosolType = "Dry", # disable hygroscopic swelling
+  Parametrization = "Emerson20",
+  ReferenceHeight_m = 50 # assuming concentrations are known at blending height
+)
+
+# Define two land use classes for which to calculate dry deposition velocity
+TargetLUCs <- data.frame(
+  # 1=evegreen needleleaf forest, 2=evergreen broadleaf forest
+  TargetLUCCodeZhang2001 = c(1, 2),
+  RoughnessLengthTargetLUC_m = c(0.8, 2.65) # Zhang01 table 3
+) \%>\%
+  mutate(
+    ZeroPlaneDisplacementHeightTargetLUC_m = 7 * RoughnessLengthTargetLUC_m
+  )
+
+# Run calculations
+InputTable <- merge(Basics, TargetLUCs)
+Output <- CalculateDepositionVelocity2(
+  InputTable = InputTable
+)
+
+# Show results. LUC 2 (evergreen broadleaf forest) has a higher vd compared to
+# LUC 1 (evegreen needleleaf forest) for the specific settings used.
+print(Output \%>\% select(TargetLUCCodeZhang2001, V_d_RefHeight_ms))
 
 }
 \references{
-Zhang L, Gong S, Padro J, Barrie L. A size-segregated particle dry deposition scheme for an atmospheric aerosol module. Atmospheric Environment 2001;35:549–560.
-Emerson EW, Hodshire AL, DeBolt HM, Bilsback KR, Pierce JR, McMeeking GR, Farmer DK. Revisiting particle dry deposition and its role in radiative effect estimates. Proceedings of the National Academy of Sciences 2020;117:26076–26082.
+Zhang L, Gong S, Padro J, Barrie L. A size-segregated particle
+dry deposition scheme for an atmospheric aerosol module. Atmospheric
+Environment 2001;35:549–560. Emerson EW, Hodshire AL, DeBolt HM, Bilsback KR,
+Pierce JR, McMeeking GR, Farmer DK. Revisiting particle dry deposition and
+its role in radiative effect estimates. Proceedings of the National Academy
+of Sciences 2020;117:26076–26082.
 }
