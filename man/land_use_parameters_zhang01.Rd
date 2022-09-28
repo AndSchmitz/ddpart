@@ -3,15 +3,9 @@
 \docType{data}
 \name{land_use_parameters_zhang01}
 \alias{land_use_parameters_zhang01}
-\title{Land-use specific parameters according to Zhang et al. (2001) table 3.}
+\title{Land-use specific parameters according to Zhang et al. (2001) table 3}
 \format{
 A data frame with 120 rows and 4 columns:
-\describe{
-  \item{Parameter}
-  \item{Season}
-  \item{LUC} {Land use class}
-  \item{value}
-}
 }
 \usage{
 data(land_use_parameters_zhang01)

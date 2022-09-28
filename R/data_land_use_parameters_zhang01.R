@@ -1,4 +1,4 @@
-#' Land-use specific parameters according to Zhang et al. (2001) table 3.
+#' Land-use specific parameters according to Zhang et al. (2001) table 3
 #'
 #' Note that parameter A (characteristic radius of receptor surface) comes in mm
 #' and not in m. Note that the Emerson et al. (2020) parametrization uses a
@@ -9,13 +9,7 @@
 #'
 #' @usage data(land_use_parameters_zhang01)
 #'
-#' @format A data frame with 120 rows and 4 columns:
-#' \describe{
-#'   \item{Parameter}
-#'   \item{Season}
-#'   \item{LUC} {Land use class}
-#'   \item{value}
-#' }
+#' @format A data frame with 120 rows and 4 columns.
 #'
 #' @keywords datasets
 #'

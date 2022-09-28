@@ -2,8 +2,8 @@
 #'
 #' Meteorological data required for dry deposition modelling (e.g. to determine
 #' atmospheric stability via Pasquill classes). Hourly data is for example
-#' available from the ERA5 model
-#' <https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-land?tab=overview>
+#' available from the
+#' \href{https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-land?tab=overview}{ERA5 model}.
 #'
 #' @docType data
 #'
