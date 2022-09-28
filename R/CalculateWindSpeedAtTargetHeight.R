@@ -1,7 +1,8 @@
-# Calculate wind speed from log wind profile
+# Calculate wind speed according to stability-corrected log wind profile.
 # This function is rearrangement of the formula for friction velocity after
-# Erisman JW, Draaijers GPJ. Atmospheric Deposition In Relation to Acidification and
-# Eutrophication. 1995. Page 67. It is in line with https://en.wikipedia.org/wiki/Log_wind_profile
+# Erisman JW, Draaijers GPJ. Atmospheric Deposition In Relation to Acidification
+# and Eutrophication. 1995. Page 67. It is in line with
+# https://en.wikipedia.org/wiki/Log_wind_profile
 CalculateWindSpeedAtTargetHeight <- function(FrictionVelocity_ms,
                                              TargetHeight_m,
                                              ZeroPlaneDisplacementHeight_m,

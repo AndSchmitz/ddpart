@@ -3,6 +3,7 @@
 export(CalculateAerodynamicResistance)
 export(CalculateAirDensity)
 export(CalculateDepositionVelocity)
+export(CalculateDepositionVelocity2)
 export(CalculateDynamicViscosityOfAir)
 export(CalculateFrictionVelocity)
 export(CalculateHygroscopicSwelling)

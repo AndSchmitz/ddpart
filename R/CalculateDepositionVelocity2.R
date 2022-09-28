@@ -1,4 +1,4 @@
-#' @title CalculateDepositionVelocity
+#' @title CalculateDepositionVelocity2
 #'
 #' @description Calculates the deposition velocity of particle according to the Zhang et al. (2001) and the Emerson et al. (2020) publications. Required inputs are:
 #'
@@ -10,9 +10,9 @@
 #'
 #' The approach is designed for use cases where information on wind speed is not available directly for the target location / target land use type. For example, wind speeds are often modelled for or measured at grassland sites, but the dry deposition velocity is of interest at a close by for forest or cropland site. The approach therefore differentiates between two sites:
 #'
-#' - "anemometer site": Location/land use class where the wind speed measurements are available. Characterized by parameters "RoughnessLength_m" and "ZeroPlaneDisplacementHeight_m"
+#' - "anemometer site": Location/land use class where the wind speed measurements are available. Characterized by parameters "RoughnessLengthAnemometer_m" and "ZeroPlaneDisplacementHeightAnemometer_m"
 #'
-#' - "target land use site": Location/land use class where the dry deposition velocity should be calculated. Characterized by parameters "RoughnessLength_m", "ZeroPlaneDisplacementHeight_m", "Season"
+#' - "target land use site": Location/land use class where the dry deposition velocity should be calculated. Characterized by parameters "RoughnessLengthTargetLUC_m", "ZeroPlaneDisplacementHeightTargetLUC_m", "Season"
 #'
 #' CalculateDepositionVelocity() vertically extrapolates the wind speed at "anemometer site" the to a "blending height" (e.g. 50 m) where atmospheric conditions are somewhat independent of the underlying surface. From the blending height, the parameters relevant for particle dry deposition to the target land use site (friction velocity, aerodynamic resistance, etc.) are be calculated. The approach can also be used for cases where wind speed data is available for the target land use type directly. The main calculation steps in CalculateDepositionVelocity() are:
 #'
@@ -42,9 +42,9 @@
 #'
 #'  - WindSpeedAtAnemometerHeight_ms: Wind speed (m/s) at the the anemometer height. Required for GetPasquillClass() and CalculateFrictionVelocity().
 #'
-#'  - RoughnessLength_m: Roughness length (m) of the land cover for which the anemometer wind speed is provided. Required for multiple functions.
+#'  - RoughnessLengthAnemometer_m: Roughness length (m) of the land cover for which the anemometer wind speed is provided. Required for multiple functions.
 #'
-#'  - ZeroPlaneDisplacementHeight_m: Zero plane displacement height (m) of the land cover for which the anemometer wind speed is provided. Required for multiple functions.
+#'  - ZeroPlaneDisplacementHeightAnemometer_m: Zero plane displacement height (m) of the land cover for which the anemometer wind speed is provided. Required for multiple functions.
 #'
 #'  - AnemometerHeight_m:
 #'
@@ -52,13 +52,13 @@
 #'
 #'  - Season:
 #'
-#'  - LUCZhang2001:
+#'  - TargetLUCCodeZhang2001:
 #'
 #'  - ReferenceHeight_m:
 #'
-#'  - RoughnessLength_m:
+#'  - RoughnessLengthTargetLUC_m:
 #'
-#'  - ZeroPlaneDisplacementHeight_m:
+#'  - ZeroPlaneDisplacementHeightTargetLUC_m:
 #'
 #'  - DryParticleDiameter_m:
 #'
@@ -81,32 +81,33 @@
 #' Emerson EW, Hodshire AL, DeBolt HM, Bilsback KR, Pierce JR, McMeeking GR, Farmer DK. Revisiting particle dry deposition and its role in radiative effect estimates. Proceedings of the National Academy of Sciences 2020;117:26076–26082.
 
 
-CalculateDepositionVelocity <- function(InputTable) {
+CalculateDepositionVelocity2 <- function(InputTable,
+                                        Parametrization) {
+
+  # Sanity check parameter "Parametrization"
+  ValidParametrizations <- c("Emerson20", "Zhang01")
+  if (!(Parametrization %in% ValidParametrizations)) {
+    stop(paste("Parameter Parametrization must be on of", paste(ValidParametrizations, collapse = ",")))
+  }
 
   # Sanity-check for required column names
   RequiredColumns <- c(
     # Meteo
     "SunAngle_degree", "T_air_K", "AirPressure_Pa", "GlobalRadiation_W_m2",
     "RelHum_percent", "CloudCover_percent", "WindSpeedAtAnemometerHeight_ms",
-    "AnemometerHeight_m",  "SurfaceIsWet_bool",
-    # Receptor properties
-    "LUCZhang2001", "ReferenceHeight_m",  "RoughnessLength_m",
-    "ZeroPlaneDisplacementHeight_m", "Season",
+    "RoughnessLengthAnemometer_m", "ZeroPlaneDisplacementHeightAnemometer_m",
+    "AnemometerHeight_m", "WindSpeedBlendingHeight_m", "SurfaceIsWet_bool",
+    "Season",
+    # Target land use class
+    "TargetLUCCodeZhang2001", "ReferenceHeight_m",
+    "RoughnessLengthTargetLUC_m", "ZeroPlaneDisplacementHeightTargetLUC_m",
     # Particle properties
-    "DryParticleDiameter_m", "ParticleDensity_kgm3", "AerosolType",
-    "Parametrization"
+    "DryParticleDiameter_m", "ParticleDensity_kgm3", "AerosolType"
   )
   MissCols <- RequiredColumns[!(RequiredColumns %in% colnames(InputTable))]
   if (length(MissCols) > 0) {
     stop(paste("The following columns are missing in InputTable:", paste(MissCols, collapse = ",")))
   }
-
-  # Sanity check parameter "Parametrization"
-  ValidParametrizations <- c("Emerson20", "Zhang01")
-  if (!all(InputTable$Parametrization %in% ValidParametrizations)) {
-    stop(paste("Parameter Parametrization must be on of", paste(ValidParametrizations, collapse = ",")))
-  }
-
 
   # Stokes number requires a classification whether the surface is
   # "vegetated" or with otherwise rough surface (Zhang et al. 2001).
@@ -119,6 +120,13 @@ CalculateDepositionVelocity <- function(InputTable) {
     13, # inland water
     14 # ocean
   )
+
+  #_Add parametrization to InputTable
+  InputTable <- InputTable %>%
+    mutate(
+      Parametrization = Parametrization
+    )
+  rm(Parametrization)
 
   # _Update particle radius by hygroscopic swelling-----
   Results <- InputTable %>%
@@ -151,7 +159,12 @@ CalculateDepositionVelocity <- function(InputTable) {
       KinematicViscosityOfAir_m2s = CalculateKinematicViscosityOfAir(
         DynamicViscosityAir_kgms,
         AirDensity_kgm3
-      ),
+      )
+    )
+
+
+  # _Wind speed at anemometer location-----
+  Results <- Results %>%
     # Atmospheric stability following
     # Erisman JW, Draaijers GPJ. Atmospheric Deposition In Relation to Acidification and
     # Eutrophication. 1995. Page 67.
@@ -159,6 +172,8 @@ CalculateDepositionVelocity <- function(InputTable) {
     # Pasquill stability class
     # Seinfeld JH, Pandis SN. Atmospheric Chemistry and Physics: From Air Pollution to Climate Change.
     # 2006
+    # rowwise() %>% # for functions that do not accept vectors as inputs
+    mutate(
       PasquillClass = GetPasquillClass(
         SurfaceWindSpeed_ms = WindSpeedAtAnemometerHeight_ms,
         DayOrNight = DayOrNight,
@@ -168,34 +183,65 @@ CalculateDepositionVelocity <- function(InputTable) {
       # _Friction/stability parameters for WMO grassland------
       ObukhovLength_Anemometer_m = CalculateMoninObukhovLength(
         PasquillClass = PasquillClass,
-        RoughnessLength_m = RoughnessLength_m
+        RoughnessLength_m = RoughnessLengthAnemometer_m
       ),
       FrictionVelocity_Anemometer_ms = CalculateFrictionVelocity(
         WindSpeed_ms = WindSpeedAtAnemometerHeight_ms,
         AnemometerHeight_m = AnemometerHeight_m,
-        ZeroPlaneDisplacementHeight_m = ZeroPlaneDisplacementHeight_m,
-        RoughnessLength_m = RoughnessLength_m,
+        ZeroPlaneDisplacementHeight_m = ZeroPlaneDisplacementHeightAnemometer_m,
+        RoughnessLength_m = RoughnessLengthAnemometer_m,
         MoninObukhovLength_m = ObukhovLength_Anemometer_m
       ),
+      # _Wind speed at blending height------
+      WindSpeedAtBlendingHeight_ms = CalculateWindSpeedAtTargetHeight(
+        FrictionVelocity_ms = FrictionVelocity_Anemometer_ms,
+        TargetHeight_m = WindSpeedBlendingHeight_m,
+        ZeroPlaneDisplacementHeight_m = ZeroPlaneDisplacementHeightAnemometer_m,
+        RoughnessLength_m = RoughnessLengthAnemometer_m,
+        MoninObukhovLength_m = ObukhovLength_Anemometer_m
+      )
+    )
+    # ungroup()
+
+
+  # Target-LUC dependent calculations----
+  Results <- Results %>%
+    mutate(
       CharacteristicRadius_m = 0.001 * GetLandUseParameters(
-        LUCs = LUCZhang2001,
+        LUCs = TargetLUCCodeZhang2001,
         Seasons = Season,
         TargetPar = "A_mm",
         Parametrization = Parametrization
       ),
       ImpactionParameterAlpha = GetLandUseParameters(
-        LUCs = LUCZhang2001,
+        LUCs = TargetLUCCodeZhang2001,
         Seasons = Season,
         TargetPar = "alpha",
         Parametrization = Parametrization
+      )
+    ) %>%
+    rowwise() %>% # for functions that do not accept vectors as inputs
+    # _Calculate atmospheric stability----
+    mutate(
+      # _Friction/stability parameters-----
+      ObukhovLengthTargetLUC = CalculateMoninObukhovLength(
+        PasquillClass = PasquillClass,
+        RoughnessLength_m = RoughnessLengthTargetLUC_m
+      ),
+      FrictionVelocityTargetLUC_ms = CalculateFrictionVelocity(
+        WindSpeed_ms = WindSpeedAtBlendingHeight_ms,
+        AnemometerHeight_m = WindSpeedBlendingHeight_m,
+        ZeroPlaneDisplacementHeight_m = ZeroPlaneDisplacementHeightTargetLUC_m,
+        RoughnessLength_m = RoughnessLengthTargetLUC_m,
+        MoninObukhovLength_m = ObukhovLengthTargetLUC
       ),
       # _Aerodynamic resistance-----
       R_a_sm = CalculateAerodynamicResistance(
-        FrictionVelocity_ms = FrictionVelocity_Anemometer_ms,
+        FrictionVelocity_ms = FrictionVelocityTargetLUC_ms,
         ReferenceHeight_m = ReferenceHeight_m,
-        ZeroPlaneDisplacementHeight_m = ZeroPlaneDisplacementHeight_m,
-        RoughnessLength_m = RoughnessLength_m,
-        MoninObukhovLength_m = ObukhovLength_Anemometer_m
+        ZeroPlaneDisplacementHeight_m = ZeroPlaneDisplacementHeightTargetLUC_m,
+        RoughnessLength_m = RoughnessLengthTargetLUC_m,
+        MoninObukhovLength_m = ObukhovLengthTargetLUC
       ),
       # _Gravitational settling velocity------
       MeanFreePathOfAirMolecule_m = CalculateMeanFreePath(
@@ -221,7 +267,7 @@ CalculateDepositionVelocity <- function(InputTable) {
       # _E_b-----
       # Loss efficiency by Brownian diffusion
       BrownianDiffusionParameterGamma = GetLandUseParameters(
-        LUCs = LUCZhang2001,
+        LUCs = TargetLUCCodeZhang2001,
         Seasons = Season,
         TargetPar = "gamma",
         Parametrization = Parametrization
@@ -233,11 +279,11 @@ CalculateDepositionVelocity <- function(InputTable) {
       ),
       # _Stokes number-----
       SurfaceIsVegetated = case_when(
-        LUCZhang2001 %in% NonVegetatedLUCs ~ F,
+        TargetLUCCodeZhang2001 %in% NonVegetatedLUCs ~ F,
         T ~ T
       ),
       StokesNumber = CalculateStokesNumber(
-        FrictionVelocity_ms = FrictionVelocity_Anemometer_ms,
+        FrictionVelocity_ms = FrictionVelocityTargetLUC_ms,
         SettlingVelocity_ms = SettlingVelocity_ms,
         CharacteristicRadius_m = CharacteristicRadius_m,
         KinematicViscosityOfAir_m2s = KinematicViscosityOfAir_m2s,
@@ -261,7 +307,7 @@ CalculateDepositionVelocity <- function(InputTable) {
       # Surface resistance
       R_s_sm = CalculateSurfaceResistance(
         SurfaceIsWet = SurfaceIsWet_bool,
-        FrictionVelocity_ms = FrictionVelocity_Anemometer_ms,
+        FrictionVelocity_ms = FrictionVelocityTargetLUC_ms,
         StokesNumber = StokesNumber,
         E_b = E_b,
         E_Im = E_Im,
@@ -270,7 +316,29 @@ CalculateDepositionVelocity <- function(InputTable) {
       ),
       # _V_d---------
       V_d_RefHeight_ms = SettlingVelocity_ms + 1 / (R_a_sm + R_s_sm)
+    ) %>%
+    ungroup()
+
+
+  # Sanity checks-----
+  Results <- Results %>%
+    mutate(
+      # Wind speed must be a monotonic function of height
+      WindSpeedOK = case_when(
+        (AnemometerHeight_m <= WindSpeedBlendingHeight_m) & (WindSpeedAtAnemometerHeight_ms <= WindSpeedAtBlendingHeight_ms) ~ T,
+        (AnemometerHeight_m >= WindSpeedBlendingHeight_m) & (WindSpeedAtAnemometerHeight_ms >= WindSpeedAtBlendingHeight_ms) ~ T,
+        T ~ F
+      )
     )
+
+  if (!all(Results$WindSpeedOK)) {
+    stop("Calculated WindSpeedAtBlendingHeight_ms is not a monotonic function of height (by comparison to WindSpeedAtAnemometerHeight_ms).")
+  }
+
+  Results <- Results %>%
+    select(-WindSpeedOK)
+
+
 
   # Return resuts
   return(Results)
