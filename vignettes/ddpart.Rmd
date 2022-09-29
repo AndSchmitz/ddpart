@@ -15,6 +15,7 @@ vignette: >
 <!-- toc: true -->
 <!-- --- -->
 
+
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -33,10 +34,10 @@ the original publication (Emerson et al. (2020)).
 
 Usually, the wrapper functions CalculateDepositionVelocity() or
 CalculateDepositionVelocity2() would be used. These functions include the
-calculation of atmospheric stability conditions (Monin-Obukhov-Length, friction
-velocity) via the Pasquill class approach. This has the advantage that common
-meteorological measurements (or modelled data) can be used as an input (e.g.
-air temperature, wind speed, etc.). If this is not required because direct data
+calculation of atmospheric stability conditions (Monin-Obukhov-Length) and friction
+velocity via the Pasquill class approach. This has the advantage that widely
+available meteorological measurements (or modelled data) can be used as an input (e.g.
+wind speed, solar radiation, etc.). If this is not required because direct data
 on friction velocity is available, the underlying functions to calculate the
 resistance components can be called directly to skip the Pasquill class
 approach. See section "Validation" for examples where this is the case.
@@ -89,7 +90,7 @@ Figure 1: Example time series of meteorological data.
 
 ## Calculate dry deposition velocity
 
-In the following code block, the function ddpart::CalculateDepositionVelocity()
+In the following code block, the function CalculateDepositionVelocity()
 is used. This function requires a dataframe as input ("InputTable"). For each
 row of InputTable, a deposition velocity is calculated. The InputTable must
 contain all information required to calculate aerodynamic resistance and 
@@ -128,8 +129,7 @@ Results <- CalculateDepositionVelocity(
 
 ResultsLong <- Results %>%
   mutate(
-    DryDepositionVelocity_cms = V_d_RefHeight_ms * 100,
-    WetParticleDiameter_um = ParticleDiameter_m * 1e6
+    DryDepositionVelocity_cms = V_d_RefHeight_ms * 100
   ) %>%
   select(TimeStampUTC, DryDepositionVelocity_cms) %>%
   pivot_longer(
@@ -362,9 +362,14 @@ TableData <- Output %>%
     names_to = "Parameter"
   ) %>%
   mutate(
-    Parametrization_LUC = paste0(Parametrization, "_LUC", LUC)
+    ParametrizationShort = case_when(
+      Parametrization == "Emerson20" ~ "E20",
+      Parametrization == "Zhang01" ~ "Z01",
+      T ~ "ERROR"
+    ),
+    Parametrization_LUC = paste0(ParametrizationShort, "_LUC", LUC)
   ) %>%
-  select(-Parametrization, -LUC) %>%
+  select(-Parametrization, -ParametrizationShort, -LUC) %>%
   pivot_wider(
     names_from = "Parametrization_LUC",
     values_from = "value"
