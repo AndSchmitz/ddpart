@@ -9,16 +9,14 @@
 #' @param FrictionVelocity_ms Friction velocity in m/s.
 #'
 #' @param StokesNumber Stokes number.
-#' in m.
 #'
 #' @param E_b Loss efficiency by brownian diffusion.
-#' in m.
-#' #'
+#'
 #' @param E_Im Loss efficiency by impaction.
-#' in m.
-#' #'
+#'
 #' @param E_In Loss efficiency by interception.
-#' in m.
+#'
+#' @param ParticleDiameter_m Particle diameter in m.
 #'
 #' @param Parametrization A character defining which parametrization to use.
 #' Valid values are "Emerson20" and "Zhang01"
@@ -38,6 +36,7 @@ CalculateSurfaceResistance <- function(SurfaceIsWet,
                                        E_b,
                                        E_Im,
                                        E_In,
+                                       ParticleDiameter_m,
                                        Parametrization) {
 
   # Sanity checks
@@ -48,18 +47,30 @@ CalculateSurfaceResistance <- function(SurfaceIsWet,
       (length(E_b) != InputLength) |
       (length(E_Im) != InputLength) |
       (length(E_In) != InputLength) |
+      (length(ParticleDiameter_m) != InputLength) |
       (length(Parametrization) != InputLength)
   ) {
     stop("All inputs must have same length.")
   }
 
+  #Get parameter epsilon
   epsilon_0 <- GetParameters(Parametrization, "epsilon_0")
 
-
-  # Bounce correction
-  # Zhang et al. 2001 eq9
+  #Bounce correction
+  #Zhang et al. 2001 eq9
+  #"Particles larger than 5 um may rebound after hitting a surface."
+  #"[...] thus the same formula is used in the present study with the condition
+  #that no particles rebound from a wet surface."
+  #Set bounce correction to 1 (no re-bounce)
   BounceCorrectionTerm <- rep(x = 1, times = InputLength)
+  #Modify value at rows where surface is dry
   BounceCorrectionTerm[!SurfaceIsWet] <- exp(-sqrt(StokesNumber[!SurfaceIsWet]))
+  #Disable bounce correction again at rows where particles are smaller than
+  #5 um diameter
+  idx_small <- which(ParticleDiameter_m <= 5e-6)
+  BounceCorrectionTerm[idx_small] <- 1
+
+  #Calculate surface resistance according to Zhang et al. (2001) eq. 5
   R_s <- 1 / (epsilon_0 * FrictionVelocity_ms * BounceCorrectionTerm * (E_b + E_Im + E_In))
   return(R_s)
 }

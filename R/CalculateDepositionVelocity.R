@@ -310,6 +310,7 @@ CalculateDepositionVelocity <- function(InputTable) {
         E_b = E_b,
         E_Im = E_Im,
         E_In = E_In,
+        ParticleDiameter_m = ParticleDiameter_m,
         Parametrization = Parametrization
       ),
       # _V_d---------

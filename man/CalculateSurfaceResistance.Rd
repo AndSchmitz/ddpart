@@ -11,6 +11,7 @@ CalculateSurfaceResistance(
   E_b,
   E_Im,
   E_In,
+  ParticleDiameter_m,
   Parametrization
 )
 }
@@ -20,19 +21,15 @@ bounce correction term), boolean.}
 
 \item{FrictionVelocity_ms}{Friction velocity in m/s.}
 
-\item{StokesNumber}{Stokes number.
-in m.}
+\item{StokesNumber}{Stokes number.}
 
-\item{E_b}{Loss efficiency by brownian diffusion.
-in m.
-#'}
+\item{E_b}{Loss efficiency by brownian diffusion.}
 
-\item{E_Im}{Loss efficiency by impaction.
-in m.
-#'}
+\item{E_Im}{Loss efficiency by impaction.}
 
-\item{E_In}{Loss efficiency by interception.
-in m.}
+\item{E_In}{Loss efficiency by interception.}
+
+\item{ParticleDiameter_m}{Particle diameter in m.}
 
 \item{Parametrization}{A character defining which parametrization to use.
 Valid values are "Emerson20" and "Zhang01"}
