@@ -1,28 +1,25 @@
-#' @title CalculateHygroscopicSwelling
+#'@title CalculateHygroscopicSwelling
 #'
-#' @description Calculates increase in particle diameter due to water update
-#' according to Zhang et al. (2001) eq. 10. All parameters must be vectors of
-#' same lengths. Note that a correction has been applied to Zhang et al.
-#' (2001) eq. 10: The whole equation is raised to the power of 1/3, following
-#' the original publication mentioned by Zhang: Gerber (1985). Without this
-#' correction, the wet diameter is often smaller compared to the dry diameter.
+#'@description Calculates increase in particle diameter due to water update
+#'  according to Zhang et al. (2001) eq. 10. All parameters must be vectors of
+#'  same lengths. Note that a correction has been applied to Zhang et al. (2001)
+#'  eq. 10: The whole equation is raised to the power of 1/3, following the
+#'  original publication mentioned by Zhang: Gerber (1985). Without this
+#'  correction, the wet diameter is often smaller compared to the dry diameter.
 #'
-#' @param DryParticleDiameter_m The diameter of the particles before application
-#' of hygroscopic swelling (dry) in m.
+#'@param DryParticleDiameter_m The diameter of the particles before application
+#'  of hygroscopic swelling (dry) in m.
 #'
-#' @param AerosolType Hygroscopic swelling differs depending on aerosol type.
-#' Implemented types are (1) "Dry" for no swelling, (2) "SeaSalt", (3)  "Urban",
-#' (4) "Rural" and (5) "AmmoniumSulfate".
+#'@param AerosolType Hygroscopic swelling differs depending on aerosol type.
+#'  Implemented types are (1) "Dry" for no swelling, (2) "SeaSalt", (3) "Urban",
+#'  (4) "Rural" and (5) "AmmoniumSulfate".
 #'
-#' @param RelHum_percent Relative humidity in percent.
+#'@param RelHum_percent Relative humidity in percent.
 #'
-#' @return A vector of particle diameters after accounting for hygroscopic
-#' swelling in m.
+#'@return A vector of particle diameters after accounting for hygroscopic
+#'  swelling in m.
 #'
 #' @examples
-#'
-#' library(tidyr)
-#' library(ggplot2)
 #'
 #' DryParticleDiameter_m <- c(0.01, 1, 5, 10) * 1e-6
 #' AerosolType <- c("SeaSalt", "Rural", "Dry")
@@ -42,6 +39,7 @@
 #'     )
 #'   )
 #'
+#'if (require("ggplot2")) {
 #' ggplot(
 #'   data = Output,
 #'   mapping = aes(
@@ -52,20 +50,21 @@
 #'   )
 #' ) +
 #'   geom_line()
+#'}
 #'
-#' @export
+#'@export
 #'
-#' @import dplyr
+#'@import dplyr
 #'
-#' @references
+#'@references
 #'
-#' Zhang L, Gong S, Padro J, Barrie L. A size-segregated particle dry deposition
-#' scheme for an atmospheric aerosol module. Atmospheric Environment
-#' 2001;35:549–560.
+#'Zhang L, Gong S, Padro J, Barrie L. A size-segregated particle dry deposition
+#'scheme for an atmospheric aerosol module. Atmospheric Environment
+#'2001;35:549–560.
 #'
-#' Gerber HE. 1985. Relative - Humidity Parameterization of the Navy Aerosol
-#' Model (NAM). NAVAL RESEARCH LAB WASHINGTON DC; December 30, 1985.
-#' Available at: https://apps.dtic.mil/sti/citations/ADA163209.
+#'Gerber HE. 1985. Relative - Humidity Parameterization of the Navy Aerosol
+#'Model (NAM). NAVAL RESEARCH LAB WASHINGTON DC; December 30, 1985. Available
+#'at: https://apps.dtic.mil/sti/citations/ADA163209.
 
 
 

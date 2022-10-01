@@ -1,14 +1,21 @@
 #' @title CalculateAerodynamicResistance
 #'
-#' @description Calculates aerodynamic resistance according to Erisman and Draaijers (1995) page 58. equation 3.4.
+#' @description Calculates aerodynamic resistance according to Erisman and
+#'   Draaijers (1995) page 58. equation 3.4.
 #'
 #' @param FrictionVelocity_ms Friction velocity in in m/s.
+#'
+#' @param ReferenceHeight_m Reference height in m. Aerodynamic resistance will
+#'   be calculated between ReferenceHeight_m and the sum of
+#'   ZeroPlaneDisplacementHeight_m + RoughnessLength_m.
 #'
 #' @param ZeroPlaneDisplacementHeight_m Displacement height in m.
 #'
 #' @param RoughnessLength_m Roughness length in m.
 #'
-#' @param MoninObukhovLength_m Monin-Obkukhiv length in m. Monin-Obkukhiv length for neutral stratification (Pasquill class D) is "infinity". This case is encoded by a value defined in GetConstants()$InfLength in this package.
+#' @param MoninObukhovLength_m Monin-Obkukhiv length in m. Monin-Obkukhiv length
+#'   for neutral stratification (Pasquill class D) is "infinity". This case is
+#'   encoded by a value defined in GetConstants()$InfLength in this package.
 #'
 #' @return Aerodynamic resistance in s/m.
 #'
@@ -43,7 +50,8 @@
 #' )
 #'
 #' @export
-#' @references Erisman JW, Draaijers GPJ. Atmospheric Deposition In Relation to Acidification and Eutrophication. 1995.
+#' @references Erisman JW, Draaijers GPJ. Atmospheric Deposition In Relation to
+#'   Acidification and Eutrophication. 1995.
 
 
 CalculateAerodynamicResistance <- function(FrictionVelocity_ms,

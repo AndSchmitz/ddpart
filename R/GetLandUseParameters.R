@@ -1,16 +1,38 @@
 #' @title GetLandUseParameters
 #'
-#' @description Get land use parameters according to Zhang et al. (2001) table 3 or Emerson et al. (2020). Emerson20 differ only in parameter "gamma" from Zhang01 regarding land-use specific parameters. The function is vectorized with respect to parameters "LUC" and "Seasons". I.e. these two parameters must be vectors of same length.
-#' @param LUCs A vector of land use class codes (integer values). Currently, only land use classes 1-7 are implemented.
+#' @description Get land use parameters according to Zhang et al. (2001) table 3
+#'   or Emerson et al. (2020). Emerson20 differ only in parameter "gamma" from
+#'   Zhang01 regarding land-use specific parameters. The function is vectorized
+#'   with respect to parameters "LUC" and "Seasons". I.e. these two parameters
+#'   must be vectors of same length.
+#'
+#' @param LUCs A vector of land use class codes (integer values). Currently,
+#'   only land use classes 1-7 are implemented.
+#'
 #' @param Seasons A vector of season codes (integer values 1-5).
-#' @param TargetPar A character indicating which parameter to return from Zhang et al. (2001) table 3 ("z_0_m", "A_mm", "alpha" or "gamma").
-#' @param Parametrization A character indicating which parametrization to use ("Emerson20" or "Zhang01")
+#'
+#' @param TargetPar A character indicating which parameter to return from Zhang
+#'   et al. (2001) table 3 ("z_0_m", "A_mm", "alpha" or "gamma").
+#'
+#' @param Parametrization A vector of characters indicating which
+#'   parametrization to use ("Emerson20" or "Zhang01")
+#'
 #' @return A vector of values for parameter "TargetPar".
-#' @examples GetLandUseParameters(LUCs = c(1, 2), Seasons = c(2, 5), TargetPar = "A_mm")
+#'
+#' @examples GetLandUseParameters(
+#'   LUCs = c(1, 2),
+#'   Seasons = c(2, 5),
+#'   TargetPar = "A_mm",
+#'   Parametrization = rep("Emerson20", 2)
+#' )
+#'
 #' @export
+#'
 #' @import dplyr
-#' @references
-#' Zhang L, Gong S, Padro J, Barrie L. A size-segregated particle dry deposition scheme for an atmospheric aerosol module. Atmospheric Environment 2001;35:549–560.
+#'
+#' @references Zhang L, Gong S, Padro J, Barrie L. A size-segregated particle
+#'   dry deposition scheme for an atmospheric aerosol module. Atmospheric
+#'   Environment 2001;35:549–560.
 
 GetLandUseParameters <- function(LUCs,
                                  Seasons,

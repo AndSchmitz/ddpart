@@ -1,14 +1,19 @@
 #' @title CalculateFrictionVelocity
 #'
-#' @description Calculates friction velocity according to Erisman and Draaijers (1995) page 67 equation 3.25.
+#' @description Calculates friction velocity according to Erisman and Draaijers
+#'   (1995) page 67 equation 3.25.
 #'
 #' @param WindSpeed_ms Wind speed in m/s.
+#'
+#' @param AnemometerHeight_m Height in m to which WindSpeed_ms refers.
 #'
 #' @param ZeroPlaneDisplacementHeight_m Displacement height in m.
 #'
 #' @param RoughnessLength_m Roughness length in m.
 #'
-#' @param MoninObukhovLength_m Monin-Obkukhiv length in m. Monin-Obkukhiv length for neutral stratification (Pasquill class D) is "infinity". This case is encoded by a value defined in GetConstants()$InfLength in this package.
+#' @param MoninObukhovLength_m Monin-Obkukhiv length in m. Monin-Obkukhiv length
+#'   for neutral stratification (Pasquill class D) is "infinity". This case is
+#'   encoded by a value defined in GetConstants()$InfLength in this package.
 #'
 #' @return A friction velocity value in m.
 #'
@@ -42,7 +47,8 @@
 #'   MoninObukhovLength_m = MOL_m
 #' )
 #' @export
-#' @references Erisman JW, Draaijers GPJ. Atmospheric Deposition In Relation to Acidification and Eutrophication. 1995.
+#' @references Erisman JW, Draaijers GPJ. Atmospheric Deposition In Relation to
+#'   Acidification and Eutrophication. 1995.
 
 
 CalculateFrictionVelocity <- function(WindSpeed_ms,

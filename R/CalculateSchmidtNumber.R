@@ -1,11 +1,13 @@
 #' @title CalculateSchmidtNumber
 #'
-#' @description Calculates the Schmidt number according to Seinfeld and
-#' Pandis (2006) page 574
+#' @description Calculates the Schmidt number according to Seinfeld and Pandis
+#'   (2006) page 574
 #'
-#' @param DynamicViscosityAir_kgms Dynamic viscosity of air in kg/(m*s). E.g. provided by CalculateDynamicViscosityOfAir().
+#' @param DynamicViscosityAir_kgms Dynamic viscosity of air in kg/(m*s). E.g.
+#'   provided by CalculateDynamicViscosityOfAir().
 #'
-#' @param KinematicViscosityOfAir_m2s Kinematic viscosity of air in m2/2. E.g. provided by CalculateKinematicViscosityOfAir().
+#' @param KinematicViscosityOfAir_m2s Kinematic viscosity of air in m2/2. E.g.
+#'   provided by CalculateKinematicViscosityOfAir().
 #'
 #' @param T_air_K Air temperature in Kelvin.
 #'
@@ -17,7 +19,7 @@
 #'
 #' # Reproduce relation between brownian diffusivity and particle diameter as shown
 #' # in Seinfeld and Pandis (2006) page 417 Figure 9.8
-#' library(ggplot2)
+#'
 #' data(diffusion_validation)
 #' PlotData <- data.frame(
 #'   #Set standard atmospheric conditions
@@ -52,6 +54,7 @@
 #'   )
 #'
 #' #Plot
+#' if (require("ggplot2")) {
 #' ggplot()  +
 #'   geom_line(
 #'     data = diffusion_validation %>%
@@ -83,10 +86,12 @@
 #'   theme(
 #'     legend.position = "bottom"
 #'   )
+#'  }
 #'
 #' @export
 #'
-#' @references Seinfeld JH, Pandis SN. Atmospheric Chemistry and Physics: From Air Pollution to Climate Change. Wiley; 2006.
+#' @references Seinfeld JH, Pandis SN. Atmospheric Chemistry and Physics: From
+#'   Air Pollution to Climate Change. Wiley; 2006.
 #'
 #'
 CalculateSchmidtNumber <- function(DynamicViscosityAir_kgms,

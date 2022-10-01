@@ -4,13 +4,17 @@ Title: Simulation of particle dry deposition
 Version: 0.1.0
 Author: Andreas Schmitz
 Maintainer: Andreas Schmitz <andreas.schmitz@lanuv.nrw.de>
-Description: Implementation of the particle dry deposition model of Zhang et al. (2001) including the parametrization from Emerson et al. (2020)
+Description: Implementation of the particle dry deposition model of Zhang et al. (2001) including the parametrization from Emerson et al. (2020).
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Suggests: 
+    devtools,
+    ggplot2,
     knitr,
-    rmarkdown
+    rmarkdown,
+    scales,
+    tidyr
 VignetteBuilder: knitr
 RoxygenNote: 7.1.2
 Depends: 

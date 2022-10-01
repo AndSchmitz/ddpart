@@ -15,17 +15,24 @@ CalculateAerodynamicResistance(
 \arguments{
 \item{FrictionVelocity_ms}{Friction velocity in in m/s.}
 
+\item{ReferenceHeight_m}{Reference height in m. Aerodynamic resistance will
+be calculated between ReferenceHeight_m and the sum of
+ZeroPlaneDisplacementHeight_m + RoughnessLength_m.}
+
 \item{ZeroPlaneDisplacementHeight_m}{Displacement height in m.}
 
 \item{RoughnessLength_m}{Roughness length in m.}
 
-\item{MoninObukhovLength_m}{Monin-Obkukhiv length in m. Monin-Obkukhiv length for neutral stratification (Pasquill class D) is "infinity". This case is encoded by a value defined in GetConstants()$InfLength in this package.}
+\item{MoninObukhovLength_m}{Monin-Obkukhiv length in m. Monin-Obkukhiv length
+for neutral stratification (Pasquill class D) is "infinity". This case is
+encoded by a value defined in GetConstants()$InfLength in this package.}
 }
 \value{
 Aerodynamic resistance in s/m.
 }
 \description{
-Calculates aerodynamic resistance according to Erisman and Draaijers (1995) page 58. equation 3.4.
+Calculates aerodynamic resistance according to Erisman and
+  Draaijers (1995) page 58. equation 3.4.
 }
 \examples{
 
@@ -59,5 +66,6 @@ CalculateAerodynamicResistance(
 
 }
 \references{
-Erisman JW, Draaijers GPJ. Atmospheric Deposition In Relation to Acidification and Eutrophication. 1995.
+Erisman JW, Draaijers GPJ. Atmospheric Deposition In Relation to
+  Acidification and Eutrophication. 1995.
 }

@@ -9,15 +9,16 @@ CalculateKinematicViscosityOfAir(DynamicViscosityAir_kgms, AirDensity_kgm3)
 \arguments{
 \item{DynamicViscosityAir_kgms}{Dynamic viscosity of air in kg/(m*s).}
 
-\item{T_air_K}{Air temperature in Kelvin.}
+\item{AirDensity_kgm3}{Density of air in kg/m3.}
 }
 \value{
 Kinematic viscosity of air in kg/(m*s).
 }
 \description{
 Calculates kinematic viscosity of air according to Dixon (2007)
-appendix B
+  appendix B
 }
 \references{
-Dixon JC. The Shock Absorber Handbook. John Wiley & Sons; October 22, 2007.
+Dixon JC. The Shock Absorber Handbook. John Wiley & Sons; October
+  22, 2007.
 }

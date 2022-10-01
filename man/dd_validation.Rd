@@ -5,14 +5,12 @@
 \alias{dd_validation}
 \title{Data for validation of dry deposition}
 \format{
-A data frame with 106 rows and 4 columns:
-\describe{
+A data frame with 106 rows and 4 columns: \describe{
   \item{ParticleDiameter_um}{Particle diameter in um}
   \item{DepositionVelocity_cms}{Dry deposition velocity in cm^2/s}
-  \item{Process}{Dry-deposition sub-process}
-  \item{LUC}{Land use class: 1 (Needleleaf forest, 2 broadleaf forest, 6
-  grassland)}
-}
+  \item{Parametrization}{The parametrization for which the data has been
+  extracted (Zhang01 or Emerson20)} \item{LUC}{Land use class: 1 (Needleleaf
+  forest, 2 broadleaf forest, 6 grassland)} }
 }
 \usage{
 data(dd_validation)
@@ -24,8 +22,8 @@ different land use types according to Emerson et al. (2020) and Zhang et al.
 }
 \references{
 Emerson EW, Hodshire AL, DeBolt HM, Bilsback KR, Pierce JR,
-McMeeking GR, Farmer DK. Revisiting particle dry deposition and its role in
-radiative effect estimates. Proceedings of the National Academy of Sciences
-2020;117:26076–26082.
+  McMeeking GR, Farmer DK. Revisiting particle dry deposition and its role in
+  radiative effect estimates. Proceedings of the National Academy of Sciences
+  2020;117:26076–26082.
 }
 \keyword{datasets}

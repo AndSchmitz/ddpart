@@ -15,17 +15,22 @@ CalculateFrictionVelocity(
 \arguments{
 \item{WindSpeed_ms}{Wind speed in m/s.}
 
+\item{AnemometerHeight_m}{Height in m to which WindSpeed_ms refers.}
+
 \item{ZeroPlaneDisplacementHeight_m}{Displacement height in m.}
 
 \item{RoughnessLength_m}{Roughness length in m.}
 
-\item{MoninObukhovLength_m}{Monin-Obkukhiv length in m. Monin-Obkukhiv length for neutral stratification (Pasquill class D) is "infinity". This case is encoded by a value defined in GetConstants()$InfLength in this package.}
+\item{MoninObukhovLength_m}{Monin-Obkukhiv length in m. Monin-Obkukhiv length
+for neutral stratification (Pasquill class D) is "infinity". This case is
+encoded by a value defined in GetConstants()$InfLength in this package.}
 }
 \value{
 A friction velocity value in m.
 }
 \description{
-Calculates friction velocity according to Erisman and Draaijers (1995) page 67 equation 3.25.
+Calculates friction velocity according to Erisman and Draaijers
+  (1995) page 67 equation 3.25.
 }
 \examples{
 
@@ -58,5 +63,6 @@ CalculateFrictionVelocity(
 )
 }
 \references{
-Erisman JW, Draaijers GPJ. Atmospheric Deposition In Relation to Acidification and Eutrophication. 1995.
+Erisman JW, Draaijers GPJ. Atmospheric Deposition In Relation to
+  Acidification and Eutrophication. 1995.
 }

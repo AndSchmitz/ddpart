@@ -1,21 +1,32 @@
 #' @title GetParameters
 #'
 #' @description This function returns empirical constants for dry deposition
-#' sub-processes according to Zhang et al. (2001) or according to the
-#' re-paramtrization by Emerson et al. (2020). This function covers only
-#' parameters that are not land-use specific (see GetLandUseParameters()).
+#'   sub-processes according to Zhang et al. (2001) or according to the
+#'   re-paramtrization by Emerson et al. (2020). This function covers only
+#'   parameters that are not land-use specific (see GetLandUseParameters()).
+#'
+#' @param Parametrization A character, either "Zhang01" or "Emerson20".
+#'
+#' @param TargetParameter A character indicating which parameter value to
+#'   return. Valid options are "C_b", "beta", "C_Im", "nu", "C_In" and
+#'   "epsilon_0". See Emerson et al. (2020) table S1.
 #'
 #' @return A named list of parameters.
 #'
 #' @examples
-#' GetParameters(Parametrization = "Zhang01")
-#' GetParameters(Parametrization = "Emerson20")
+#' GetParameters(Parametrization = "Zhang01", TargetParameter = "C_b")
+#' GetParameters(Parametrization = "Emerson20", TargetParameter = "C_b")
 #'
 #' @export
-#' @references
-#' Zhang L, He Z. Technical Note: An empirical algorithm estimating dry deposition velocity of fine, coarse and giant particles. Atmospheric Chemistry and Physics 2014;14:3729–3737.
-#' Zhang L, Gong S, Padro J, Barrie L. A size-segregated particle dry deposition scheme for an atmospheric aerosol module. Atmospheric Environment 2001;35:549–560.
-#' Emerson EW, Hodshire AL, DeBolt HM, Bilsback KR, Pierce JR, McMeeking GR, Farmer DK. Revisiting particle dry deposition and its role in radiative effect estimates. Proceedings of the National Academy of Sciences 2020;117:26076–26082.
+#'
+#' @references Emerson EW, Hodshire AL, DeBolt HM, Bilsback KR, Pierce JR,
+#' McMeeking GR, Farmer DK. Revisiting particle dry deposition and its role in
+#' radiative effect estimates. Proceedings of the National Academy of Sciences
+#' 2020;117:26076–26082.
+#'
+#' Zhang L, Gong S, Padro J, Barrie L. A size-segregated particle dry deposition
+#' scheme for an atmospheric aerosol module. Atmospheric Environment
+#' 2001;35:549–560.
 
 
 GetParameters <- function(Parametrization,
@@ -79,6 +90,7 @@ GetParameters <- function(Parametrization,
     }
     return(Parameters[[TargetParameter]])
   } # end of scalar function
+
 
   # Vectorize this function
   GetParameters_Vectorized <- Vectorize(
