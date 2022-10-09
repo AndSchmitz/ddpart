@@ -14,8 +14,8 @@ GetConstants <- function() {
     RoundingPrecision = 10,
     g = 9.81,
     # Von Karman constant
-    # https://en.wikipedia.org/wiki/Von_K%C3%A1rm%C3%A1n_constant
-    kappa = 0.41,
+    # Seinfeld and Pandis (2006) page 744
+    kappa = 0.40,
     # Universal gas constant
     R = 8.314, # m3 * Pa / (K * mol)
     # Molar mass of dry air
