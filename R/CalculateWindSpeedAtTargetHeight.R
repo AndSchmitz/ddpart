@@ -1,8 +1,28 @@
-# Calculate wind speed according to stability-corrected log wind profile.
-# This function is rearrangement of the formula for friction velocity after
-# Erisman JW, Draaijers GPJ. Atmospheric Deposition In Relation to Acidification
-# and Eutrophication. 1995. Page 67. It is in line with
-# https://en.wikipedia.org/wiki/Log_wind_profile
+#' @title CalculateWindSpeedAtTargetHeight
+#'
+#' @description Calculate wind speed according to stability-corrected log wind
+#' profile. This function is rearrangement of the formula for friction velocity
+#' after Erisman and Draaijers (1995) page 67. It is in line with
+#' https://en.wikipedia.org/wiki/Log_wind_profile
+#'
+#' @param FrictionVelocity_ms Friction velocity in m/s.
+#'
+#' @param TargetHeight_m Height at which the wind speed should be calculated in
+#' m.
+#'
+#' @param ZeroPlaneDisplacementHeight_m Zero-plane displacement height in m.
+#'
+#' @param RoughnessLength_m Roughness length in m.
+#'
+#' @param MoninObukhovLength_m Monin-Obukhov-length in m.
+#'
+#' @return Wind speed at target height in m/s.
+#'
+#' @export
+#'
+#' @references Erisman JW, Draaijers GPJ. Atmospheric Deposition In Relation to Acidification
+# and Eutrophication. 1995
+
 CalculateWindSpeedAtTargetHeight <- function(FrictionVelocity_ms,
                                              TargetHeight_m,
                                              ZeroPlaneDisplacementHeight_m,
@@ -14,9 +34,9 @@ CalculateWindSpeedAtTargetHeight <- function(FrictionVelocity_ms,
   InputLength <- length(FrictionVelocity_ms)
   if (
     (length(TargetHeight_m) != InputLength) |
-      (length(ZeroPlaneDisplacementHeight_m) != InputLength) |
-      (length(RoughnessLength_m) != InputLength) |
-      (length(MoninObukhovLength_m) != InputLength)
+    (length(ZeroPlaneDisplacementHeight_m) != InputLength) |
+    (length(RoughnessLength_m) != InputLength) |
+    (length(MoninObukhovLength_m) != InputLength)
   ) {
     stop("All inputs must have same length.")
   }
@@ -31,10 +51,10 @@ CalculateWindSpeedAtTargetHeight <- function(FrictionVelocity_ms,
     # Propagate NA
     if (
       is.na(FrictionVelocity_ms) |
-        is.na(TargetHeight_m) |
-        is.na(ZeroPlaneDisplacementHeight_m) |
-        is.na(RoughnessLength_m) |
-        is.na(MoninObukhovLength_m)
+      is.na(TargetHeight_m) |
+      is.na(ZeroPlaneDisplacementHeight_m) |
+      is.na(RoughnessLength_m) |
+      is.na(MoninObukhovLength_m)
     ) {
       return(NA)
     }
