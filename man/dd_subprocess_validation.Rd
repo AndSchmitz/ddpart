@@ -11,16 +11,19 @@ A data frame with 153 rows and 4 columns:
   \item{DepositionVelocity_cms}{Dry deposition velocity resulting from the
   respective dry-deposition sub-process in cm^2/s}
   \item{Process}{Dry-deposition sub-process}
-  \item{Parametrization}{Parametrization (Emerson or Zhang)}
+  \item{Parametrization}{Parametrization (GEOS-Chem old or GEOS-Chem new)}
 }
 }
 \usage{
 data(dd_subprocess_validation)
 }
 \description{
-Shows the dependency of the dry deposition subprocesses to particle size for
-the parameterization according to Emerson et al. (2020) and Zhang et al.
-(2001). Data extracted from Emerson et al. (2020) fig. 2.
+Data extracted from Emerson et al. (2020) fig. 2. Shows the dependency of
+dry deposition subprocesses to particle size according to the old and the old
+and the revised parametrization of the GEOS-Chem model.
+Note that the old parametrization is not identical to the Zhang et al. (2001)
+parametrization although it is termed "Zhang (2001)" in the Emerson et al.
+(2020) paper. See ?GetLandUseParameters for details.
 }
 \references{
 Emerson EW, Hodshire AL, DeBolt HM, Bilsback KR, Pierce JR,

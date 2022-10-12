@@ -9,16 +9,20 @@ A data frame with 106 rows and 4 columns: \describe{
   \item{ParticleDiameter_um}{Particle diameter in um}
   \item{DepositionVelocity_cms}{Dry deposition velocity in cm^2/s}
   \item{Parametrization}{The parametrization for which the data has been
-  extracted (Zhang01 or Emerson20)} \item{LUC}{Land use class: 1 (Needleleaf
+  extracted (GEOS-Chem old or GEOS-Chem new)}
+  \item{LUC}{Land use class: 1 (Needleleaf
   forest, 2 broadleaf forest, 6 grassland)} }
 }
 \usage{
 data(dd_validation)
 }
 \description{
-Shows the dependency of dry deposition velocity to particle size for
-different land use types according to Emerson et al. (2020) and Zhang et al.
-(2001). Data extracted from Emerson et al. (2020) fig. 1.
+Data extracted from Emerson et al. (2020) fig. 1. Shows the dependency of
+dry deposition velocity to particle size for different land use types
+according to the old and the revised parametrization of the GEOS-Chem model.
+Note that the old parametrization is not identical to the Zhang et al. (2001)
+parametrization although it is termed "Zhang (2001)" in the Emerson et al.
+(2020) paper. See ?GetLandUseParameters for details.
 }
 \references{
 Emerson EW, Hodshire AL, DeBolt HM, Bilsback KR, Pierce JR,

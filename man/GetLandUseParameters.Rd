@@ -4,41 +4,101 @@
 \alias{GetLandUseParameters}
 \title{GetLandUseParameters}
 \usage{
-GetLandUseParameters(LUCs, Seasons, Parametrization, TargetPar)
+GetLandUseParameters(LUCNames, Seasons, Parametrizations, TargetParameter)
 }
 \arguments{
-\item{LUCs}{A vector of land use class codes (integer values). Currently,
-only land use classes 1-7 are implemented.}
+\item{LUCNames}{A vector of land use class names (character). Currently,
+ allowed values are
+
+ - "Grassland"
+
+ - "Needleleaf"
+
+ - "DecBroadleaf" (deciduous broadleaf)
+
+ - "ShrubsInterWood" (shrubs and interrupted woodland), only for the Zhang01
+ parametrization}
 
 \item{Seasons}{A vector of season codes (integer values 1-5).}
 
-\item{Parametrization}{A vector of characters indicating which
-parametrization to use ("Emerson20" or "Zhang01")}
+\item{Parametrizations}{A character indicating which parametrization to use
+("Emerson20" or "Zhang01").}
 
-\item{TargetPar}{A character indicating which parameter to return from Zhang
-et al. (2001) table 3 ("z_0_m", "A_mm", "alpha" or "gamma").}
+\item{TargetParameter}{A character indicating which parameter to return
+("z_0_m", "A_mm", "alpha" or "gamma").}
 }
 \value{
-A vector of values for parameter "TargetPar".
+A vector of values for parameter "TargetParameter".
 }
 \description{
 Get land use parameters according to Zhang et al. (2001) table 3
-  or Emerson et al. (2020). Emerson20 differ only in parameter "gamma" from
-  Zhang01 regarding land-use specific parameters. The function is vectorized
-  with respect to parameters "LUC" and "Seasons". I.e. these two parameters
-  must be vectors of same length.
+ or Emerson et al. (2020). There are 4 variants of parametrization for the
+ Zhang01 model. Two of these are implemented in ddpart:
+
+ - A) "Zhang01" (implemented in ddpart): The original model according to
+ Zhang et al. (2001).
+
+ - B) "GEOS-Chem old" (not implemented in ddpart): This is what Emerson et
+ al. (2020) refer to as "Zhang et al. (2001)" in their Fig. 1. It is an
+ adaption of parametrization A) with two differences:
+
+ First, the land use classes in the GEOS-Chem model differ from those in A).
+ The mapping between land use classes is not always straightforward. For
+ example, "Grassland" in B) uses parameters for "shrubs and interrupted
+ woodland" from A). The complete mapping of LUCs is defined in file
+ "drydep_mod.F90" starting in lines 3143:
+ https://github.com/geoschem/geos-chem/blob/main/GeosCore/drydep_mod.F90.
+
+ For the LUCs implemented in ddpart, the mapping Emerson20 <-> Zhang01 is as
+ follows:
+
+ - "Needleleaf" <-> "Needleleaf" (LUC1)
+
+ - "Broadleaf" <-> "Deciduous broadleaf" (LUC4)
+
+ - "Grassland" <-> "Shrubs and interrupted wood-lands" (LUC10)
+
+ Second, no differentiation according to seasons exists. Instead, the average
+ over seasons 1-5 is used for each parameter. See for example
+ "drydep_mod.F90" line 3226.
+
+ C)  "GEOS-Chem new" (not implemented in ddpart): This is the "revised
+ parametrization" in Emerson et al. (2020). It uses the same assignment of
+ LUCs as in B) and also averages land use parameters over seasons, but some
+ parameters have been re-calibrated by Emerson et al. to better match
+ measurement data. Note that although the parameters for "Shrubs and
+ interrupted wood-lands" (LUC10 from Zhang01) are used for grassland, the
+ parametrization is valid for grassland. This is because Emerson20
+ *calibrated* the other parameters, such that the resulting dry deposition
+ velocity matches measurement data for grassland.
+
+ D) "Emerson20" (implemented in ddpart): Same as C) but land use parameters
+ are not averaged over seasons. E.g. parameter "characteristic receptor
+ radius" (A in mm) varies between seasons for deciduous broadleaf forest.
 }
 \examples{
 GetLandUseParameters(
-  LUCs = c(1, 2),
-  Seasons = c(2, 5),
-  TargetPar = "A_mm",
-  Parametrization = rep("Emerson20", 2)
+  LUCNames = c("Grassland", "Needleleaf", "DecBroadleaf"),
+  Seasons = rep(x = 4, times = 3),
+  Parametrizations = rep(x = "Zhang01", times = 3),
+  TargetParameter = "A_mm"
+)
+
+GetLandUseParameters(
+  LUCNames = c("Grassland", "Needleleaf", "DecBroadleaf"),
+  Seasons = rep(x = 4, times = 3),
+  Parametrizations = rep(x = "Emerson20", times = 3),
+  TargetParameter = "A_mm"
 )
 
 }
 \references{
-Zhang L, Gong S, Padro J, Barrie L. A size-segregated particle
-  dry deposition scheme for an atmospheric aerosol module. Atmospheric
-  Environment 2001;35:549–560.
+Zhang L, Gong S, Padro J, Barrie L. A size-segregated particle dry deposition
+scheme for an atmospheric aerosol module. Atmospheric Environment
+2001;35:549–560.
+
+Emerson EW, Hodshire AL, DeBolt HM, Bilsback KR, Pierce JR, McMeeking GR,
+Farmer DK. Revisiting particle dry deposition and its role in radiative effect
+estimates. Proceedings of the National Academy of Sciences
+2020;117:26076–26082.
 }
