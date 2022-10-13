@@ -42,8 +42,8 @@ CalculateDepositionVelocity(InputTable)
   which case the particle rebound effect is disabled. Can be set e.g.
   depending on relative humidity and/or precipitation events.
 
-  - LUCZhang2001: Integer determining the land use class according to Zhang
-  et al. (2001) table 2.
+  - LUCNames: Land use classes (character). See ?GetLandUseParameters for
+  information.
 
   - ReferenceHeight_m: Aeordynamic resistance is calculated between
   ReferenceHeight_m and the effective receptor height (RoughnessLength_m +
@@ -68,10 +68,11 @@ CalculateDepositionVelocity(InputTable)
   according to Zhang et al. (2001). See CalculateHygroscopicSwelling() for
   further details.
 
-  - RelHum_percent:
+  - RelHum_percent: Relativ humidty (%) for hygroscopic swelling of
+  particles.
 
-  - Parametrization A character with allowed value "Emerson20" or "Zhang01".
-  Indicates which parametrization should be used.}
+  - Parametrization: A character indicates which parametrization should be
+  used. See ?GetLandUseParameters for allowed values.}
 }
 \value{
 A data frame repeating the InputTable plus additional columns with

@@ -5,7 +5,8 @@
 #'   re-paramtrization by Emerson et al. (2020). This function covers only
 #'   parameters that are not land-use specific (see GetLandUseParameters()).
 #'
-#' @param Parametrization A character, either "Zhang01" or "Emerson20".
+#' @param Parametrization A character defining which parametrization to use.
+#' See ?GetLandUseParameters for a list of valid values.
 #'
 #' @param TargetParameter A character indicating which parameter value to
 #'   return. Valid options are "C_b", "beta", "C_Im", "nu", "C_In" and
@@ -15,7 +16,7 @@
 #'
 #' @examples
 #' GetParameters(Parametrization = "Zhang01", TargetParameter = "C_b")
-#' GetParameters(Parametrization = "Emerson20", TargetParameter = "C_b")
+#' GetParameters(Parametrization = "GCNewSeason", TargetParameter = "C_b")
 #'
 #' @export
 #'
@@ -38,11 +39,10 @@ GetParameters <- function(Parametrization,
   }
 
   # Sanity check
-  ValidParametrizations <- c("Emerson20", "Zhang01")
+  ValidParametrizations <- c("GCNewSeason", "Zhang01", "GCOld", "GCNew")
   if (!(all(Parametrization %in% ValidParametrizations))) {
     stop(paste("Parameter Parametrization must be on of", paste(ValidParametrizations, collapse = ",")))
   }
-
 
   # Define a function that works on one input row at a time.
   GetParameters_Scalar <- function(Parametrization,
@@ -51,34 +51,44 @@ GetParameters <- function(Parametrization,
       # Empirical constants for calculation of E_b
       C_b = case_when(
         # Emerson et al. 2020 table S1
-        Parametrization == "Emerson20" ~ 0.2,
         Parametrization == "Zhang01" ~ 1,
+        Parametrization == "GCOld" ~ 1,
+        Parametrization == "GCNew" ~ 0.2,
+        Parametrization == "GCNewSeason" ~ 0.2,
         T ~ NA_real_
       ),
       # Empirical constants for calculation of E_Im from Emerson et al. 2020 table S1
       beta = case_when(
         # Emerson et al. 2020 table S1
-        Parametrization == "Emerson20" ~ 1.7,
         Parametrization == "Zhang01" ~ 2,
+        Parametrization == "GCOld" ~ 2,
+        Parametrization == "GCNew" ~ 1.7,
+        Parametrization == "GCNewSeason" ~ 1.7,
         T ~ NA_real_
       ),
       C_Im = case_when(
         # Emerson et al. 2020 table S1
-        Parametrization == "Emerson20" ~ 0.4,
         Parametrization == "Zhang01" ~ 1,
+        Parametrization == "GCOld" ~ 1,
+        Parametrization == "GCNew" ~ 0.4,
+        Parametrization == "GCNewSeason" ~ 0.4,
         T ~ NA_real_
       ),
       # Empirical constants for calculation of E_In from Emerson et al. 2020 table S1
       nu = case_when(
         # Emerson et al. 2020 table S1
-        Parametrization == "Emerson20" ~ 0.8,
         Parametrization == "Zhang01" ~ 2,
+        Parametrization == "GCOld" ~ 2,
+        Parametrization == "GCNew" ~ 0.8,
+        Parametrization == "GCNewSeason" ~ 0.8,
         T ~ NA_real_
       ),
       C_In = case_when(
         # Emerson et al. 2020 table S1
-        Parametrization == "Emerson20" ~ 2.5,
         Parametrization == "Zhang01" ~ 0.5,
+        Parametrization == "GCOld" ~ 0.5,
+        Parametrization == "GCNew" ~ 2.5,
+        Parametrization == "GCNewSeason" ~ 2.5,
         T ~ NA_real_
       ),
       # Empirical constant for calculation of R_s from Zhang et al. 2001 eq. 5

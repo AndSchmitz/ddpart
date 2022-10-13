@@ -8,7 +8,7 @@
 #' @param ImpactionParameterAlpha A land-use specific empirical paramete
 #'
 #' @param Parametrization A character defining which parametrization to use.
-#' Valid values are "Emerson20" and "Zhang01"
+#' See ?GetLandUseParameters for details.
 #'
 #' @return Stokes number
 #'

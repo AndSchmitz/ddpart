@@ -22,8 +22,8 @@ CalculateDepositionVelocity(), but:
   extrapolated. At this height, the wind speed is assumed to be independent
   of the underlying land use.
 
-  - TargetLUCCodeZhang2001: Integer determining the land use class of the
-  target land use according to Zhang et al. (2001) table 2.
+  - TargetLUCNames: Land use classes (character). See ?GetLandUseParameters for
+  information.
 
   - RoughnessLengthTargetLUC_m: Roughness length (m) of the land cover for
   which the dry deposition velocities are calculated.
@@ -117,7 +117,7 @@ Basics <- data.frame(
 # Define two land use classes for which to calculate dry deposition velocity
 TargetLUCs <- data.frame(
   # 1=evegreen needleleaf forest, 2=evergreen broadleaf forest
-  TargetLUCCodeZhang2001 = c(1, 2),
+  TargetLUCNames = c(1, 2),
   RoughnessLengthTargetLUC_m = c(0.8, 2.65) # Zhang01 table 3
 ) \%>\%
   mutate(
@@ -132,7 +132,7 @@ Output <- CalculateDepositionVelocity2(
 
 # Show results. LUC 2 (evergreen broadleaf forest) has a higher vd compared to
 # LUC 1 (evegreen needleleaf forest) for the specific settings used.
-print(Output \%>\% select(TargetLUCCodeZhang2001, V_d_RefHeight_ms))
+print(Output \%>\% select(TargetLUCNames, V_d_RefHeight_ms))
 
 }
 \references{

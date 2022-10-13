@@ -14,10 +14,9 @@
 #' @format A data frame with 106 rows and 4 columns: \describe{
 #'   \item{ParticleDiameter_um}{Particle diameter in um}
 #'   \item{DepositionVelocity_cms}{Dry deposition velocity in cm^2/s}
-#'   \item{Parametrization}{The parametrization for which the data has been
-#'   extracted (GEOS-Chem old or GEOS-Chem new)}
-#'   \item{LUC}{Land use class: 1 (Needleleaf
-#'   forest, 2 broadleaf forest, 6 grassland)} }
+#'   \item{Parametrization}{Parametrization (GEOS-Chem old (GCOld) or GEOS-Chem new (GCNew))}
+#'   \item{LUCName}{Land use class name}
+#'   }
 #'
 #' @keywords datasets
 #'
@@ -25,5 +24,9 @@
 #'   McMeeking GR, Farmer DK. Revisiting particle dry deposition and its role in
 #'   radiative effect estimates. Proceedings of the National Academy of Sciences
 #'   2020;117:26076–26082.
+#'
+#'   Zhang L, Gong S, Padro J, Barrie L. A size-segregated particle dry
+#'   deposition scheme for an atmospheric aerosol module. Atmospheric
+#'   Environment 2001;35:549–560.
 #'
 "dd_validation"

@@ -69,8 +69,8 @@
 #'   extrapolated. At this height, the wind speed is assumed to be independent
 #'   of the underlying land use.
 #'
-#'   - TargetLUCCodeZhang2001: Integer determining the land use class of the
-#'   target land use according to Zhang et al. (2001) table 2.
+#'   - TargetLUCNames: Land use classes (character). See ?GetLandUseParameters for
+#'   information.
 #'
 #'   - RoughnessLengthTargetLUC_m: Roughness length (m) of the land cover for
 #'   which the dry deposition velocities are calculated.
@@ -108,7 +108,7 @@
 #' # Define two land use classes for which to calculate dry deposition velocity
 #' TargetLUCs <- data.frame(
 #'   # 1=evegreen needleleaf forest, 2=evergreen broadleaf forest
-#'   TargetLUCCodeZhang2001 = c(1, 2),
+#'   TargetLUCNames = c(1, 2),
 #'   RoughnessLengthTargetLUC_m = c(0.8, 2.65) # Zhang01 table 3
 #' ) %>%
 #'   mutate(
@@ -123,7 +123,7 @@
 #'
 #' # Show results. LUC 2 (evergreen broadleaf forest) has a higher vd compared to
 #' # LUC 1 (evegreen needleleaf forest) for the specific settings used.
-#' print(Output %>% select(TargetLUCCodeZhang2001, V_d_RefHeight_ms))
+#' print(Output %>% select(TargetLUCNames, V_d_RefHeight_ms))
 #'
 #' @export
 #'
@@ -139,12 +139,6 @@
 
 CalculateDepositionVelocity2 <- function(InputTable) {
 
-  # Sanity check parameter "Parametrization"
-  ValidParametrizations <- c("Emerson20", "Zhang01")
-  if (!all(InputTable$Parametrization %in% ValidParametrizations)) {
-    stop(paste("Parameter Parametrization must be on of", paste(ValidParametrizations, collapse = ",")))
-  }
-
   # Sanity-check for required column names
   RequiredColumns <- c(
     # Meteo
@@ -154,7 +148,7 @@ CalculateDepositionVelocity2 <- function(InputTable) {
     "AnemometerHeight_m", "WindSpeedBlendingHeight_m", "SurfaceIsWet_bool",
     "Season",
     # Target land use class
-    "TargetLUCCodeZhang2001", "ReferenceHeight_m",
+    "TargetLUCNames", "ReferenceHeight_m",
     "RoughnessLengthTargetLUC_m", "ZeroPlaneDisplacementHeightTargetLUC_m",
     # Particle properties
     "DryParticleDiameter_m", "ParticleDensity_kgm3", "AerosolType",
@@ -163,12 +157,6 @@ CalculateDepositionVelocity2 <- function(InputTable) {
   MissCols <- RequiredColumns[!(RequiredColumns %in% colnames(InputTable))]
   if (length(MissCols) > 0) {
     stop(paste("The following columns are missing in InputTable:", paste(MissCols, collapse = ",")))
-  }
-
-  # Sanity check parameter "Parametrization"
-  ValidParametrizations <- c("Emerson20", "Zhang01")
-  if (!all(InputTable$Parametrization %in% ValidParametrizations)) {
-    stop(paste("Parameter Parametrization must be on of", paste(ValidParametrizations, collapse = ",")))
   }
 
   # Stokes number requires a classification whether the surface is
@@ -252,13 +240,13 @@ CalculateDepositionVelocity2 <- function(InputTable) {
   Results <- Results %>%
     mutate(
       CharacteristicRadius_m = 0.001 * GetLandUseParameters(
-        LUCs = TargetLUCCodeZhang2001,
+        LUCs = TargetLUCNames,
         Seasons = Season,
         TargetPar = "A_mm",
         Parametrization = Parametrization
       ),
       ImpactionParameterAlpha = GetLandUseParameters(
-        LUCs = TargetLUCCodeZhang2001,
+        LUCs = TargetLUCNames,
         Seasons = Season,
         TargetPar = "alpha",
         Parametrization = Parametrization
@@ -310,7 +298,7 @@ CalculateDepositionVelocity2 <- function(InputTable) {
       # _E_b-----
       # Loss efficiency by Brownian diffusion
       BrownianDiffusionParameterGamma = GetLandUseParameters(
-        LUCs = TargetLUCCodeZhang2001,
+        LUCs = TargetLUCNames,
         Seasons = Season,
         TargetPar = "gamma",
         Parametrization = Parametrization
@@ -322,7 +310,7 @@ CalculateDepositionVelocity2 <- function(InputTable) {
       ),
       # _Stokes number-----
       SurfaceIsVegetated = case_when(
-        TargetLUCCodeZhang2001 %in% NonVegetatedLUCs ~ F,
+        TargetLUCNames %in% NonVegetatedLUCs ~ F,
         T ~ T
       ),
       StokesNumber = CalculateStokesNumber(

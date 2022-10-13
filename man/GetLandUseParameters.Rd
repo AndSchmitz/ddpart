@@ -14,15 +14,12 @@ GetLandUseParameters(LUCNames, Seasons, Parametrizations, TargetParameter)
 
  - "Needleleaf"
 
- - "DecBroadleaf" (deciduous broadleaf)
-
- - "ShrubsInterWood" (shrubs and interrupted woodland), only for the Zhang01
- parametrization}
+ - "DecBroadleaf" (deciduous broadleaf)}
 
 \item{Seasons}{A vector of season codes (integer values 1-5).}
 
-\item{Parametrizations}{A character indicating which parametrization to use
-("Emerson20" or "Zhang01").}
+\item{Parametrizations}{A character, one of "GCNewSeason",
+"Zhang01",  "GCOld", "GCNew".}
 
 \item{TargetParameter}{A character indicating which parameter to return
 ("z_0_m", "A_mm", "alpha" or "gamma").}
@@ -33,48 +30,47 @@ A vector of values for parameter "TargetParameter".
 \description{
 Get land use parameters according to Zhang et al. (2001) table 3
  or Emerson et al. (2020). There are 4 variants of parametrization for the
- Zhang01 model. Two of these are implemented in ddpart:
+ Zhang01 approach:
 
- - A) "Zhang01" (implemented in ddpart): The original model according to
- Zhang et al. (2001).
+- A) "Zhang01": The original model according to Zhang et al. (2001). Not used
+for the figures in Emerson et al. (2020).
 
- - B) "GEOS-Chem old" (not implemented in ddpart): This is what Emerson et
- al. (2020) refer to as "Zhang et al. (2001)" in their Fig. 1. It is an
- adaption of parametrization A) with two differences:
+- B) "GCOld": This is what Emerson et al. (2020) refer to as "Zhang et al.
+(2001)" in their Fig. 1 and 2. It is an implementation of parametrization A)
+into the GEOS-Chem model with two differences:
 
- First, the land use classes in the GEOS-Chem model differ from those in A).
- The mapping between land use classes is not always straightforward. For
- example, "Grassland" in B) uses parameters for "shrubs and interrupted
- woodland" from A). The complete mapping of LUCs is defined in file
- "drydep_mod.F90" starting in lines 3143:
- https://github.com/geoschem/geos-chem/blob/main/GeosCore/drydep_mod.F90.
+  First, the land use classes in the GEOS-Chem model differ from those in A).
+The mapping between land use classes is not always straightforward. For
+example, "Grassland" in B) uses parameters for "shrubs and interrupted
+  woodland" from A). The complete mapping of LUCs is defined in file
+"drydep_mod.F90" starting in lines 3143:
+  https://github.com/geoschem/geos-chem/blob/main/GeosCore/drydep_mod.F90.
 
- For the LUCs implemented in ddpart, the mapping Emerson20 <-> Zhang01 is as
- follows:
+For the LUCs implemented in ddpart, the mapping Emerson20 <-> Zhang01 is as
+follows:
 
- - "Needleleaf" <-> "Needleleaf" (LUC1)
+- "Needleleaf" <-> "Needleleaf" (LUC1)
 
- - "Broadleaf" <-> "Deciduous broadleaf" (LUC4)
+- "Broadleaf" <-> "Deciduous broadleaf" (LUC4)
 
- - "Grassland" <-> "Shrubs and interrupted wood-lands" (LUC10)
+- "Grassland" <-> "Shrubs and interrupted wood-lands" (LUC10)
 
- Second, no differentiation according to seasons exists. Instead, the average
- over seasons 1-5 is used for each parameter. See for example
- "drydep_mod.F90" line 3226.
+Second, no differentiation according to seasons exists. Instead, the average
+over seasons 1-5 is used for each parameter. See for example
+"drydep_mod.F90" line 3226.
 
- C)  "GEOS-Chem new" (not implemented in ddpart): This is the "revised
- parametrization" in Emerson et al. (2020). It uses the same assignment of
- LUCs as in B) and also averages land use parameters over seasons, but some
- parameters have been re-calibrated by Emerson et al. to better match
- measurement data. Note that although the parameters for "Shrubs and
- interrupted wood-lands" (LUC10 from Zhang01) are used for grassland, the
- parametrization is valid for grassland. This is because Emerson20
- *calibrated* the other parameters, such that the resulting dry deposition
- velocity matches measurement data for grassland.
+C)  "GCNew": This is the "revised parametrization" in Emerson et al. (2020)
+Fig. 1 and 2. It uses the same assignment of LUCs as in B) and also averages
+land use parameters over seasons, but some  parameters have been
+re-calibrated by Emerson et al. to better match measurement data. Note that
+although the parameters for "Shrubs and interrupted wood-lands" (LUC10 from
+Zhang01) are used for grassland, the parametrization is valid for grassland.
+This is because Emerson20 *calibrated* the other parameters, such that the
+resulting dry deposition velocity matches measurement data for grassland.
 
- D) "Emerson20" (implemented in ddpart): Same as C) but land use parameters
- are not averaged over seasons. E.g. parameter "characteristic receptor
- radius" (A in mm) varies between seasons for deciduous broadleaf forest.
+D) "GCNewSeason": Same as C) but with season-specific land use
+parameters.  E.g. parameter "characteristic receptor radius" (A in mm) varies
+between seasons for deciduous broadleaf forest.
 }
 \examples{
 GetLandUseParameters(
@@ -87,7 +83,7 @@ GetLandUseParameters(
 GetLandUseParameters(
   LUCNames = c("Grassland", "Needleleaf", "DecBroadleaf"),
   Seasons = rep(x = 4, times = 3),
-  Parametrizations = rep(x = "Emerson20", times = 3),
+  Parametrizations = rep(x = "GCNewSeason", times = 3),
   TargetParameter = "A_mm"
 )
 

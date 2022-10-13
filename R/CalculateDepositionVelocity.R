@@ -77,8 +77,8 @@
 #'   which case the particle rebound effect is disabled. Can be set e.g.
 #'   depending on relative humidity and/or precipitation events.
 #'
-#'   - LUCZhang2001: Integer determining the land use class according to Zhang
-#'   et al. (2001) table 2.
+#'   - LUCNames: Land use classes (character). See ?GetLandUseParameters for
+#'   information.
 #'
 #'   - ReferenceHeight_m: Aeordynamic resistance is calculated between
 #'   ReferenceHeight_m and the effective receptor height (RoughnessLength_m +
@@ -103,10 +103,11 @@
 #'   according to Zhang et al. (2001). See CalculateHygroscopicSwelling() for
 #'   further details.
 #'
-#'   - RelHum_percent:
+#'   - RelHum_percent: Relativ humidty (%) for hygroscopic swelling of
+#'   particles.
 #'
-#'   - Parametrization A character with allowed value "Emerson20" or "Zhang01".
-#'   Indicates which parametrization should be used.
+#'   - Parametrization: A character indicates which parametrization should be
+#'   used. See ?GetLandUseParameters for allowed values.
 #'
 #' @return A data frame repeating the InputTable plus additional columns with
 #'   calculated values.
@@ -134,7 +135,7 @@ CalculateDepositionVelocity <- function(InputTable) {
     "RelHum_percent", "CloudCover_percent", "WindSpeedAtAnemometerHeight_ms",
     "AnemometerHeight_m",  "SurfaceIsWet_bool",
     # Receptor properties
-    "LUCZhang2001", "ReferenceHeight_m",  "RoughnessLength_m",
+    "LUCNames", "ReferenceHeight_m",  "RoughnessLength_m",
     "ZeroPlaneDisplacementHeight_m", "Season",
     # Particle properties
     "DryParticleDiameter_m", "ParticleDensity_kgm3", "AerosolType",
@@ -144,13 +145,6 @@ CalculateDepositionVelocity <- function(InputTable) {
   if (length(MissCols) > 0) {
     stop(paste("The following columns are missing in InputTable:", paste(MissCols, collapse = ",")))
   }
-
-  # Sanity check parameter "Parametrization"
-  ValidParametrizations <- c("Emerson20", "Zhang01")
-  if (!all(InputTable$Parametrization %in% ValidParametrizations)) {
-    stop(paste("Parameter Parametrization must be on of", paste(ValidParametrizations, collapse = ",")))
-  }
-
 
   # Stokes number requires a classification whether the surface is
   # "vegetated" or with otherwise rough surface (Zhang et al. 2001).
@@ -222,13 +216,13 @@ CalculateDepositionVelocity <- function(InputTable) {
         MoninObukhovLength_m = ObukhovLength_Anemometer_m
       ),
       CharacteristicRadius_m = 0.001 * GetLandUseParameters(
-        LUCs = LUCZhang2001,
+        LUCNames = LUCNames,
         Seasons = Season,
         TargetPar = "A_mm",
         Parametrization = Parametrization
       ),
       ImpactionParameterAlpha = GetLandUseParameters(
-        LUCs = LUCZhang2001,
+        LUCNames = LUCNames,
         Seasons = Season,
         TargetPar = "alpha",
         Parametrization = Parametrization
@@ -265,7 +259,7 @@ CalculateDepositionVelocity <- function(InputTable) {
       # _E_b-----
       # Loss efficiency by Brownian diffusion
       BrownianDiffusionParameterGamma = GetLandUseParameters(
-        LUCs = LUCZhang2001,
+        LUCNames = LUCNames,
         Seasons = Season,
         TargetPar = "gamma",
         Parametrization = Parametrization
@@ -277,7 +271,7 @@ CalculateDepositionVelocity <- function(InputTable) {
       ),
       # _Stokes number-----
       SurfaceIsVegetated = case_when(
-        LUCZhang2001 %in% NonVegetatedLUCs ~ F,
+        LUCNames %in% NonVegetatedLUCs ~ F,
         T ~ T
       ),
       StokesNumber = CalculateStokesNumber(

@@ -1,19 +1,21 @@
 ---
 title: "ddpart"
-output:
-  rmarkdown::html_vignette:
-    toc: true
-vignette: >
-  %\VignetteIndexEntry{ddpart}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+output: pdf_document
+toc: true
 ---
 
 <!-- --- -->
 <!-- title: "ddpart" -->
-<!-- output: pdf_document -->
-<!-- toc: true -->
+<!-- output: -->
+<!--   rmarkdown::html_vignette: -->
+<!--     toc: true -->
+<!-- vignette: > -->
+<!--   %\VignetteIndexEntry{ddpart} -->
+<!--   %\VignetteEngine{knitr::rmarkdown} -->
+<!--   %\VignetteEncoding{UTF-8} -->
 <!-- --- -->
+
+
 
 
 ```{r, include = FALSE}
@@ -34,13 +36,14 @@ the original publication (Emerson et al. (2020)).
 
 Usually, the wrapper functions CalculateDepositionVelocity() or
 CalculateDepositionVelocity2() would be used. These functions include the
-calculation of atmospheric stability conditions (Monin-Obukhov-Length) and friction
-velocity via the Pasquill class approach. This has the advantage that widely
-available meteorological measurements (or modelled data) can be used as an input (e.g.
-wind speed, solar radiation, etc.). If this is not required because direct data
-on friction velocity is available, the underlying functions to calculate the
-resistance components can be called directly to skip the Pasquill class
-approach. See section "Validation" for examples where this is the case.
+calculation of atmospheric stability conditions (Monin-Obukhov-Length) and
+friction velocity via the Pasquill class approach. This has the advantage that
+widely available meteorological measurements (or modelled data) can be used as
+an input (e.g. wind speed, solar radiation, etc.). If this is not required
+because direct data on friction velocity is available, the underlying functions
+to calculate the resistance components can be called directly to skip the
+Pasquill class approach. See section "Validation" for examples where this is the
+case.
 
 # Package installation and dependencies
 
@@ -69,7 +72,7 @@ deposition velocity of particles with 5 um diameter to grassland for a 48 h time
 series of meteorological data.
 
 ## Load and show example meteo time series
-```{r show meteo time series, fig.width=8, fig.height=10}
+```{r show meteo time series, fig.width=8, fig.height=10, fig.cap = "Example time series of meteorological data."}
 meteo_time_series_long <- meteo_time_series %>%
   pivot_longer(
     cols = -c(TimeStampUTC)
@@ -86,7 +89,7 @@ ggplot(
   facet_wrap(~name, scales = "free_y", ncol = 3) +
   scale_x_datetime(guide = guide_axis(n.dodge = 2))
 ```
-Figure 1: Example time series of meteorological data.
+
 
 ## Calculate dry deposition velocity
 
@@ -96,7 +99,7 @@ row of InputTable, a deposition velocity is calculated. The InputTable must
 contain all information required to calculate aerodynamic resistance and 
 surface resistance (e.g. roughness length, zero plane distance height,
 wind speed and anemomemter height, hight of measured (or modelled)
-concentration data (=reference height), etc.). See ?CalculateDepositionVelocity
+concentration data (reference height), etc.). See ?CalculateDepositionVelocity
 for a description.
 
 The function CalculateDepositionVelocity() is designed for the usual setup where
@@ -107,18 +110,18 @@ grassland conditions (e.g. from meteorological models) but the dry deposition
 velocity should be calculated for other land uses (e.g. forest).
 
 
-```{r calculate vd, fig.width=8, fig.height=8}
+```{r calculate vd, fig.width=8, fig.height=8, fig.cap = "Dry deposition velocity calculated for the 48 hours of input data."}
 
 InputTable <- meteo_time_series %>%
   mutate(
-    LUCZhang2001 = 6, # grassland
+    LUCNames = "Grassland",
     RoughnessLength_m = 0.03,
     ZeroPlaneDisplacementHeight_m = 7 * RoughnessLength_m,
     ReferenceHeight_m = 20, # Height of concentration measurements
     DryParticleDiameter_m = 5 * 1e-6, # 5 um particles
     ParticleDensity_kgm3 = 2000,
-    AerosolType = "SeaSalt", #Relevant for hygroscopic swelling
-    Parametrization = "Emerson20"
+    AerosolType = "SeaSalt", # Relevant for hygroscopic swelling
+    Parametrization = "Zhang01"
   )
 
 
@@ -147,7 +150,7 @@ ggplot(
   facet_wrap(~name, scales = "free_y", nrow = 3) +
   scale_x_datetime(guide = guide_axis(n.dodge = 2))
 ```
-Figure 2: Dry deposition velocity calculated for the 48 hours of input data.
+
 
 \newpage
 
@@ -156,335 +159,60 @@ Figure 2: Dry deposition velocity calculated for the 48 hours of input data.
 Emerson et al. (2020) figures 1 and 2 show the dry deposition velocity as a a
 function of particle diameter for different settings (i.e. for different land
 use types, friction velocity, etc.). In the following, these figures are
-reproduced as a validation of the functions in the ddpart package.
+reproduced as a validation of the functions in the ddpart package. Emerson et
+al. (2020) used a specific implementation of the Zhang01 approach in the
+GEOS-Chem model (https://github.com/geoschem/geos-chem/). This implementation
+differs from the original formulation by Zhang01 in some aspects. In total,
+there are 4 variants of parametrization for the Zhang01 approach:
 
-## 1. Dry deposition velocity vs. particle size
+  - A) "Zhang01": The original model according to Zhang et al. (2001). Not used
+  for the figures in Emerson et al. (2020). Implemented in ddpart as
+  parametrization "Zhang01".
 
-Emerson et al. (2020) figure 1 shows the dry deposition velocity for different
-land use classes.
+  - B) "GEOS-Chem old": This is what Emerson et al. (2020) refer to as "Zhang et
+  al. (2001)" in their Fig. 1 and 2. Implemented in ddpart as
+  parametrization "GCOld". It is an adaption of parametrization A) with two
+  differences:
 
-### Definition of parameters
+  First, the land use classes in the GEOS-Chem model differ from those in A).
+  The mapping between land use classes is not always straightforward. For
+  example, "Grassland" in B) uses parameters for "shrubs and interrupted
+  woodland" from A). The complete mapping of LUCs is defined in file
+  "drydep_mod.F90" starting in lines 3143:
+  https://github.com/geoschem/geos-chem/blob/main/GeosCore/drydep_mod.F90.
 
-```{r Emerson fig 1 parameters}
+  For the LUCs implemented in ddpart, the mapping Emerson20 <-> Zhang01 is as
+  follows:
 
-# Vector of particle diameters
-d_p_vec <- 10^seq(-2, 2, length.out = 5)
-tmp <- expand.grid(1:9, d_p_vec)
-d_p_vec <- tmp[, 1] * tmp[, 2]
-d_p_vec <- d_p_vec[d_p_vec <= 100]
-d_p_vec <- d_p_vec * 1e-6
+  - "Needleleaf" <-> "Needleleaf" (LUC1)
 
-InputPars <- data.frame(
-  R_a_sm = 0,
-  Parametrization = "Emerson20",
-  LUC = 1,
-  Season = 1,
-  ParticleDensity_kgm3 = 1200,
-  FrictionVelocity_ms = 0.2,
-  AerosolType = "Rural",
-  RelHum_percent = 85,
-  # These parameters are guessed
-  # Standard temperature and pressure
-  T_air_K = 293.15,
-  AirPressure_Pa = 101325,
-  SurfaceIsWet_bool = TRUE
-)
+  - "Broadleaf" <-> "Deciduous broadleaf" (LUC4)
 
-# Duplicate input for Zhang01 parametrization
-tmp <- InputPars %>%
-  mutate(
-    Parametrization = "Zhang01"
-  )
-InputPars <- bind_rows(InputPars, tmp)
+  - "Grassland" <-> "Shrubs and interrupted wood-lands" (LUC10)
 
-# Duplicate input for broadleaf and grassland
-tmp1 <- InputPars %>%
-  mutate(
-    LUC = 2
-  )
-tmp2 <- InputPars %>%
-  mutate(
-    LUC = 6
-  )
-InputPars <- bind_rows(InputPars, tmp1, tmp2)
+  Second, no differentiation according to seasons exists. Instead, the average
+  over seasons 1-5 is used for each parameter. See for example
+  "drydep_mod.F90" line 3226.
 
-Input <- expand_grid(
-  InputPars,
-  DryParticleDiameter_m = d_p_vec
-) %>%
-  mutate(
-    ParticleDiameter_m = CalculateHygroscopicSwelling(
-      DryParticleDiameter_m = DryParticleDiameter_m,
-      RelHum_percent = RelHum_percent,
-      AerosolType = AerosolType
-    )
-  )
-```
+  C)  "GEOS-Chem new": This is the "revised parametrization" in Emerson et al.
+  (2020) Fig. 1 and 2. Implemented in ddpart as parametrization "GCNew". It uses
+  the same assignment of LUCs as in B) and also averages land use parameters
+  over seasons, but some  parameters have been re-calibrated by Emerson et al.
+  to better match measurement data. Note that although the parameters for
+  "Shrubs and interrupted wood-lands" (LUC10 from Zhang01) are used for
+  grassland, the parametrization is valid for grassland. This is because
+  Emerson20 *calibrated* the other parameters, such that the resulting dry
+  deposition velocity matches measurement data for grassland.
 
-### Calculations
+  D) "Emerson20": Same as C) but with season-specific land use parameters.  E.g.
+  parameter "characteristic receptor radius" (A in mm) varies between seasons
+  for deciduous broadleaf forest. This is implemented in ddpart as
+  parametrization "Emerson20".
 
-```{r Emerson fig 1 Calculations}
-Output <- Input %>%
-  mutate(
-    # Meteo basics
-    DynamicViscosityAir_kgms = CalculateDynamicViscosityOfAir(
-      T_air_K = T_air_K
-    ),
-    AirDensity_kgm3 = CalculateAirDensity(
-      AirPressure_Pa,
-      T_air_K
-    ),
-    KinematicViscosityOfAir_m2s = CalculateKinematicViscosityOfAir(
-      DynamicViscosityAir_kgms = DynamicViscosityAir_kgms,
-      AirDensity_kgm3 = AirDensity_kgm3
-    ),
-    MeanFreePathOfAirMolecule_m = CalculateMeanFreePath(
-      T_air_K = T_air_K,
-      AirPressure_Pa = AirPressure_Pa,
-      DynamicViscosityAir_kgms = DynamicViscosityAir_kgms
-    ),
-    # Deposition processes------
-    SettlingVelocity_ms = CalculateSettlingVelocity(
-      ParticleDensity_kgm3 = ParticleDensity_kgm3,
-      ParticleDiameter_m = ParticleDiameter_m,
-      MeanFreePathOfAirMolecule_m = MeanFreePathOfAirMolecule_m,
-      DynamicViscosityAir_kgms = DynamicViscosityAir_kgms
-    ),
-    # _Schmidt number------
-    SchmidtNumber = CalculateSchmidtNumber(
-      DynamicViscosityAir_kgms = DynamicViscosityAir_kgms,
-      KinematicViscosityOfAir_m2s = KinematicViscosityOfAir_m2s,
-      T_air_K = T_air_K,
-      ParticleDiameter_m = ParticleDiameter_m
-    ),
-    # _E_b-----
-    # Loss efficiency by Brownian diffusion
-    BrownianDiffusionParameterGamma = GetLandUseParameters(
-      LUCs = LUC,
-      Seasons = Season,
-      TargetPar = "gamma",
-      Parametrization = Parametrization
-    ),
-    E_b = CalculateLossEfficiencyBrownianDiffusion(
-      SchmidtNumber = SchmidtNumber,
-      BrownianDiffusionParameterGamma = BrownianDiffusionParameterGamma,
-      Parametrization = Parametrization
-    ),
-    # _Stokes number-----
-    SurfaceIsVegetated = GetLandUseParameters(
-      LUCs = LUC,
-      Seasons = Season,
-      TargetPar = "SurfaceIsVegetated",
-      Parametrization = Parametrization
-    ),
-    CharacteristicRadius_m = GetLandUseParameters(
-      LUCs = LUC,
-      Seasons = Season,
-      TargetPar = "A_mm",
-      Parametrization = Parametrization
-    ) * 1e-3,
-    StokesNumber = CalculateStokesNumber(
-      FrictionVelocity_ms = FrictionVelocity_ms,
-      SettlingVelocity_ms = SettlingVelocity_ms,
-      CharacteristicRadius_m = CharacteristicRadius_m,
-      KinematicViscosityOfAir_m2s = KinematicViscosityOfAir_m2s,
-      SurfaceIsVegetated = SurfaceIsVegetated
-    ),
-    # _E_Im----
-    # Loss efficiency by impaction
-    ImpactionParameterAlpha = GetLandUseParameters(
-      LUCs = LUC,
-      Seasons = Season,
-      TargetPar = "alpha",
-      Parametrization = Parametrization
-    ),
-    E_Im = CalculateLossEfficiencyImpaction(
-      StokesNumber = StokesNumber,
-      ImpactionParameterAlpha = ImpactionParameterAlpha,
-      Parametrization = Parametrization
-    ),
-    # _E_In----
-    # Loss efficiency by interception
-    E_In = CalculateLossEfficiencyInterception(
-      ParticleDiameter_m = ParticleDiameter_m,
-      CharacteristicRadius_m = CharacteristicRadius_m,
-      Parametrization = Parametrization
-    ),
-    # _R_s-----
-    # Surface resistance
-    R_s_sm = CalculateSurfaceResistance(
-      SurfaceIsWet = SurfaceIsWet_bool,
-      FrictionVelocity_ms = FrictionVelocity_ms,
-      StokesNumber = StokesNumber,
-      E_b = E_b,
-      E_Im = E_Im,
-      E_In = E_In,
-      ParticleDiameter_m = ParticleDiameter_m,
-      Parametrization = Parametrization
-    ),
-    # _V_d---------
-    V_d_s = 1 / (R_a_sm + R_s_sm),
-    V_g = SettlingVelocity_ms,
-    V_d_ms = V_d_s + V_g,
-    Type = "Results from ddpart"
-  )
-```
+In order to reproduce Fig. 1 and Fig. 2 from Emerson et al. (2020), variants B)
+and C) must be used.
 
-\newpage
-
-### Summary of parameters
-
-```{r Emerson fig 1 Pars}
-
-TableData <- Output %>%
-  select(
-    Parametrization, LUC, Season,
-    T_air_K, AirPressure_Pa, SurfaceIsWet_bool,
-    SurfaceIsVegetated, CharacteristicRadius_m,
-    ImpactionParameterAlpha, ParticleDensity_kgm3,
-    BrownianDiffusionParameterGamma,
-    R_a_sm
-  ) %>%
-  distinct() %>%
-  rename(
-    Gamma = BrownianDiffusionParameterGamma
-  ) %>%
-  mutate(
-    Gamma = round(Gamma, 3),
-    C_b = GetParameters(Parametrization = Parametrization, TargetParameter = "C_b"),
-    nu = GetParameters(Parametrization = Parametrization, TargetParameter = "nu"),
-    C_In = GetParameters(Parametrization = Parametrization, TargetParameter = "C_In"),
-    beta = GetParameters(Parametrization = Parametrization, TargetParameter = "beta"),
-    C_Im = GetParameters(Parametrization = Parametrization, TargetParameter = "C_Im")
-  ) %>%
-  pivot_longer(
-    cols = -c("Parametrization", "LUC"),
-    values_transform = as.character,
-    names_to = "Parameter"
-  ) %>%
-  mutate(
-    ParametrizationShort = case_when(
-      Parametrization == "Emerson20" ~ "E20",
-      Parametrization == "Zhang01" ~ "Z01",
-      T ~ "ERROR"
-    ),
-    Parametrization_LUC = paste0(ParametrizationShort, "_LUC", LUC)
-  ) %>%
-  select(-Parametrization, -ParametrizationShort, -LUC) %>%
-  pivot_wider(
-    names_from = "Parametrization_LUC",
-    values_from = "value"
-  )
-
-kable(
-  x = TableData
-)
-```
-
-\newpage
-
-### Plots
-
-```{r Emerson fig 1 Plots, fig.width=8, fig.height=4}
-# Load data extracted from Emerson et al. (2020)
-ValidationData <- dd_validation %>%
-  mutate(
-    Label = factor(
-      x = Parametrization,
-      levels = c("Zhang01", "Emerson20")
-    ),
-    Type = "Extracted from Emerson et al. (2020)",
-    LUCLabel = case_when(
-      LUC == 1 ~ "Needleleaf forest",
-      LUC == 2 ~ "Broadlead forest",
-      LUC == 6 ~ "Grassland",
-      T ~ "ERROR"
-    ),
-    LUCLabel = factor(
-      x = LUCLabel,
-      levels = c("Needleleaf forest", "Broadlead forest", "Grassland")
-    )
-  )
-Output <- Output %>%
-  mutate(
-    Label = factor(
-      x = Parametrization,
-      levels = c("Zhang01", "Emerson20")
-    ),
-    Type = "Calculated with ddpart",
-    LUCLabel = case_when(
-      LUC == 1 ~ "Needleleaf forest",
-      LUC == 2 ~ "Broadlead forest",
-      LUC == 6 ~ "Grassland",
-      T ~ "ERROR"
-    ),
-    LUCLabel = factor(
-      x = LUCLabel,
-      levels = c("Needleleaf forest", "Broadlead forest", "Grassland")
-    )
-  )
-
-Shapes <- c(3)
-names(Shapes) <- c("Calculated with ddpart")
-LineTypes <- c("solid")
-names(LineTypes) <- c("Extracted from Emerson et al. (2020)")
-
-ggplot() +
-  geom_line(
-    data = ValidationData,
-    mapping = aes(
-      x = ParticleDiameter_um,
-      y = DepositionVelocity_cms,
-      color = Parametrization,
-      linetype = Type
-    )
-  ) +
-  geom_point(
-    data = Output,
-    mapping = aes(
-      x = DryParticleDiameter_m * 1e6,
-      y = V_d_ms * 100,
-      color = Parametrization,
-      shape = Type
-    ),
-    size = 2
-  ) +
-  scale_shape_manual(values = Shapes) +
-  scale_linetype_manual(values = LineTypes) +
-  scale_x_log10(
-    breaks = trans_breaks("log10", function(x) 10^x),
-    labels = trans_format("log10", math_format(10^.x)),
-    expand = expansion(mult = c(0, 0))
-  ) +
-  scale_y_log10(
-    breaks = trans_breaks("log10", function(x) 10^x),
-    labels = trans_format("log10", math_format(10^.x)),
-    limits = c(1e-3, 1e2),
-    expand = expansion(mult = c(0, 0))
-  ) +
-  annotation_logticks() +
-  xlab("Particle diameter (um)") +
-  ylab("Deposition velocity (cm/s)") +
-  theme(
-    legend.position = "bottom",
-    legend.title = element_blank(),
-    legend.box = "horizontal",
-    panel.spacing = unit(1, "lines")
-    # legend.margin=margin()
-  ) +
-  facet_wrap(~LUCLabel)
-```
-Figure 3: Dry deposition velocity as a function of particle diameter for needleleaf forest (LUC 1), evergreen broadleaf forest (LUC 2) and grassland (LUC 6) according to the Zhang et al. (2001) parametrization and the Emerson et al. (2020) parameterization. Lines represent data extracted from fig. 1 in Emerson et al. (2020). Results from the ddpart R package are indicated by "+". The figures show results at 0.2 m/s friction velocity and a particle density of 1200 kg/m3. Data from ddpart is generated for season 1 with aerodynamic resistance set to zero, wet surface, 85% relative humidity and corresponding hygroscopic swelling for aerosol of type "rural" (Zhang et al. (2001) eq. 10). Particle diameter refers to the dry particle diameter (i.e. before accounting for hygroscopic swelling).
-
-FIXME - these deviations might be explained by some differences in the
-formulations of hygroscopic growth or the slip correction factors between
-Emerson et al. (2020) using the GEOS-CHEM model and the R implementation using
-hygroscopic growth from Zhang et al. (2001) and the slip correction from
-Seinfeld and Pandis (2006).
-
-\newpage
-
-## 2. Contribution from dry deposition sub-processes
+## 1. Contribution from dry deposition sub-processes
 
 Emerson et al. (2020) figure 2 shows the contribution of the four dry deposition
 sub-processes (Brownian motion, interception, impaction and gravitational
@@ -495,6 +223,33 @@ with functions from the ddpart package.
 
 ```{r Emerson fig 2 parameters}
 
+# Land use parameters for variants B) and C)
+LUCPars <- expand_grid(
+  LUCNames = "Needleleaf",
+  Season = 1, # irrelevant for GCOld and GCNew parametrizations
+  Parametrization = c("GCOld", "GCNew") #see explanation text above
+) %>%
+  mutate(
+    A_mm = GetLandUseParameters(
+      LUCNames = LUCNames,
+      Seasons = Season,
+      Parametrizations = Parametrization,
+      TargetPar = "A_mm"
+    ),
+    alpha = GetLandUseParameters(
+      LUCNames = LUCNames,
+      Seasons = Season,
+      Parametrizations = Parametrization,
+      TargetPar = "alpha"
+    ),
+    gamma = GetLandUseParameters(
+      LUCNames = LUCNames,
+      Seasons = Season,
+      Parametrizations = Parametrization,
+      TargetPar = "gamma"
+    )
+  )
+
 # Vector of particle diameters
 d_p_vec <- 10^seq(-2, 2, length.out = 5)
 tmp <- expand.grid(1:9, d_p_vec)
@@ -502,11 +257,9 @@ d_p_vec <- tmp[, 1] * tmp[, 2]
 d_p_vec <- d_p_vec[d_p_vec <= 100]
 d_p_vec <- d_p_vec * 1e-6
 
-InputPars <- data.frame(
+# Other parameters
+OtherPars <- data.frame(
   R_a_sm = 0,
-  Parametrization = "Emerson20",
-  LUC = 1,
-  Season = 1,
   ParticleDensity_kgm3 = 1500,
   FrictionVelocity_ms = 0.4
 ) %>%
@@ -518,17 +271,11 @@ InputPars <- data.frame(
     SurfaceIsWet_bool = F
   )
 
-# Duplicate input for Zhang01 parametrization
-tmp <- InputPars %>%
-  mutate(
-    Parametrization = "Zhang01"
+# Repeat input rows for each particle diameter
+Input <- bind_cols(LUCPars, OtherPars) %>%
+  expand_grid(
+    ParticleDiameter_m = d_p_vec
   )
-InputPars <- bind_rows(InputPars, tmp)
-
-Input <- expand_grid(
-  InputPars,
-  ParticleDiameter_m = d_p_vec
-)
 ```
 
 ### Calculations
@@ -569,30 +316,15 @@ Output <- Input %>%
     ),
     # _E_b-----
     # Loss efficiency by Brownian diffusion
-    BrownianDiffusionParameterGamma = GetLandUseParameters(
-      LUCs = LUC,
-      Seasons = Season,
-      TargetPar = "gamma",
-      Parametrization = Parametrization
-    ),
+    BrownianDiffusionParameterGamma = gamma,
     E_b = CalculateLossEfficiencyBrownianDiffusion(
       SchmidtNumber = SchmidtNumber,
       BrownianDiffusionParameterGamma = BrownianDiffusionParameterGamma,
       Parametrization = Parametrization
     ),
     # _Stokes number-----
-    SurfaceIsVegetated = GetLandUseParameters(
-      LUCs = LUC,
-      Seasons = Season,
-      TargetPar = "SurfaceIsVegetated",
-      Parametrization = Parametrization
-    ),
-    CharacteristicRadius_m = GetLandUseParameters(
-      LUCs = LUC,
-      Seasons = Season,
-      TargetPar = "A_mm",
-      Parametrization = Parametrization
-    ) * 1e-3,
+    SurfaceIsVegetated = T,
+    CharacteristicRadius_m = A_mm / 1000,
     StokesNumber = CalculateStokesNumber(
       FrictionVelocity_ms = FrictionVelocity_ms,
       SettlingVelocity_ms = SettlingVelocity_ms,
@@ -602,12 +334,7 @@ Output <- Input %>%
     ),
     # _E_Im----
     # Loss efficiency by impaction
-    ImpactionParameterAlpha = GetLandUseParameters(
-      LUCs = LUC,
-      Seasons = Season,
-      TargetPar = "alpha",
-      Parametrization = Parametrization
-    ),
+    ImpactionParameterAlpha = alpha,
     E_Im = CalculateLossEfficiencyImpaction(
       StokesNumber = StokesNumber,
       ImpactionParameterAlpha = ImpactionParameterAlpha,
@@ -681,7 +408,7 @@ ProcessContributions <- Output %>%
 
 TableData <- Output %>%
   select(
-    Parametrization, LUC, Season,
+    Parametrization, LUCNames,
     T_air_K, AirPressure_Pa, SurfaceIsWet_bool,
     SurfaceIsVegetated, CharacteristicRadius_m,
     ImpactionParameterAlpha, ParticleDensity_kgm3,
@@ -701,16 +428,12 @@ TableData <- Output %>%
     C_Im = GetParameters(Parametrization = Parametrization, TargetParameter = "C_Im")
   ) %>%
   pivot_longer(
-    cols = -c("Parametrization", "LUC"),
+    cols = -c("Parametrization"),
     values_transform = as.character,
     names_to = "Parameter"
   ) %>%
-  mutate(
-    Parametrization_LUC = paste0(Parametrization, "_LUC", LUC)
-  ) %>%
-  select(-Parametrization, -LUC) %>%
   pivot_wider(
-    names_from = "Parametrization_LUC",
+    names_from = "Parametrization",
     values_from = "value"
   )
 
@@ -721,13 +444,14 @@ kable(
 
 ### Plots
 
-```{r Emerson fig 2B Plots, fig.width=8, fig.height=5}
+```{r Emerson fig 2 Plots, fig.width=8, fig.height=5, fig.cap = "Contribution of Brownian diffusion, Gravitational settling, Interception and Impaction to the total dry deposition velocity. Lines indicate data extracted from fig. 2 in Emerson et al. (2020). Results from the ddpart R package are indicated by "+". The Left panel shows parametrization "GEOS-Chem old" which is similar to the Zhang et al. (2001) parametrization. The right panel shows parametrization "GEOS-Chem new" which is referre to as the "revised" parametrization in Emerson et al. (2020). The figures show results at 0.4 m/s friction velocity for needleleaf forest and a particle density of 1500 kg/m3. Data from ddpart is generated with aerodynamic resistance set to zero, no hygroscopic swelling and dry surface. See parameter table above for full information."}
+
 # Load data extracted from Emerson et al. (2020)
 ValidationData <- dd_subprocess_validation %>%
   mutate(
     Label = factor(
       x = Parametrization,
-      levels = c("Zhang01", "Emerson20")
+      levels = c("GCOld", "GCNew")
     ),
     Type = "Extracted from Emerson et al. (2020)"
   )
@@ -735,7 +459,7 @@ ProcessContributions <- ProcessContributions %>%
   mutate(
     Label = factor(
       x = Parametrization,
-      levels = c("Zhang01", "Emerson20")
+      levels = c("GCOld", "GCNew")
     ),
     Type = "Calculated with ddpart"
   )
@@ -793,8 +517,394 @@ ggplot() +
   ) +
   facet_wrap(~Label)
 ```
-Figure 4: Contribution of Brownian diffusion, Gravitational settling, Interception and Impaction to the total dry deposition velocity according to the Zhang et al. (2001) parametrization (left panel) and the Emerson et al. (2020) parameterization (right panel). Lines indicate data extracted from fig. 2 in Emerson et al. (2020). Results from the ddpart R package are indicated by "+". The figures show results at 0.4 m/s friction velocity for needleleaf forest (LUC 1) and a particle density of 1500 kg/m3. Data from ddpart is generated for season 1 with aerodynamic resistance set to zero, no hygroscopic swelling and dry surface.
 
+\newpage
+
+## 2. Dry deposition velocity vs. particle size
+
+Emerson et al. (2020) figure 1 shows the dry deposition velocity for different
+land use classes.
+
+### Definition of parameters
+
+Note that Emerson et al. state that their Fig. 1 has been generated with a
+friction velocity of 0.2 m/s. Three observations strongly suggest that this is
+not the case and that instead the same friction velocity as in Emerson et al.
+Fig. 2 (0.4 m/s) has been used by Emerson to generate Fig. 1. These observations
+are:
+
+- The relation between dry deposition velocity and particle size for needleleaf
+forest in Emerson Fig. 1 is *exactly* identical to Emerson Fig. 2. This is shown
+below based on the data extracted from Emerson et al.
+
+- Emerson Fig. 2 has been generated with friction velocity of 0.4 m/s according
+to its figure caption.
+
+- Dry deposition velocity is directly dependend on friction velocity (e.g. via
+surface resistance, see Emerson eq. 2). I.e. a change of friction velocity from
+0.4 m/s to 0.2 m/s would create obvious differences in the relation between dry
+deposition velocity and particle size (which is not seen in Emerson Fig. 1 vs.
+Emerson Fig. 2).
+
+Therefore, a friction velocity of 0.4 m/s is used to reproduce Emerson Fig. 1.
+
+```{r Emerson fig 1 parameters}
+
+# LUC pars
+LUCPars <- expand_grid(
+  LUCNames = c("Grassland", "Needleleaf", "DecBroadleaf"),
+  Season = 1, # irrelevant for GCOld and GCNew parameterizations
+  Parametrization = c("GCOld", "GCNew") #see explanation text above
+) %>%
+  mutate(
+    A_mm = GetLandUseParameters(
+      LUCNames = LUCNames,
+      Seasons = Season,
+      Parametrizations = Parametrization,
+      TargetPar = "A_mm"
+    ),
+    alpha = GetLandUseParameters(
+      LUCNames = LUCNames,
+      Seasons = Season,
+      Parametrizations = Parametrization,
+      TargetPar = "alpha"
+    ),
+    gamma = GetLandUseParameters(
+      LUCNames = LUCNames,
+      Seasons = Season,
+      Parametrizations = Parametrization,
+      TargetPar = "gamma"
+    )
+  )
+
+# Vector of particle diameters
+d_p_vec <- 10^seq(-2, 2, length.out = 5)
+tmp <- expand.grid(1:9, d_p_vec)
+d_p_vec <- tmp[, 1] * tmp[, 2]
+d_p_vec <- d_p_vec[d_p_vec <= 100]
+d_p_vec <- d_p_vec * 1e-6
+
+# Other parameters
+OtherPars <- data.frame(
+  # See above why FrictionVelocity_ms is 0.4 and not 0.2 m/s as stated in caption
+  # of Emerson20 Fig1.
+  FrictionVelocity_ms = 0.4,
+  ParticleDensity_kgm3 = 1200,
+  SurfaceIsVegetated = TRUE,
+  # These parameters are guessed:
+  # "article water uptake corresponding to ambient relative humidity"
+  RelHum_percent = 80,
+  AerosolType = "Rural",
+  # Standard temperature and pressure
+  T_air_K = 293.15,
+  AirPressure_Pa = 101325,
+  R_a_sm = 0,
+  SurfaceIsWet_bool = FALSE
+)
+
+# Repeat input rows for each particle diameter
+Input <- bind_cols(LUCPars, OtherPars) %>%
+  expand_grid(
+    DryParticleDiameter_m = d_p_vec
+  )
+```
+
+### Calculations
+
+```{r Emerson fig 1 Calculations}
+Output <- Input %>%
+  mutate(
+    ParticleDiameter_m = CalculateHygroscopicSwelling(
+      DryParticleDiameter_m = DryParticleDiameter_m,
+      RelHum_percent = RelHum_percent,
+      AerosolType = AerosolType
+    ),
+    # Meteo basics
+    DynamicViscosityAir_kgms = CalculateDynamicViscosityOfAir(
+      T_air_K = T_air_K
+    ),
+    AirDensity_kgm3 = CalculateAirDensity(
+      AirPressure_Pa,
+      T_air_K
+    ),
+    KinematicViscosityOfAir_m2s = CalculateKinematicViscosityOfAir(
+      DynamicViscosityAir_kgms = DynamicViscosityAir_kgms,
+      AirDensity_kgm3 = AirDensity_kgm3
+    ),
+    MeanFreePathOfAirMolecule_m = CalculateMeanFreePath(
+      T_air_K = T_air_K,
+      AirPressure_Pa = AirPressure_Pa,
+      DynamicViscosityAir_kgms = DynamicViscosityAir_kgms
+    ),
+    # Deposition processes------
+    SettlingVelocity_ms = CalculateSettlingVelocity(
+      ParticleDensity_kgm3 = ParticleDensity_kgm3,
+      ParticleDiameter_m = ParticleDiameter_m,
+      MeanFreePathOfAirMolecule_m = MeanFreePathOfAirMolecule_m,
+      DynamicViscosityAir_kgms = DynamicViscosityAir_kgms
+    ),
+    # _Schmidt number------
+    SchmidtNumber = CalculateSchmidtNumber(
+      DynamicViscosityAir_kgms = DynamicViscosityAir_kgms,
+      KinematicViscosityOfAir_m2s = KinematicViscosityOfAir_m2s,
+      T_air_K = T_air_K,
+      ParticleDiameter_m = ParticleDiameter_m
+    ),
+    # _E_b-----
+    E_b = CalculateLossEfficiencyBrownianDiffusion(
+      SchmidtNumber = SchmidtNumber,
+      BrownianDiffusionParameterGamma = gamma,
+      Parametrization = Parametrization
+    ),
+    StokesNumber = CalculateStokesNumber(
+      FrictionVelocity_ms = FrictionVelocity_ms,
+      SettlingVelocity_ms = SettlingVelocity_ms,
+      CharacteristicRadius_m = A_mm / 1000,
+      KinematicViscosityOfAir_m2s = KinematicViscosityOfAir_m2s,
+      SurfaceIsVegetated = SurfaceIsVegetated
+    ),
+    # _E_Im----
+    # Loss efficiency by impaction
+    E_Im = CalculateLossEfficiencyImpaction(
+      StokesNumber = StokesNumber,
+      ImpactionParameterAlpha = alpha,
+      Parametrization = Parametrization
+    ),
+    # _E_In----
+    # Loss efficiency by interception
+    E_In = CalculateLossEfficiencyInterception(
+      ParticleDiameter_m = ParticleDiameter_m,
+      CharacteristicRadius_m = A_mm / 1000,
+      Parametrization = Parametrization
+    ),
+    # _R_s-----
+    # Surface resistance
+    R_s_sm = CalculateSurfaceResistance(
+      SurfaceIsWet = SurfaceIsWet_bool,
+      FrictionVelocity_ms = FrictionVelocity_ms,
+      StokesNumber = StokesNumber,
+      E_b = E_b,
+      E_Im = E_Im,
+      E_In = E_In,
+      ParticleDiameter_m = ParticleDiameter_m,
+      Parametrization = Parametrization
+    ),
+    # _V_d---------
+    V_d_surface_ms = 1 / (R_a_sm + R_s_sm),
+    V_g = SettlingVelocity_ms,
+    V_d_ms = V_d_surface_ms + V_g,
+    Type = "Results from ddpart"
+  )
+```
+
+\newpage
+
+### Summary of parameters
+
+```{r Emerson fig 1 Pars}
+
+TableData <- Output %>%
+  select(
+    Parametrization, LUCNames,
+    T_air_K, AirPressure_Pa, SurfaceIsWet_bool,
+    SurfaceIsVegetated, A_mm,
+    alpha, ParticleDensity_kgm3,
+    gamma, R_a_sm
+  ) %>%
+  distinct() %>%
+  mutate(
+    gamma = round(gamma, 3),
+    C_b = GetParameters(Parametrization = Parametrization, TargetParameter = "C_b"),
+    nu = GetParameters(Parametrization = Parametrization, TargetParameter = "nu"),
+    C_In = GetParameters(Parametrization = Parametrization, TargetParameter = "C_In"),
+    beta = GetParameters(Parametrization = Parametrization, TargetParameter = "beta"),
+    C_Im = GetParameters(Parametrization = Parametrization, TargetParameter = "C_Im")
+  ) %>%
+  pivot_longer(
+    cols = -c("Parametrization", "LUCNames"),
+    values_transform = as.character,
+    names_to = "Parameter"
+  ) %>%
+  mutate(
+    LUCShort = case_when(
+      LUCNames == "Needleleaf" ~ "Needle",
+      LUCNames == "DecBroadleaf" ~ "DecBL",
+      LUCNames == "Grassland" ~ "Grass",
+      T ~ "ERROR"
+    ),
+    Parametrization_LUC = paste0(Parametrization, "_", LUCShort)
+  ) %>%
+  select(-Parametrization, -LUCNames, -LUCShort) %>%
+  pivot_wider(
+    names_from = "Parametrization_LUC",
+    values_from = "value"
+  )
+
+kable(
+  x = TableData
+)
+```
+
+\newpage
+
+### Plots
+
+```{r Emerson fig 1 Plots, fig.width=8, fig.height=4, fig.cap="Dry deposition velocity as a function of particle diameter for needleleaf forest (LUC 1), evergreen broadleaf forest (LUC 2) and grassland (LUC 6) according to the Zhang et al. (2001) parametrization and the Emerson et al. (2020) parameterization. Lines represent data extracted from fig. 1 in Emerson et al. (2020). Results from the ddpart R package are indicated by "+". The figures show results at 0.2 m/s friction velocity and a particle density of 1200 kg/m3. Data from ddpart is generated for season 1 with aerodynamic resistance set to zero, wet surface, 85% relative humidity and corresponding hygroscopic swelling for aerosol of type "rural" (Zhang et al. (2001) eq. 10). Particle diameter refers to the dry particle diameter (i.e. before accounting for hygroscopic swelling).}
+
+# Load data extracted from Emerson et al. (2020)
+ValidationData <- dd_validation %>%
+  mutate(
+    Label = factor(
+      x = Parametrization,
+      levels = c("GCOld", "GCNew")
+    ),
+    Type = "Extracted from Emerson et al. (2020)",
+    LUCLabel = factor(
+      x = LUCName,
+      levels = c("Needleleaf", "DecBroadleaf", "Grassland")
+    )
+  )
+Output <- Output %>%
+  mutate(
+    Label = factor(
+      x = Parametrization,
+      levels = c("GCOld", "GCNew")
+    ),
+    Type = "Calculated with ddpart",
+    LUCLabel = factor(
+      x = LUCNames,
+      levels = c("Needleleaf", "DecBroadleaf", "Grassland")
+    )
+  )
+
+Shapes <- c(3)
+names(Shapes) <- c("Calculated with ddpart")
+LineTypes <- c("solid")
+names(LineTypes) <- c("Extracted from Emerson et al. (2020)")
+
+ggplot() +
+  geom_line(
+    data = ValidationData,
+    mapping = aes(
+      x = ParticleDiameter_um,
+      y = DepositionVelocity_cms,
+      color = Parametrization,
+      linetype = Type
+    )
+  ) +
+  geom_point(
+    data = Output,
+    mapping = aes(
+      x = DryParticleDiameter_m * 1e6,
+      y = V_d_ms * 100,
+      color = Parametrization,
+      shape = Type
+    ),
+    size = 2
+  ) +
+  scale_shape_manual(values = Shapes) +
+  scale_linetype_manual(values = LineTypes) +
+  scale_x_log10(
+    breaks = trans_breaks("log10", function(x) 10^x),
+    labels = trans_format("log10", math_format(10^.x)),
+    expand = expansion(mult = c(0, 0))
+  ) +
+  scale_y_log10(
+    breaks = trans_breaks("log10", function(x) 10^x),
+    labels = trans_format("log10", math_format(10^.x)),
+    limits = c(1e-3, 1e2),
+    expand = expansion(mult = c(0, 0))
+  ) +
+  annotation_logticks() +
+  xlab("Particle diameter (um)") +
+  ylab("Deposition velocity (cm/s)") +
+  theme(
+    legend.position = "bottom",
+    legend.title = element_blank(),
+    legend.box = "horizontal",
+    panel.spacing = unit(1, "lines")
+    # legend.margin=margin()
+  ) +
+  facet_wrap(~LUCLabel)
+```
+
+
+\newpage
+
+
+# Emerson Fig 1. vs. Emerson Fig. 2
+
+This graph shows that the relation between dry deposition velocity and particle
+size are exactly identical in Emerson Fig. 1 and Emerson Fig. 2. This strongly
+suggests that Emerson used the same value of friction velocity to generate these
+graphs.
+
+ - Variable "dd_validation" contains the modelled dry deposition velocity for
+ needleleaf forest, deciduous broadleaf forest and grassland extracted from
+ Emerson Fig 1. Here, only the data for LUC1 (needleleaf forest) is used.
+ 
+ - Variable "dd_subprocess_validation" contains the modelled dry deposition
+ velocity for needleleaf forest extracted from Emerson Fig. 2 ("total dry
+ deposition" is used).
+ 
+ - In both cases, data has been extracted using a plot digitalizer tool. 
+
+ 
+```{r Ecmp, fig.width=8, fig.height=4, fig.cap = "Modelled dry deposition velocity extracted from Emerson Fig. 1 and Fig. 2 is identical."}
+EmersonFig1 <- dd_validation %>%
+  filter(
+    LUCName == "Needleleaf"
+  ) %>%
+  select(-LUCName) %>%
+  mutate(
+    DataSource = "Emerson et al. (2020) Fig1"
+  )
+
+EmersonFig2 <- dd_subprocess_validation %>%
+  filter(
+    Process == "Total"
+  ) %>%
+  select(-Process) %>%
+  mutate(
+    DataSource = "Emerson et al. (2020) Fig2"
+  )
+
+EmersonCmp <- bind_rows(EmersonFig1, EmersonFig2) %>%
+  mutate(
+    Parametrization = factor(
+      x = paste0("Parametrization = ", Parametrization),
+      levels = c("Parametrization = GEOS-Chem old", "Parametrization = GEOS-Chem new")
+    )
+  )
+
+ggplot(
+  data = EmersonCmp,
+  mapping = aes(
+    x = ParticleDiameter_um,
+    y = DepositionVelocity_cms,
+    color = DataSource,
+    linetype = DataSource
+  )
+) +
+  geom_line(
+    size = 2
+  ) +
+  scale_x_log10(
+    breaks = trans_breaks("log10", function(x) 10^x),
+    labels = trans_format("log10", math_format(10^.x)),
+    expand = expansion(mult = c(0, 0))
+  ) +
+  scale_y_log10(
+    breaks = trans_breaks("log10", function(x) 10^x),
+    labels = trans_format("log10", math_format(10^.x)),
+    limits = c(1e-3, 1e2),
+    expand = expansion(mult = c(0, 0))
+  ) +
+  facet_wrap(~Parametrization) +
+  theme(
+    legend.position = "bottom"
+  )
+```
 
 
 \newpage

@@ -7,7 +7,8 @@
 GetParameters(Parametrization, TargetParameter)
 }
 \arguments{
-\item{Parametrization}{A character, either "Zhang01" or "Emerson20".}
+\item{Parametrization}{A character, one of "GCNewSeason", "Zhang01",
+"GCOld", "GCNew".}
 
 \item{TargetParameter}{A character indicating which parameter value to
 return. Valid options are "C_b", "beta", "C_Im", "nu", "C_In" and
@@ -24,7 +25,7 @@ This function returns empirical constants for dry deposition
 }
 \examples{
 GetParameters(Parametrization = "Zhang01", TargetParameter = "C_b")
-GetParameters(Parametrization = "Emerson20", TargetParameter = "C_b")
+GetParameters(Parametrization = "GCNewSeason", TargetParameter = "C_b")
 
 }
 \references{

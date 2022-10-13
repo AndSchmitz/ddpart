@@ -19,7 +19,7 @@ in Zhang et al. (2001) and constant at a value of 2/3 in Emerson et al.
 (2020)}
 
 \item{Parametrization}{A character defining which parametrization to use.
-Valid values are "Emerson20" and "Zhang01"}
+See ?GetLandUseParameters for a list of valid values.}
 }
 \value{
 Loss efficiency by brownian diffusion
