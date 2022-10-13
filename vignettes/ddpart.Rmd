@@ -164,43 +164,34 @@ reproduced as a validation of the functions in the ddpart package. Emerson et
 al. (2020) used a specific implementation of the Zhang01 approach in the
 GEOS-Chem model (https://github.com/geoschem/geos-chem/). This implementation
 differs from the original formulation by Zhang01 in some aspects. In total,
-there are 4 variants of parametrization for the Zhang01 approach:
+there are 4 variants of parametrizations:
 
-  - A) "Zhang01": The original model according to Zhang et al. (2001). Not used
+  A) "Zhang01": The original model according to Zhang et al. (2001). Not used
   for the figures in Emerson et al. (2020). Implemented in ddpart as
   parametrization "Zhang01".
 
-  - B) "GEOS-Chem old": This is what Emerson et al. (2020) refer to as "Zhang et
+  B) "GEOS-Chem old": This is what Emerson et al. (2020) refer to as "Zhang et
   al. (2001)" in their Fig. 1 and 2. Implemented in ddpart as
   parametrization "GCOld". It is an adaption of parametrization A) with two
   differences:
 
-  First, the land use classes in the GEOS-Chem model differ from those in A).
+  - First, the land use classes in the GEOS-Chem model differ from those in A).
   The mapping between land use classes is not always straightforward. For
   example, "Grassland" in B) uses parameters for "shrubs and interrupted
   woodland" from A). The complete mapping of LUCs is defined in file
   "drydep_mod.F90" starting in lines 3143:
   https://github.com/geoschem/geos-chem/blob/main/GeosCore/drydep_mod.F90.
 
-  For the LUCs implemented in ddpart, the mapping Emerson20 <-> Zhang01 is as
-  follows:
-
-  - "Needleleaf" <-> "Needleleaf" (LUC1)
-
-  - "Broadleaf" <-> "Deciduous broadleaf" (LUC4)
-
-  - "Grassland" <-> "Shrubs and interrupted wood-lands" (LUC10)
-
-  Second, no differentiation according to seasons exists. Instead, the average
+  - Second, no differentiation according to seasons exists. Instead, the average
   over seasons 1-5 is used for each parameter. See for example
   "drydep_mod.F90" line 3226.
 
   C)  "GEOS-Chem new": This is the "revised parametrization" in Emerson et al.
-  (2020) Fig. 1 and 2. Implemented in ddpart as parametrization "GCNew". It uses
-  the same assignment of LUCs as in B) and also averages land use parameters
-  over seasons, but some  parameters have been re-calibrated by Emerson et al.
-  to better match measurement data. Note that although the parameters for
-  "Shrubs and interrupted wood-lands" (LUC10 from Zhang01) are used for
+  Fig. 1 and 2. Implemented in ddpart as parametrization "GCNew". It uses the
+  same assignment of LUCs as in B) and also averages land use parameters over
+  seasons, but some  parameters have been re-calibrated by Emerson et al. to
+  better match measurement data. Note that although Emerson applies the
+  parameters for "Shrubs and interrupted wood-lands" (LUC10 from Zhang01) for
   grassland, the parametrization is valid for grassland. This is because
   Emerson20 *calibrated* the other parameters, such that the resulting dry
   deposition velocity matches measurement data for grassland.
@@ -449,7 +440,7 @@ kable(
 
 ### Plots
 
-```{r Emerson fig 2 Plots, fig.width=8, fig.height=5, fig.cap = "Contribution of Brownian diffusion, Gravitational settling, Interception and Impaction to the total dry deposition velocity. Lines indicate data extracted from fig. 2 in Emerson et al. (2020). Results from the ddpart R package are indicated by +. The Left panel shows parametrization GEOS-Chem old which is similar to the Zhang et al. (2001) parametrization. The right panel shows parametrization GEOS-Chem new which is referred to as the 'revised' parametrization in Emerson et al. (2020). The figures show results at 0.4 m/s friction velocity for needleleaf forest and a particle density of 1500 kg/m3. Data from ddpart is generated with aerodynamic resistance set to zero, no hygroscopic swelling and dry surface. See parameter table above for full information."}
+```{r Emerson fig 2 Plots, fig.width=8, fig.height=5, fig.cap = "Contribution of Brownian diffusion, Gravitational settling, Interception and Impaction to the total dry deposition velocity. Lines indicate data extracted from fig. 2 in Emerson et al. (2020). Results from the ddpart R package are indicated by +. The Left panel shows parametrization 'GEOS-Chem old' which is similar to the Zhang et al. (2001) parametrization. The right panel shows parametrization 'GEOS-Chem new' which is referred to as the 'revised' parametrization in Emerson et al. (2020). The figures show results at 0.4 m/s friction velocity for needleleaf forest and a particle density of 1500 kg/m3. Data from ddpart is generated with aerodynamic resistance set to zero, no hygroscopic swelling and dry surface. See parameter table above for full information."}
 
 # Load data extracted from Emerson et al. (2020)
 ValidationData <- dd_subprocess_validation %>%
@@ -525,7 +516,7 @@ ggplot() +
 
 \newpage
 
-## 2. Dry deposition velocity vs. particle size
+## 2. Dry deposition velocity vs. particle size for 3 different land use classes
 
 Emerson et al. (2020) figure 1 shows the dry deposition velocity for different
 land use classes. Note that Emerson et al. state that their Fig. 1 has been
@@ -536,10 +527,9 @@ These observations are:
 
 - The relation between dry deposition velocity and particle size for needleleaf
 forest in Emerson Fig. 1 is *exactly* identical to Emerson Fig. 2. This is shown
-below based on the data extracted from Emerson et al.
-
-- Emerson Fig. 2 has been generated with friction velocity of 0.4 m/s according
-to its figure caption.
+below based on the data extracted from the Emerson paper. Emerson Fig. 2 has
+been generated with friction velocity of 0.4 m/s according to its figure
+caption.
 
 - Dry deposition velocity is directly dependend on friction velocity (e.g. via
 surface resistance, see Emerson eq. 2). I.e. a change of friction velocity from
@@ -754,7 +744,7 @@ kable(
 
 ### Plots
 
-```{r Emerson fig 1 Plots, fig.width=8, fig.height=4, fig.cap="Dry deposition velocity as a function of particle diameter for needleleaf forest, decidous broadleaf forest and grassland. Lines represent data extracted from fig. 1 in Emerson et al. (2020). Results from the ddpart R package are indicated by +. The figures show results at 0.4 m/s friction velocity and a particle density of 1200 kg/m3. Data from ddpart is generated for season 1 with aerodynamic resistance set to zero, wet surface, 85% relative humidity and corresponding hygroscopic swelling for aerosol of type rural (Zhang et al. (2001) eq. 10). Particle diameter refers to the dry particle diameter (i.e. before accounting for hygroscopic swelling)."}
+```{r Emerson fig 1 Plots, fig.width=8, fig.height=4, fig.cap="Dry deposition velocity as a function of particle diameter for needleleaf forest, decidous broadleaf forest and grassland. Lines represent data extracted from fig. 1 in Emerson et al. (2020). Results from the ddpart R package are indicated by +. The figures show results at 0.4 m/s friction velocity and a particle density of 1200 kg/m3. Data from ddpart is generated with aerodynamic resistance set to zero, dry surface, 80% relative humidity and corresponding hygroscopic swelling for aerosol of type 'rural' (Zhang et al. (2001) eq. 10). Particle diameter refers to the dry particle diameter (i.e. before accounting for hygroscopic swelling)."}
 
 # Load data extracted from Emerson et al. (2020)
 ValidationData <- dd_validation %>%
@@ -839,14 +829,14 @@ ggplot() +
 
 ### Emerson Fig 1. vs. Emerson Fig. 2
 
-This graph shows that the relation between dry deposition velocity and particle
-size are exactly identical in Emerson Fig. 1 and Emerson Fig. 2. This strongly
-suggests that Emerson used the same value of friction velocity to generate these
-graphs.
+The following graph shows that the relation between dry deposition velocity and
+particle size are exactly identical in Emerson Fig. 1 and Emerson Fig. 2. This
+strongly suggests that Emerson used the same value of friction velocity to
+generate these graphs.
 
  - Variable "dd_validation" contains the modelled dry deposition velocity for
  needleleaf forest, deciduous broadleaf forest and grassland extracted from
- Emerson Fig 1. Here, only the data for LUC1 (needleleaf forest) is used.
+ Emerson Fig 1. Here, only the data for needleleaf forest is used.
  
  - Variable "dd_subprocess_validation" contains the modelled dry deposition
  velocity for needleleaf forest extracted from Emerson Fig. 2 ("total dry
