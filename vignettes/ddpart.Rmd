@@ -1,19 +1,20 @@
 ---
 title: "ddpart"
 output:
-  rmarkdown::html_vignette:
-    toc: true
-vignette: >
-  %\VignetteIndexEntry{ddpart}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+ rmarkdown::pdf_document:
+   toc: true
+   toc_depth: 3
 ---
 
 <!-- # --- -->
 <!-- # title: "ddpart" -->
 <!-- # output: -->
-<!-- #   rmarkdown::pdf_document: -->
+<!-- #   rmarkdown::html_vignette: -->
 <!-- #     toc: true -->
+<!-- # vignette: > -->
+<!-- #   %\VignetteIndexEntry{ddpart} -->
+<!-- #   %\VignetteEngine{knitr::rmarkdown} -->
+<!-- #   %\VignetteEncoding{UTF-8} -->
 <!-- # --- -->
 
 
@@ -120,7 +121,8 @@ InputTable <- meteo_time_series %>%
     DryParticleDiameter_m = 5 * 1e-6, # 5 um particles
     ParticleDensity_kgm3 = 2000,
     AerosolType = "SeaSalt", # Relevant for hygroscopic swelling
-    Parametrization = "Zhang01"
+    Parametrization = "Zhang01",
+    SurfaceIsVegetated_bool = T
   )
 
 
@@ -211,6 +213,8 @@ there are 4 variants of parametrization for the Zhang01 approach:
 In order to reproduce Fig. 1 and Fig. 2 from Emerson et al. (2020), variants B)
 and C) must be used.
 
+\newpage
+
 ## 1. Contribution from dry deposition sub-processes
 
 Emerson et al. (2020) figure 2 shows the contribution of the four dry deposition
@@ -260,7 +264,8 @@ d_p_vec <- d_p_vec * 1e-6
 OtherPars <- data.frame(
   R_a_sm = 0,
   ParticleDensity_kgm3 = 1500,
-  FrictionVelocity_ms = 0.4
+  FrictionVelocity_ms = 0.4,
+  SurfaceIsVegetated_bool = T
 ) %>%
   mutate(
     # These parameters are guessed
@@ -276,6 +281,8 @@ Input <- bind_cols(LUCPars, OtherPars) %>%
     ParticleDiameter_m = d_p_vec
   )
 ```
+
+\newpage
 
 ### Calculations
 
@@ -322,14 +329,13 @@ Output <- Input %>%
       Parametrization = Parametrization
     ),
     # _Stokes number-----
-    SurfaceIsVegetated = T,
     CharacteristicRadius_m = A_mm / 1000,
     StokesNumber = CalculateStokesNumber(
       FrictionVelocity_ms = FrictionVelocity_ms,
       SettlingVelocity_ms = SettlingVelocity_ms,
       CharacteristicRadius_m = CharacteristicRadius_m,
       KinematicViscosityOfAir_m2s = KinematicViscosityOfAir_m2s,
-      SurfaceIsVegetated = SurfaceIsVegetated
+      SurfaceIsVegetated = SurfaceIsVegetated_bool
     ),
     # _E_Im----
     # Loss efficiency by impaction
@@ -409,7 +415,7 @@ TableData <- Output %>%
   select(
     Parametrization, LUCNames,
     T_air_K, AirPressure_Pa, SurfaceIsWet_bool,
-    SurfaceIsVegetated, CharacteristicRadius_m,
+    SurfaceIsVegetated_bool, CharacteristicRadius_m,
     ImpactionParameterAlpha, ParticleDensity_kgm3,
     BrownianDiffusionParameterGamma,
     R_a_sm
@@ -443,7 +449,7 @@ kable(
 
 ### Plots
 
-```{r Emerson fig 2 Plots, fig.width=8, fig.height=5, fig.cap = "Contribution of Brownian diffusion, Gravitational settling, Interception and Impaction to the total dry deposition velocity. Lines indicate data extracted from fig. 2 in Emerson et al. (2020). Results from the ddpart R package are indicated by "+". The Left panel shows parametrization "GEOS-Chem old" which is similar to the Zhang et al. (2001) parametrization. The right panel shows parametrization "GEOS-Chem new" which is referre to as the "revised" parametrization in Emerson et al. (2020). The figures show results at 0.4 m/s friction velocity for needleleaf forest and a particle density of 1500 kg/m3. Data from ddpart is generated with aerodynamic resistance set to zero, no hygroscopic swelling and dry surface. See parameter table above for full information."}
+```{r Emerson fig 2 Plots, fig.width=8, fig.height=5, fig.cap = "Contribution of Brownian diffusion, Gravitational settling, Interception and Impaction to the total dry deposition velocity. Lines indicate data extracted from fig. 2 in Emerson et al. (2020). Results from the ddpart R package are indicated by +. The Left panel shows parametrization GEOS-Chem old which is similar to the Zhang et al. (2001) parametrization. The right panel shows parametrization GEOS-Chem new which is referred to as the 'revised' parametrization in Emerson et al. (2020). The figures show results at 0.4 m/s friction velocity for needleleaf forest and a particle density of 1500 kg/m3. Data from ddpart is generated with aerodynamic resistance set to zero, no hygroscopic swelling and dry surface. See parameter table above for full information."}
 
 # Load data extracted from Emerson et al. (2020)
 ValidationData <- dd_subprocess_validation %>%
@@ -522,15 +528,11 @@ ggplot() +
 ## 2. Dry deposition velocity vs. particle size
 
 Emerson et al. (2020) figure 1 shows the dry deposition velocity for different
-land use classes.
-
-### Definition of parameters
-
-Note that Emerson et al. state that their Fig. 1 has been generated with a
-friction velocity of 0.2 m/s. Three observations strongly suggest that this is
-not the case and that instead the same friction velocity as in Emerson et al.
-Fig. 2 (0.4 m/s) has been used by Emerson to generate Fig. 1. These observations
-are:
+land use classes. Note that Emerson et al. state that their Fig. 1 has been
+generated with a friction velocity of 0.2 m/s. Three observations strongly
+suggest that this is not the case and that instead the same friction velocity as
+in Emerson et al. Fig. 2 (0.4 m/s) has been used by Emerson to generate Fig. 1.
+These observations are:
 
 - The relation between dry deposition velocity and particle size for needleleaf
 forest in Emerson Fig. 1 is *exactly* identical to Emerson Fig. 2. This is shown
@@ -546,6 +548,8 @@ deposition velocity and particle size (which is not seen in Emerson Fig. 1 vs.
 Emerson Fig. 2).
 
 Therefore, a friction velocity of 0.4 m/s is used to reproduce Emerson Fig. 1.
+
+### Definition of parameters
 
 ```{r Emerson fig 1 parameters}
 
@@ -607,6 +611,8 @@ Input <- bind_cols(LUCPars, OtherPars) %>%
     DryParticleDiameter_m = d_p_vec
   )
 ```
+
+\newpage
 
 ### Calculations
 
@@ -726,9 +732,9 @@ TableData <- Output %>%
   ) %>%
   mutate(
     LUCShort = case_when(
-      LUCNames == "Needleleaf" ~ "Needle",
-      LUCNames == "DecBroadleaf" ~ "DecBL",
-      LUCNames == "Grassland" ~ "Grass",
+      LUCNames == "Needleleaf" ~ "NL",
+      LUCNames == "DecBroadleaf" ~ "BL",
+      LUCNames == "Grassland" ~ "GR",
       T ~ "ERROR"
     ),
     Parametrization_LUC = paste0(Parametrization, "_", LUCShort)
@@ -748,7 +754,7 @@ kable(
 
 ### Plots
 
-```{r Emerson fig 1 Plots, fig.width=8, fig.height=4, fig.cap="Dry deposition velocity as a function of particle diameter for needleleaf forest (LUC 1), evergreen broadleaf forest (LUC 2) and grassland (LUC 6) according to the Zhang et al. (2001) parametrization and the Emerson et al. (2020) parameterization. Lines represent data extracted from fig. 1 in Emerson et al. (2020). Results from the ddpart R package are indicated by "+". The figures show results at 0.2 m/s friction velocity and a particle density of 1200 kg/m3. Data from ddpart is generated for season 1 with aerodynamic resistance set to zero, wet surface, 85% relative humidity and corresponding hygroscopic swelling for aerosol of type "rural" (Zhang et al. (2001) eq. 10). Particle diameter refers to the dry particle diameter (i.e. before accounting for hygroscopic swelling).}
+```{r Emerson fig 1 Plots, fig.width=8, fig.height=4, fig.cap="Dry deposition velocity as a function of particle diameter for needleleaf forest, decidous broadleaf forest and grassland. Lines represent data extracted from fig. 1 in Emerson et al. (2020). Results from the ddpart R package are indicated by +. The figures show results at 0.4 m/s friction velocity and a particle density of 1200 kg/m3. Data from ddpart is generated for season 1 with aerodynamic resistance set to zero, wet surface, 85% relative humidity and corresponding hygroscopic swelling for aerosol of type rural (Zhang et al. (2001) eq. 10). Particle diameter refers to the dry particle diameter (i.e. before accounting for hygroscopic swelling)."}
 
 # Load data extracted from Emerson et al. (2020)
 ValidationData <- dd_validation %>%
@@ -831,7 +837,7 @@ ggplot() +
 \newpage
 
 
-# Emerson Fig 1. vs. Emerson Fig. 2
+### Emerson Fig 1. vs. Emerson Fig. 2
 
 This graph shows that the relation between dry deposition velocity and particle
 size are exactly identical in Emerson Fig. 1 and Emerson Fig. 2. This strongly
@@ -872,7 +878,7 @@ EmersonCmp <- bind_rows(EmersonFig1, EmersonFig2) %>%
   mutate(
     Parametrization = factor(
       x = paste0("Parametrization = ", Parametrization),
-      levels = c("Parametrization = GEOS-Chem old", "Parametrization = GEOS-Chem new")
+      levels = c("Parametrization = GCOld", "Parametrization = GCNew")
     )
   )
 
