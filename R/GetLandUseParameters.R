@@ -69,6 +69,9 @@
 #'@return A vector of values for parameter "TargetParameter".
 #'
 #' @examples
+#'
+#' if (require("tidyr")) {
+#'
 #' GetLandUseParameters(
 #'   LUCNames = c("Grassland", "Needleleaf", "DecBroadleaf"),
 #'   Seasons = rep(x = 4, times = 3),
@@ -82,6 +85,8 @@
 #'   Parametrizations = rep(x = "GCNewSeason", times = 3),
 #'   TargetParameter = "A_mm"
 #' )
+#'
+#' }
 #'
 #'@export
 #'

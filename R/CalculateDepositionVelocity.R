@@ -77,6 +77,9 @@
 #'   which case the particle rebound effect is disabled. Can be set e.g.
 #'   depending on relative humidity and/or precipitation events.
 #'
+#'   - SurfaceIsVegetated_bool: Boolean indicating whether the surface is
+#'   vegetated. Should be TRUE for all LUCs currently implemented in ddpart.
+#'
 #'   - LUCNames: Land use classes (character). See ?GetLandUseParameters for
 #'   information.
 #'
@@ -133,7 +136,7 @@ CalculateDepositionVelocity <- function(InputTable) {
     # Meteo
     "SunAngle_degree", "T_air_K", "AirPressure_Pa", "GlobalRadiation_W_m2",
     "RelHum_percent", "CloudCover_percent", "WindSpeedAtAnemometerHeight_ms",
-    "AnemometerHeight_m",  "SurfaceIsWet_bool",
+    "AnemometerHeight_m",  "SurfaceIsWet_bool", "SurfaceIsVegetated_bool",
     # Receptor properties
     "LUCNames", "ReferenceHeight_m",  "RoughnessLength_m",
     "ZeroPlaneDisplacementHeight_m", "Season",
@@ -145,18 +148,6 @@ CalculateDepositionVelocity <- function(InputTable) {
   if (length(MissCols) > 0) {
     stop(paste("The following columns are missing in InputTable:", paste(MissCols, collapse = ",")))
   }
-
-  # Stokes number requires a classification whether the surface is
-  # "vegetated" or with otherwise rough surface (Zhang et al. 2001).
-  # The following LUCs are classified as non-vegetated,
-  # all other are considered vegetated.
-  NonVegetatedLUCs <- c(
-    8, # desert
-    9, # tundra
-    12, # ice cap and glacier
-    13, # inland water
-    14 # ocean
-  )
 
   # _Update particle radius by hygroscopic swelling-----
   Results <- InputTable %>%
@@ -270,16 +261,12 @@ CalculateDepositionVelocity <- function(InputTable) {
         Parametrization = Parametrization
       ),
       # _Stokes number-----
-      SurfaceIsVegetated = case_when(
-        LUCNames %in% NonVegetatedLUCs ~ F,
-        T ~ T
-      ),
       StokesNumber = CalculateStokesNumber(
         FrictionVelocity_ms = FrictionVelocity_Anemometer_ms,
         SettlingVelocity_ms = SettlingVelocity_ms,
         CharacteristicRadius_m = CharacteristicRadius_m,
         KinematicViscosityOfAir_m2s = KinematicViscosityOfAir_m2s,
-        SurfaceIsVegetated = SurfaceIsVegetated
+        SurfaceIsVegetated = SurfaceIsVegetated_bool
       ),
       # _E_Im----
       # Loss efficiency by impaction

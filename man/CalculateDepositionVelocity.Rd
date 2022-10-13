@@ -42,6 +42,9 @@ CalculateDepositionVelocity(InputTable)
   which case the particle rebound effect is disabled. Can be set e.g.
   depending on relative humidity and/or precipitation events.
 
+  - SurfaceIsVegetated_bool: Boolean indicating whether the surface is
+  vegetated. Should be TRUE for all LUCs currently implemented in ddpart.
+
   - LUCNames: Land use classes (character). See ?GetLandUseParameters for
   information.
 

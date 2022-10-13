@@ -7,8 +7,8 @@
 GetParameters(Parametrization, TargetParameter)
 }
 \arguments{
-\item{Parametrization}{A character, one of "GCNewSeason", "Zhang01",
-"GCOld", "GCNew".}
+\item{Parametrization}{A character defining which parametrization to use.
+See ?GetLandUseParameters for a list of valid values.}
 
 \item{TargetParameter}{A character indicating which parameter value to
 return. Valid options are "C_b", "beta", "C_Im", "nu", "C_In" and

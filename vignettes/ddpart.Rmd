@@ -1,21 +1,20 @@
 ---
 title: "ddpart"
-output: pdf_document
-toc: true
+output:
+  rmarkdown::html_vignette:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{ddpart}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
-<!-- --- -->
-<!-- title: "ddpart" -->
-<!-- output: -->
-<!--   rmarkdown::html_vignette: -->
-<!--     toc: true -->
-<!-- vignette: > -->
-<!--   %\VignetteIndexEntry{ddpart} -->
-<!--   %\VignetteEngine{knitr::rmarkdown} -->
-<!--   %\VignetteEncoding{UTF-8} -->
-<!-- --- -->
-
-
+<!-- # --- -->
+<!-- # title: "ddpart" -->
+<!-- # output: -->
+<!-- #   rmarkdown::pdf_document: -->
+<!-- #     toc: true -->
+<!-- # --- -->
 
 
 ```{r, include = FALSE}

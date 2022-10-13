@@ -92,12 +92,16 @@ Calculates the deposition velocity of particle according to the
   6. Calculate dry deposition velocity to the target land use class.
 }
 \examples{
+
+if (require("tidyr")) {
+
 # Define some standard conditions
 Basics <- data.frame(
   SunAngle_degree = 30,
   T_air_K = 293.15,
   AirPressure_Pa = 101325,
   SurfaceIsWet_bool = FALSE,
+  SurfaceIsVegetated_bool = TRUE,
   GlobalRadiation_W_m2 = 100,
   RelHum_percent = 80,
   CloudCover_percent = 80,
@@ -110,14 +114,13 @@ Basics <- data.frame(
   DryParticleDiameter_m = 5e-6,
   ParticleDensity_kgm3 = 2000,
   AerosolType = "Dry", # disable hygroscopic swelling
-  Parametrization = "Emerson20",
+  Parametrization = "GCNew",
   ReferenceHeight_m = 50 # assuming concentrations are known at blending height
 )
 
 # Define two land use classes for which to calculate dry deposition velocity
 TargetLUCs <- data.frame(
-  # 1=evegreen needleleaf forest, 2=evergreen broadleaf forest
-  TargetLUCNames = c(1, 2),
+  TargetLUCNames = c("Needleleaf", "DecBroadleaf"),
   RoughnessLengthTargetLUC_m = c(0.8, 2.65) # Zhang01 table 3
 ) \%>\%
   mutate(
@@ -130,8 +133,9 @@ Output <- CalculateDepositionVelocity2(
   InputTable = InputTable
 )
 
-# Show results. LUC 2 (evergreen broadleaf forest) has a higher vd compared to
-# LUC 1 (evegreen needleleaf forest) for the specific settings used.
+}
+
+# Show results.
 print(Output \%>\% select(TargetLUCNames, V_d_RefHeight_ms))
 
 }

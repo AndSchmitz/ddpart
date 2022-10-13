@@ -33,11 +33,13 @@ Get land use parameters according to Zhang et al. (2001) table 3
  Zhang01 approach:
 
 - A) "Zhang01": The original model according to Zhang et al. (2001). Not used
-for the figures in Emerson et al. (2020).
+for the figures in Emerson et al. (2020). Implemented in ddpart as
+parametrization "Zhang01".
 
-- B) "GCOld": This is what Emerson et al. (2020) refer to as "Zhang et al.
-(2001)" in their Fig. 1 and 2. It is an implementation of parametrization A)
-into the GEOS-Chem model with two differences:
+- B) "GEOS-Chem old": This is what Emerson et al. (2020) refer to as "Zhang et
+  al. (2001)" in their Fig. 1 and 2. Implemented in ddpart as
+parametrization "GCOld". It is an adaption of parametrization A) with two
+differences:
 
   First, the land use classes in the GEOS-Chem model differ from those in A).
 The mapping between land use classes is not always straightforward. For
@@ -49,7 +51,7 @@ example, "Grassland" in B) uses parameters for "shrubs and interrupted
 For the LUCs implemented in ddpart, the mapping Emerson20 <-> Zhang01 is as
 follows:
 
-- "Needleleaf" <-> "Needleleaf" (LUC1)
+  - "Needleleaf" <-> "Needleleaf" (LUC1)
 
 - "Broadleaf" <-> "Deciduous broadleaf" (LUC4)
 
@@ -59,20 +61,25 @@ Second, no differentiation according to seasons exists. Instead, the average
 over seasons 1-5 is used for each parameter. See for example
 "drydep_mod.F90" line 3226.
 
-C)  "GCNew": This is the "revised parametrization" in Emerson et al. (2020)
-Fig. 1 and 2. It uses the same assignment of LUCs as in B) and also averages
-land use parameters over seasons, but some  parameters have been
-re-calibrated by Emerson et al. to better match measurement data. Note that
-although the parameters for "Shrubs and interrupted wood-lands" (LUC10 from
-Zhang01) are used for grassland, the parametrization is valid for grassland.
-This is because Emerson20 *calibrated* the other parameters, such that the
-resulting dry deposition velocity matches measurement data for grassland.
+C)  "GEOS-Chem new": This is the "revised parametrization" in Emerson et al.
+(2020) Fig. 1 and 2. Implemented in ddpart as parametrization "GCNew". It uses
+the same assignment of LUCs as in B) and also averages land use parameters
+over seasons, but some  parameters have been re-calibrated by Emerson et al.
+to better match measurement data. Note that although the parameters for
+"Shrubs and interrupted wood-lands" (LUC10 from Zhang01) are used for
+grassland, the parametrization is valid for grassland. This is because
+Emerson20 *calibrated* the other parameters, such that the resulting dry
+deposition velocity matches measurement data for grassland.
 
-D) "GCNewSeason": Same as C) but with season-specific land use
-parameters.  E.g. parameter "characteristic receptor radius" (A in mm) varies
-between seasons for deciduous broadleaf forest.
+D) "Emerson20": Same as C) but with season-specific land use parameters.  E.g.
+parameter "characteristic receptor radius" (A in mm) varies between seasons
+for deciduous broadleaf forest. This is implemented in ddpart as
+parametrization "Emerson20".
 }
 \examples{
+
+if (require("tidyr")) {
+
 GetLandUseParameters(
   LUCNames = c("Grassland", "Needleleaf", "DecBroadleaf"),
   Seasons = rep(x = 4, times = 3),
@@ -86,6 +93,8 @@ GetLandUseParameters(
   Parametrizations = rep(x = "GCNewSeason", times = 3),
   TargetParameter = "A_mm"
 )
+
+}
 
 }
 \references{

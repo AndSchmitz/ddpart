@@ -83,12 +83,16 @@
 #'   calculated values.
 #'
 #' @examples
+#'
+#' if (require("tidyr")) {
+#'
 #' # Define some standard conditions
 #' Basics <- data.frame(
 #'   SunAngle_degree = 30,
 #'   T_air_K = 293.15,
 #'   AirPressure_Pa = 101325,
 #'   SurfaceIsWet_bool = FALSE,
+#'   SurfaceIsVegetated_bool = TRUE,
 #'   GlobalRadiation_W_m2 = 100,
 #'   RelHum_percent = 80,
 #'   CloudCover_percent = 80,
@@ -101,14 +105,13 @@
 #'   DryParticleDiameter_m = 5e-6,
 #'   ParticleDensity_kgm3 = 2000,
 #'   AerosolType = "Dry", # disable hygroscopic swelling
-#'   Parametrization = "Emerson20",
+#'   Parametrization = "GCNew",
 #'   ReferenceHeight_m = 50 # assuming concentrations are known at blending height
 #' )
 #'
 #' # Define two land use classes for which to calculate dry deposition velocity
 #' TargetLUCs <- data.frame(
-#'   # 1=evegreen needleleaf forest, 2=evergreen broadleaf forest
-#'   TargetLUCNames = c(1, 2),
+#'   TargetLUCNames = c("Needleleaf", "DecBroadleaf"),
 #'   RoughnessLengthTargetLUC_m = c(0.8, 2.65) # Zhang01 table 3
 #' ) %>%
 #'   mutate(
@@ -121,8 +124,9 @@
 #'   InputTable = InputTable
 #' )
 #'
-#' # Show results. LUC 2 (evergreen broadleaf forest) has a higher vd compared to
-#' # LUC 1 (evegreen needleleaf forest) for the specific settings used.
+#' }
+#'
+#' # Show results.
 #' print(Output %>% select(TargetLUCNames, V_d_RefHeight_ms))
 #'
 #' @export
@@ -146,7 +150,7 @@ CalculateDepositionVelocity2 <- function(InputTable) {
     "RelHum_percent", "CloudCover_percent", "WindSpeedAtAnemometerHeight_ms",
     "RoughnessLengthAnemometer_m", "ZeroPlaneDisplacementHeightAnemometer_m",
     "AnemometerHeight_m", "WindSpeedBlendingHeight_m", "SurfaceIsWet_bool",
-    "Season",
+    "SurfaceIsVegetated_bool", "Season",
     # Target land use class
     "TargetLUCNames", "ReferenceHeight_m",
     "RoughnessLengthTargetLUC_m", "ZeroPlaneDisplacementHeightTargetLUC_m",
@@ -158,18 +162,6 @@ CalculateDepositionVelocity2 <- function(InputTable) {
   if (length(MissCols) > 0) {
     stop(paste("The following columns are missing in InputTable:", paste(MissCols, collapse = ",")))
   }
-
-  # Stokes number requires a classification whether the surface is
-  # "vegetated" or with otherwise rough surface (Zhang et al. 2001).
-  # The following LUCs are classified as non-vegetated,
-  # all other are considered vegetated.
-  NonVegetatedLUCs <- c(
-    8, # desert
-    9, # tundra
-    12, # ice cap and glacier
-    13, # inland water
-    14 # ocean
-  )
 
   # Update particle radius by hygroscopic swelling-----
   Results <- InputTable %>%
@@ -240,13 +232,13 @@ CalculateDepositionVelocity2 <- function(InputTable) {
   Results <- Results %>%
     mutate(
       CharacteristicRadius_m = 0.001 * GetLandUseParameters(
-        LUCs = TargetLUCNames,
+        LUCNames = TargetLUCNames,
         Seasons = Season,
         TargetPar = "A_mm",
         Parametrization = Parametrization
       ),
       ImpactionParameterAlpha = GetLandUseParameters(
-        LUCs = TargetLUCNames,
+        LUCNames = TargetLUCNames,
         Seasons = Season,
         TargetPar = "alpha",
         Parametrization = Parametrization
@@ -298,7 +290,7 @@ CalculateDepositionVelocity2 <- function(InputTable) {
       # _E_b-----
       # Loss efficiency by Brownian diffusion
       BrownianDiffusionParameterGamma = GetLandUseParameters(
-        LUCs = TargetLUCNames,
+        LUCNames = TargetLUCNames,
         Seasons = Season,
         TargetPar = "gamma",
         Parametrization = Parametrization
@@ -309,16 +301,12 @@ CalculateDepositionVelocity2 <- function(InputTable) {
         Parametrization = Parametrization
       ),
       # _Stokes number-----
-      SurfaceIsVegetated = case_when(
-        TargetLUCNames %in% NonVegetatedLUCs ~ F,
-        T ~ T
-      ),
       StokesNumber = CalculateStokesNumber(
         FrictionVelocity_ms = FrictionVelocityTargetLUC_ms,
         SettlingVelocity_ms = SettlingVelocity_ms,
         CharacteristicRadius_m = CharacteristicRadius_m,
         KinematicViscosityOfAir_m2s = KinematicViscosityOfAir_m2s,
-        SurfaceIsVegetated = SurfaceIsVegetated
+        SurfaceIsVegetated = SurfaceIsVegetated_bool
       ),
       # _E_Im----
       # Loss efficiency by impaction
