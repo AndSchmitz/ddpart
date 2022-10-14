@@ -19,7 +19,7 @@
 #' @param ParticleDiameter_m Particle diameter in m.
 #'
 #' @param Parametrization A character defining which parametrization to use.
-#' Valid values are "Emerson20" and "Zhang01"
+#' See ?GetLandUseParameters for a list of valid values.
 #'
 #' @return Surface resistance in s/m.
 #'

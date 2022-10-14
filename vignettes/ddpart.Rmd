@@ -196,10 +196,10 @@ there are 4 variants of parametrizations:
   Emerson20 *calibrated* the other parameters, such that the resulting dry
   deposition velocity matches measurement data for grassland.
 
-  D) "Emerson20": Same as C) but with season-specific land use parameters.  E.g.
+  D) "GCNewSeason": Same as C) but with season-specific land use parameters.  E.g.
   parameter "characteristic receptor radius" (A in mm) varies between seasons
   for deciduous broadleaf forest. This is implemented in ddpart as
-  parametrization "Emerson20".
+  parametrization "GCNewSeason".
 
 In order to reproduce Fig. 1 and Fig. 2 from Emerson et al. (2020), variants B)
 and C) must be used.

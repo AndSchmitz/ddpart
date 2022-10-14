@@ -17,7 +17,7 @@ CalculateLossEfficiencyInterception(
 in m.}
 
 \item{Parametrization}{A character defining which parametrization to use.
-Valid values are "Emerson20" and "Zhang01"}
+See ?GetLandUseParameters for a list of valid values.}
 }
 \value{
 Loss efficiency by interception.

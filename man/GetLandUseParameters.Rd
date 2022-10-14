@@ -48,10 +48,10 @@ example, "Grassland" in B) uses parameters for "shrubs and interrupted
 "drydep_mod.F90" starting in lines 3143:
   https://github.com/geoschem/geos-chem/blob/main/GeosCore/drydep_mod.F90.
 
-For the LUCs implemented in ddpart, the mapping Emerson20 <-> Zhang01 is as
+For the LUCs relevant for ddpart, the mapping Emerson20 <-> Zhang01 is as
 follows:
 
-  - "Needleleaf" <-> "Needleleaf" (LUC1)
+- "Needleleaf" <-> "Needleleaf" (LUC1)
 
 - "Broadleaf" <-> "Deciduous broadleaf" (LUC4)
 
@@ -71,10 +71,10 @@ grassland, the parametrization is valid for grassland. This is because
 Emerson20 *calibrated* the other parameters, such that the resulting dry
 deposition velocity matches measurement data for grassland.
 
-D) "Emerson20": Same as C) but with season-specific land use parameters.  E.g.
+D) "GCNewSeason": Same as C) but with season-specific land use parameters.  E.g.
 parameter "characteristic receptor radius" (A in mm) varies between seasons
 for deciduous broadleaf forest. This is implemented in ddpart as
-parametrization "Emerson20".
+parametrization "GCNewSeason".
 }
 \examples{
 
