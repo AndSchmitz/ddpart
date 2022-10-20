@@ -24,8 +24,10 @@ This function returns empirical constants for dry deposition
   parameters that are not land-use specific (see GetLandUseParameters()).
 }
 \examples{
-GetParameters(Parametrization = "Zhang01", TargetParameter = "C_b")
-GetParameters(Parametrization = "GCNewSeason", TargetParameter = "C_b")
+if ( require("tidyr") ) {
+ GetParameters(Parametrization = "Zhang01", TargetParameter = "C_b")
+ GetParameters(Parametrization = "GCNewSeason", TargetParameter = "C_b")
+}
 
 }
 \references{

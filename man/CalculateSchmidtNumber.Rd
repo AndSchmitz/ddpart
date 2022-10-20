@@ -36,13 +36,13 @@ Calculates the Schmidt number according to Seinfeld and Pandis
 
 data(diffusion_validation)
 PlotData <- data.frame(
-  #Set standard atmospheric conditions
+  # Set standard atmospheric conditions
   T_air_K = 20,
   AirPressure_Pa = 101325,
-  #Set particle diameter according to Seinfeld and Pandis (2006)
+  # Set particle diameter according to Seinfeld and Pandis (2006)
   ParticleDiameter_m = 10^seq(-9, -5, length.out = 50)
 ) \%>\%
-  #Calculation of quantities related to diffusion
+  # Calculation of quantities related to diffusion
   mutate(
     DynamicViscosityAir_kgms = CalculateDynamicViscosityOfAir(T_air_K),
     AirDensity_kgm3 = CalculateAirDensity(
@@ -67,40 +67,40 @@ PlotData <- data.frame(
     Type = "Results from ddpart"
   )
 
-#Plot
+# Plot
 if (require("ggplot2")) {
-ggplot()  +
-  geom_line(
-    data = diffusion_validation \%>\%
-      mutate(
-        Type = "Validation data from Seinfeld and Pandis (2006)"
+  ggplot() +
+    geom_line(
+      data = diffusion_validation \%>\%
+        mutate(
+          Type = "Validation data from Seinfeld and Pandis (2006)"
+        ),
+      mapping = aes(
+        x = log10(ParticleDiameter_um),
+        y = log10(DiffusionCoefficient_cm2s),
+        color = Type
+      )
+    ) +
+    geom_point(
+      data = PlotData,
+      mapping = aes(
+        x = log10(ParticleDiameter_um),
+        y = log10(BrownianDiffusivity_cm2s),
+        color = Type
       ),
-    mapping = aes(
-      x = log10(ParticleDiameter_um),
-      y = log10(DiffusionCoefficient_cm2s),
-      color = Type
-    )
-  ) +
-  geom_point(
-    data = PlotData,
-    mapping = aes(
-      x = log10(ParticleDiameter_um),
-      y = log10(BrownianDiffusivity_cm2s),
-      color = Type
-    ),
-    shape = "x"
-  ) +
-  annotate(
-    geom = "text",
-    x = -0,
-    y = -3,
-    label = "Small differences likely related\nto errors from extraction of
+      shape = "x"
+    ) +
+    annotate(
+      geom = "text",
+      x = -0,
+      y = -3,
+      label = "Small differences likely related\nto errors from extraction of
     validation data from PDF figure."
-  ) +
-  theme(
-    legend.position = "bottom"
-  )
- }
+    ) +
+    theme(
+      legend.position = "bottom"
+    )
+}
 
 }
 \references{

@@ -68,71 +68,48 @@ CalculateFrictionVelocity <- function(WindSpeed_ms,
     stop("All inputs must be vectors of same length.")
   }
 
-
-  # Define a function that works on one input row at a time.
-  CalculateFrictionVelocity_Scalar <- function(WindSpeed_ms,
-                                               AnemometerHeight_m,
-                                               ZeroPlaneDisplacementHeight_m,
-                                               RoughnessLength_m,
-                                               MoninObukhovLength_m) {
-    # Propagate NA
-    if (
-      is.na(WindSpeed_ms) |
-        is.na(AnemometerHeight_m) |
-        is.na(ZeroPlaneDisplacementHeight_m) |
-        is.na(RoughnessLength_m) |
-        is.na(MoninObukhovLength_m)
-    ) {
-      return(NA)
-    }
-
+  Dat <- data.frame(
+    WindSpeed_ms = WindSpeed_ms,
+    AnemometerHeight_m = AnemometerHeight_m,
+    ZeroPlaneDisplacementHeight_m = ZeroPlaneDisplacementHeight_m,
+    RoughnessLength_m = RoughnessLength_m,
+    MoninObukhovLength_m = MoninObukhovLength_m
+  ) %>%
+    mutate(
+      SanityCheck = AnemometerHeight_m >= (ZeroPlaneDisplacementHeight_m + RoughnessLength_m)
+    )
+  if (any(!Dat$SanityCheck)) {
     # Catch case AnemometerHeight_m < (ZeroPlaneDisplacementHeight_m + RoughnessLength_m)
     # This causes calculation of log(negative number) [if AnemometerHeight_m < ZeroPlaneDisplacementHeight_m] or
     # log(<1) which would result in a negative value of friction velocity.
-    if (AnemometerHeight_m < (ZeroPlaneDisplacementHeight_m + RoughnessLength_m)) {
-      stop("AnemometerHeight_m must not be lower than (ZeroPlaneDisplacementHeight_m + RoughnessLength_m).")
-    }
+    stop("AnemometerHeight_m must not be lower than (ZeroPlaneDisplacementHeight_m + RoughnessLength_m).")
+  }
 
+  # Van Karman constant is defined in helping function GetConstants()
+  kappa <- GetConstants()$kappa
+  RoundingPrecision <- GetConstants()$RoundingPrecision
 
-    # Van Karman constant is defined in helping function GetConstants()
-    kappa <- GetConstants()$kappa
-
-    StabilityCorrectionForMomentum1 <- CalculateStabilityCorrection(
-      Numerator = (AnemometerHeight_m - ZeroPlaneDisplacementHeight_m),
-      MoninObukhovLength_m = MoninObukhovLength_m,
-      Type = "Momentum"
+  Dat <- Dat %>%
+    mutate(
+      StabilityCorrectionForMomentum1 = CalculateStabilityCorrection(
+        Numerator = (AnemometerHeight_m - ZeroPlaneDisplacementHeight_m),
+        MoninObukhovLength_m = MoninObukhovLength_m,
+        Type = rep("Momentum", times = InputLength)
+      ),
+      StabilityCorrectionForMomentum2 = CalculateStabilityCorrection(
+        Numerator = RoughnessLength_m,
+        MoninObukhovLength_m = MoninObukhovLength_m,
+        Type = rep("Momentum", times = InputLength)
+      ),
+      # log() is natural logarithm (ln()) as in publication ED95.
+      FrictionVelocity_ms = kappa * WindSpeed_ms / (log((AnemometerHeight_m - ZeroPlaneDisplacementHeight_m) / RoughnessLength_m) - StabilityCorrectionForMomentum1 + StabilityCorrectionForMomentum2),
+      FrictionVelocity_ms = round(FrictionVelocity_ms, RoundingPrecision)
     )
-    StabilityCorrectionForMomentum2 <- CalculateStabilityCorrection(
-      Numerator = RoughnessLength_m,
-      MoninObukhovLength_m = MoninObukhovLength_m,
-      Type = "Momentum"
-    )
 
-    # log() is natural logarithm (ln()) as in publication ED95.
-    FrictionVelocity_ms <- kappa * WindSpeed_ms / (log((AnemometerHeight_m - ZeroPlaneDisplacementHeight_m) / RoughnessLength_m) - StabilityCorrectionForMomentum1 + StabilityCorrectionForMomentum2)
-    FrictionVelocity_ms <- round(FrictionVelocity_ms, GetConstants()$RoundingPrecision)
-
-    if (is.na(FrictionVelocity_ms)) {
-      stop("Calculation of friction velocity failed.")
-    }
-    return(FrictionVelocity_ms)
-  } # end of CalculateFrictionVelocity_Scalar
-
-  # Vectorize this function
-  CalculateFrictionVelocity_Vectorized <- Vectorize(
-    FUN = CalculateFrictionVelocity_Scalar,
-    USE.NAMES = F
-  )
-
-  # Call the vectorized function on the input
-  ReturnValue <- CalculateFrictionVelocity_Vectorized(
-    WindSpeed_ms,
-    AnemometerHeight_m,
-    ZeroPlaneDisplacementHeight_m,
-    RoughnessLength_m,
-    MoninObukhovLength_m
-  )
+  if (any(is.na(Dat$FrictionVelocity_ms))) {
+    stop("Calculation of friction velocity failed.")
+  }
 
   # Return
-  return(ReturnValue)
+  return(Dat$FrictionVelocity_ms)
 }
