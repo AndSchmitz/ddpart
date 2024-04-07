@@ -219,8 +219,8 @@ CalculateSchmidtNumber <- function(DynamicViscosityAir_kgms,
   # Do the interpolation
   NonMatches <- NonMatches %>%
     mutate(
-      delta_d_p_um <- d_p_um_High - d_p_um_Low,
-      delta_CC <- CC_High - CC_Low,
+      delta_d_p_um = d_p_um_High - d_p_um_Low,
+      delta_CC = CC_High - CC_Low,
       slope = delta_CC / delta_d_p_um,
       CunninghamCorrection = CC_Low + slope * (d_p_um - d_p_um_Low)
     )

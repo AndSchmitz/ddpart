@@ -107,7 +107,7 @@ CalculateAerodynamicResistance <- function(FrictionVelocity_ms,
         Type = rep("Heat", InputLength)
       ),
       # Eq. 3.4 page 58
-      R_a <- case_when(
+      R_a = case_when(
         # Catch case ReferenceHeight_m == (ZeroPlaneDisplacementHeight_m + RoughnessLength_m)
         # The aerodynamic resistance between ReferenceHeight_m and (ZeroPlaneDisplacementHeight_m + RoughnessLength_m)
         # is zero by definition.
