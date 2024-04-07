@@ -96,12 +96,12 @@ CalculateAerodynamicResistance <- function(FrictionVelocity_ms,
 
   Dat <- Dat %>%
     mutate(
-      StabilityCorrectionForHeat_1 <- CalculateStabilityCorrection(
+      StabilityCorrectionForHeat_1 = CalculateStabilityCorrection(
         Numerator = (ReferenceHeight_m - ZeroPlaneDisplacementHeight_m),
         MoninObukhovLength_m = MoninObukhovLength_m,
         Type = rep("Heat", InputLength)
       ),
-      StabilityCorrectionForHeat_2 <- CalculateStabilityCorrection(
+      StabilityCorrectionForHeat_2 = CalculateStabilityCorrection(
         Numerator = RoughnessLength_m,
         MoninObukhovLength_m = MoninObukhovLength_m,
         Type = rep("Heat", InputLength)
