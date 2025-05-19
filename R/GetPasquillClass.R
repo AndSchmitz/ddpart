@@ -5,7 +5,7 @@
 #'
 #' @param SurfaceWindSpeed_ms Wind speed at surface in m/s.
 #'
-#' @param DayOrNight Boolean indicating whther it is day or night.
+#' @param DayOrNight Either "Day" or "Night" (character)
 #'
 #' @param IncomingSolarRadiation_Wm2 Solar radiation in W/m2.
 #'
