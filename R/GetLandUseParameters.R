@@ -58,7 +58,10 @@
 #'
 #'  - "DecBroadleaf" (deciduous broadleaf)
 #'
-#'@param Seasons A vector of season codes (integer values 1-5).
+#'@param Seasons A vector of season codes (integer values 1-5 according to Zhang et
+#'al. (2001); 1: Midsummer with lush vegetation, 2: Autumn with cropland that has not
+#'been harvested, 3: Late autumn after frost, no snow., 4: Winter, snow on ground and
+#'subfreezing, 5: Transitional spring with partially green short annuals)
 #'
 #'@param TargetParameter A character indicating which parameter to return
 #'  ("z_0_m", "A_mm", "alpha" or "gamma").
