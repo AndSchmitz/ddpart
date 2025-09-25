@@ -94,7 +94,7 @@ CalculateHygroscopicSwelling <- function(DryParticleDiameter_m,
   )
 
   if (!(all(AerosolType %in% c("Dry", HygroscopicSwellingPars$AerosolType)))) {
-    stop(paste("All values for parameter AerosolType must be in ", paste(unique(HygroscopicSwellingPars$AerosolType, collapse = ","))))
+    stop(paste("All values for parameter AerosolType must be in ", paste(unique(HygroscopicSwellingPars$AerosolType), collapse = ",")))
   }
 
   Data <- data.frame(
