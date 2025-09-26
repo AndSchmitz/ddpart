@@ -234,14 +234,14 @@ CalculateDepositionVelocity2 <- function(InputTable) {
       CharacteristicRadius_m = 0.001 * GetLandUseParameters(
         LUCNames = TargetLUCNames,
         Seasons = Season,
-        TargetPar = "A_mm",
-        Parametrization = Parametrization
+        TargetParameter = "A_mm",
+        Parametrizations = Parametrization
       ),
       ImpactionParameterAlpha = GetLandUseParameters(
         LUCNames = TargetLUCNames,
         Seasons = Season,
-        TargetPar = "alpha",
-        Parametrization = Parametrization
+        TargetParameter = "alpha",
+        Parametrizations = Parametrization
       )
     ) %>%
     # _Atmospheric stability----
@@ -292,8 +292,8 @@ CalculateDepositionVelocity2 <- function(InputTable) {
       BrownianDiffusionParameterGamma = GetLandUseParameters(
         LUCNames = TargetLUCNames,
         Seasons = Season,
-        TargetPar = "gamma",
-        Parametrization = Parametrization
+        TargetParameter = "gamma",
+        Parametrizations = Parametrization
       ),
       E_b = CalculateLossEfficiencyBrownianDiffusion(
         SchmidtNumber = SchmidtNumber,
@@ -320,7 +320,8 @@ CalculateDepositionVelocity2 <- function(InputTable) {
       E_In = CalculateLossEfficiencyInterception(
         ParticleDiameter_m = ParticleDiameter_m,
         CharacteristicRadius_m = CharacteristicRadius_m,
-        Parametrization = Parametrization
+        Parametrization = Parametrization,
+        SurfaceIsVegetated = SurfaceIsVegetated_bool
       ),
       # _R_s-----
       # Surface resistance

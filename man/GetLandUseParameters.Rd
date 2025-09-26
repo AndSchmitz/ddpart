@@ -16,7 +16,10 @@ GetLandUseParameters(LUCNames, Seasons, Parametrizations, TargetParameter)
 
  - "DecBroadleaf" (deciduous broadleaf)}
 
-\item{Seasons}{A vector of season codes (integer values 1-5).}
+\item{Seasons}{A vector of season codes (integer values 1-5 according to Zhang et
+al. (2001); 1: Midsummer with lush vegetation, 2: Autumn with cropland that has not
+been harvested, 3: Late autumn after frost, no snow., 4: Winter, snow on ground and
+subfreezing, 5: Transitional spring with partially green short annuals)}
 
 \item{Parametrizations}{A character, one of "GCNewSeason",
 "Zhang01",  "GCOld", "GCNew".}
@@ -45,7 +48,7 @@ differences:
 The mapping between land use classes is not always straightforward. For
 example, "Grassland" in B) uses parameters for "shrubs and interrupted
   woodland" from A). The complete mapping of LUCs is defined in file
-"drydep_mod.F90" starting in lines 3143:
+"drydep_mod.F90" in a section starting with the string "LUC [Zhang et al., 2001]":
   https://github.com/geoschem/geos-chem/blob/main/GeosCore/drydep_mod.F90.
 
 For the LUCs relevant for ddpart, the mapping Emerson20 <-> Zhang01 is as

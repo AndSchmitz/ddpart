@@ -7,7 +7,8 @@
 CalculateLossEfficiencyInterception(
   ParticleDiameter_m,
   CharacteristicRadius_m,
-  Parametrization
+  Parametrization,
+  SurfaceIsVegetated
 )
 }
 \arguments{
@@ -18,6 +19,9 @@ in m.}
 
 \item{Parametrization}{A character defining which parametrization to use.
 See ?GetLandUseParameters for a list of valid values.}
+
+\item{SurfaceIsVegetated}{A boolean indicated whether the surface is
+vegetated. Interception is zero for non-vegetated surfaces.}
 }
 \value{
 Loss efficiency by interception.

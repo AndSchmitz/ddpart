@@ -14,7 +14,7 @@ GetPasquillClass(
 \arguments{
 \item{SurfaceWindSpeed_ms}{Wind speed at surface in m/s.}
 
-\item{DayOrNight}{Boolean indicating whther it is day or night.}
+\item{DayOrNight}{Either "Day" or "Night" (character)}
 
 \item{IncomingSolarRadiation_Wm2}{Solar radiation in W/m2.}
 

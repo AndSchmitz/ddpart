@@ -127,89 +127,95 @@ GetLandUseParameters <- function(LUCNames,
 
   #For the implementation of additional LUCs: Check the mapping between Emerson
   #LUC names and Zhang LUC codes in Fortran file (see above)!
+  #
+  #Values that are deliberately NA are temporarily coded as NA_Code. This is
+  #because true NA is used to catch the case when the user requested
+  #non-existing combination of Parametrization x Parameter x LUC. Later below,
+  #this check NA_Code is then translated back to true NA.
+  NA_Code <- -999
   LandUsePars <- tribble(
-    ~Parametrization, ~Parameter, ~Season, ~Needleleaf, ~DecBroadleaf, ~Grassland,
+    ~Parametrization, ~Parameter, ~Season, ~Needleleaf, ~DecBroadleaf, ~Grassland, ~Desert,
 
-    "Zhang01",         "z_0_m",        1,       0.8,        1.05,        0.1,
-    "Zhang01",         "z_0_m",        2,       0.9,        1.05,        0.1,
-    "Zhang01",         "z_0_m",        3,       0.9,        0.95,        0.05,
-    "Zhang01",         "z_0_m",        4,       0.9,        0.55,        0.02,
-    "Zhang01",         "z_0_m",        5,       0.8,        0.75,        0.05,
+    "Zhang01",         "z_0_m",        1,       0.8,        1.05,        0.1,        0.04,
+    "Zhang01",         "z_0_m",        2,       0.9,        1.05,        0.1,        0.04,
+    "Zhang01",         "z_0_m",        3,       0.9,        0.95,        0.05,       0.04,
+    "Zhang01",         "z_0_m",        4,       0.9,        0.55,        0.02,       0.04,
+    "Zhang01",         "z_0_m",        5,       0.8,        0.75,        0.05,       0.04,
 
-    "Zhang01",         "A_mm",         1,       2.0,        5.0,         2.0,
-    "Zhang01",         "A_mm",         2,       2.0,        5.0,         2.0,
-    "Zhang01",         "A_mm",         3,       2.0,        10.0,        5.0,
-    "Zhang01",         "A_mm",         4,       2.0,        10.0,        5.0,
-    "Zhang01",         "A_mm",         5,       2.0,        5.0,         2.0,
+    "Zhang01",         "A_mm",         1,       2.0,        5.0,         2.0,        NA_Code,
+    "Zhang01",         "A_mm",         2,       2.0,        5.0,         2.0,        NA_Code,
+    "Zhang01",         "A_mm",         3,       2.0,        10.0,        5.0,        NA_Code,
+    "Zhang01",         "A_mm",         4,       2.0,        10.0,        5.0,        NA_Code,
+    "Zhang01",         "A_mm",         5,       2.0,        5.0,         2.0,        NA_Code,
 
-    "Zhang01",         "alpha",        1,       1.0,        0.8,         1.2,
-    "Zhang01",         "alpha",        2,       1.0,        0.8,         1.2,
-    "Zhang01",         "alpha",        3,       1.0,        0.8,         1.2,
-    "Zhang01",         "alpha",        4,       1.0,        0.8,         1.2,
-    "Zhang01",         "alpha",        5,       1.0,        0.8,         1.2,
+    "Zhang01",         "alpha",        1,       1.0,        0.8,         1.2,        50,
+    "Zhang01",         "alpha",        2,       1.0,        0.8,         1.2,        50,
+    "Zhang01",         "alpha",        3,       1.0,        0.8,         1.2,        50,
+    "Zhang01",         "alpha",        4,       1.0,        0.8,         1.2,        50,
+    "Zhang01",         "alpha",        5,       1.0,        0.8,         1.2,        50,
 
-    "Zhang01",         "gamma",        1,       0.56,       0.56,        0.54,
-    "Zhang01",         "gamma",        2,       0.56,       0.56,        0.54,
-    "Zhang01",         "gamma",        3,       0.56,       0.56,        0.54,
-    "Zhang01",         "gamma",        4,       0.56,       0.56,        0.54,
-    "Zhang01",         "gamma",        5,       0.56,       0.56,        0.54,
-
-
-    "GCOld",           "A_mm",         1,       2.0,        7.0,         10.0,
-    "GCOld",           "A_mm",         2,       2.0,        7.0,         10.0,
-    "GCOld",           "A_mm",         3,       2.0,        7.0,         10.0,
-    "GCOld",           "A_mm",         4,       2.0,        7.0,         10.0,
-    "GCOld",           "A_mm",         5,       2.0,        7.0,         10.0,
-
-    "GCOld",           "alpha",        1,       1.0,        0.8,         1.3,
-    "GCOld",           "alpha",        2,       1.0,        0.8,         1.3,
-    "GCOld",           "alpha",        3,       1.0,        0.8,         1.3,
-    "GCOld",           "alpha",        4,       1.0,        0.8,         1.3,
-    "GCOld",           "alpha",        5,       1.0,        0.8,         1.3,
-
-    "GCOld",           "gamma",        1,       0.56,       0.56,        0.54,
-    "GCOld",           "gamma",        2,       0.56,       0.56,        0.54,
-    "GCOld",           "gamma",        3,       0.56,       0.56,        0.54,
-    "GCOld",           "gamma",        4,       0.56,       0.56,        0.54,
-    "GCOld",           "gamma",        5,       0.56,       0.56,        0.54,
+    "Zhang01",         "gamma",        1,       0.56,       0.56,        0.54,       0.54,
+    "Zhang01",         "gamma",        2,       0.56,       0.56,        0.54,       0.54,
+    "Zhang01",         "gamma",        3,       0.56,       0.56,        0.54,       0.54,
+    "Zhang01",         "gamma",        4,       0.56,       0.56,        0.54,       0.54,
+    "Zhang01",         "gamma",        5,       0.56,       0.56,        0.54,       0.54,
 
 
-    "GCNew",           "A_mm",         1,       2.0,        7.0,         10.0,
-    "GCNew",           "A_mm",         2,       2.0,        7.0,         10.0,
-    "GCNew",           "A_mm",         3,       2.0,        7.0,         10.0,
-    "GCNew",           "A_mm",         4,       2.0,        7.0,         10.0,
-    "GCNew",           "A_mm",         5,       2.0,        7.0,         10.0,
+    "GCOld",           "A_mm",         1,       2.0,        7.0,         10.0,       NA_Code,
+    "GCOld",           "A_mm",         2,       2.0,        7.0,         10.0,       NA_Code,
+    "GCOld",           "A_mm",         3,       2.0,        7.0,         10.0,       NA_Code,
+    "GCOld",           "A_mm",         4,       2.0,        7.0,         10.0,       NA_Code,
+    "GCOld",           "A_mm",         5,       2.0,        7.0,         10.0,       NA_Code,
 
-    "GCNew",           "alpha",        1,       1.0,        0.8,          1.3,
-    "GCNew",           "alpha",        2,       1.0,        0.8,          1.3,
-    "GCNew",           "alpha",        3,       1.0,        0.8,          1.3,
-    "GCNew",           "alpha",        4,       1.0,        0.8,          1.3,
-    "GCNew",           "alpha",        5,       1.0,        0.8,          1.3,
+    "GCOld",           "alpha",        1,       1.0,        0.8,         1.3,        50,
+    "GCOld",           "alpha",        2,       1.0,        0.8,         1.3,        50,
+    "GCOld",           "alpha",        3,       1.0,        0.8,         1.3,        50,
+    "GCOld",           "alpha",        4,       1.0,        0.8,         1.3,        50,
+    "GCOld",           "alpha",        5,       1.0,        0.8,         1.3,        50,
 
-    "GCNew",           "gamma",        1,       2/3,        2/3,          2/3,
-    "GCNew",           "gamma",        2,       2/3,        2/3,          2/3,
-    "GCNew",           "gamma",        3,       2/3,        2/3,          2/3,
-    "GCNew",           "gamma",        4,       2/3,        2/3,          2/3,
-    "GCNew",           "gamma",        5,       2/3,        2/3,          2/3,
+    "GCOld",           "gamma",        1,       0.56,       0.56,        0.54,       0.54,
+    "GCOld",           "gamma",        2,       0.56,       0.56,        0.54,       0.54,
+    "GCOld",           "gamma",        3,       0.56,       0.56,        0.54,       0.54,
+    "GCOld",           "gamma",        4,       0.56,       0.56,        0.54,       0.54,
+    "GCOld",           "gamma",        5,       0.56,       0.56,        0.54,       0.54,
 
 
-    "GCNewSeason",     "A_mm",         1,       2.0,        5.0,          10.0,
-    "GCNewSeason",     "A_mm",         2,       2.0,        5.0,          10.0,
-    "GCNewSeason",     "A_mm",         3,       2.0,        10.0,         10.0,
-    "GCNewSeason",     "A_mm",         4,       2.0,        10.0,         10.0,
-    "GCNewSeason",     "A_mm",         5,       2.0,        5.0,          10.0,
+    "GCNew",           "A_mm",         1,       2.0,        7.0,         10.0,       NA_Code,
+    "GCNew",           "A_mm",         2,       2.0,        7.0,         10.0,       NA_Code,
+    "GCNew",           "A_mm",         3,       2.0,        7.0,         10.0,       NA_Code,
+    "GCNew",           "A_mm",         4,       2.0,        7.0,         10.0,       NA_Code,
+    "GCNew",           "A_mm",         5,       2.0,        7.0,         10.0,       NA_Code,
 
-    "GCNewSeason",     "alpha",        1,       1.0,        0.8,          1.3,
-    "GCNewSeason",     "alpha",        2,       1.0,        0.8,          1.3,
-    "GCNewSeason",     "alpha",        3,       1.0,        0.8,          1.3,
-    "GCNewSeason",     "alpha",        4,       1.0,        0.8,          1.3,
-    "GCNewSeason",     "alpha",        5,       1.0,        0.8,          1.3,
+    "GCNew",           "alpha",        1,       1.0,        0.8,          1.3,        50,
+    "GCNew",           "alpha",        2,       1.0,        0.8,          1.3,        50,
+    "GCNew",           "alpha",        3,       1.0,        0.8,          1.3,        50,
+    "GCNew",           "alpha",        4,       1.0,        0.8,          1.3,        50,
+    "GCNew",           "alpha",        5,       1.0,        0.8,          1.3,        50,
 
-    "GCNewSeason",     "gamma",        1,       2/3,        2/3,          2/3,
-    "GCNewSeason",     "gamma",        2,       2/3,        2/3,          2/3,
-    "GCNewSeason",     "gamma",        3,       2/3,        2/3,          2/3,
-    "GCNewSeason",     "gamma",        4,       2/3,        2/3,          2/3,
-    "GCNewSeason",     "gamma",        5,       2/3,        2/3,          2/3
+    "GCNew",           "gamma",        1,       2/3,        2/3,          2/3,        2/3,
+    "GCNew",           "gamma",        2,       2/3,        2/3,          2/3,        2/3,
+    "GCNew",           "gamma",        3,       2/3,        2/3,          2/3,        2/3,
+    "GCNew",           "gamma",        4,       2/3,        2/3,          2/3,        2/3,
+    "GCNew",           "gamma",        5,       2/3,        2/3,          2/3,        2/3,
+
+
+    "GCNewSeason",     "A_mm",         1,       2.0,        5.0,          10.0,       NA_Code,
+    "GCNewSeason",     "A_mm",         2,       2.0,        5.0,          10.0,       NA_Code,
+    "GCNewSeason",     "A_mm",         3,       2.0,        10.0,         10.0,       NA_Code,
+    "GCNewSeason",     "A_mm",         4,       2.0,        10.0,         10.0,       NA_Code,
+    "GCNewSeason",     "A_mm",         5,       2.0,        5.0,          10.0,       NA_Code,
+
+    "GCNewSeason",     "alpha",        1,       1.0,        0.8,          1.3,        50,
+    "GCNewSeason",     "alpha",        2,       1.0,        0.8,          1.3,        50,
+    "GCNewSeason",     "alpha",        3,       1.0,        0.8,          1.3,        50,
+    "GCNewSeason",     "alpha",        4,       1.0,        0.8,          1.3,        50,
+    "GCNewSeason",     "alpha",        5,       1.0,        0.8,          1.3,        50,
+
+    "GCNewSeason",     "gamma",        1,       2/3,        2/3,          2/3,        2/3,
+    "GCNewSeason",     "gamma",        2,       2/3,        2/3,          2/3,        2/3,
+    "GCNewSeason",     "gamma",        3,       2/3,        2/3,          2/3,        2/3,
+    "GCNewSeason",     "gamma",        4,       2/3,        2/3,          2/3,        2/3,
+    "GCNewSeason",     "gamma",        5,       2/3,        2/3,          2/3,        2/3
 
   )
 
@@ -264,6 +270,15 @@ GetLandUseParameters <- function(LUCNames,
     stop("Could not find land use parameters for the combinations above.")
   }
 
-  #Return
+  #Re-code NA-----
+  DF <- DF %>%
+    mutate(
+      Value = case_when(
+        Value == NA_Code ~ NA_real_,
+        TRUE ~ Value
+      )
+    )
+
+  #Return---
   return(DF$Value)
 }

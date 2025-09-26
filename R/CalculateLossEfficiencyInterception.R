@@ -11,6 +11,9 @@
 #' @param Parametrization A character defining which parametrization to use.
 #' See ?GetLandUseParameters for a list of valid values.
 #'
+#' @param SurfaceIsVegetated A boolean indicated whether the surface is
+#' vegetated. Interception is zero for non-vegetated surfaces.
+#'
 #' @return Loss efficiency by interception.
 #'
 #' @export
@@ -22,20 +25,25 @@
 
 CalculateLossEfficiencyInterception <- function(ParticleDiameter_m,
                                                 CharacteristicRadius_m,
-                                                Parametrization) {
+                                                Parametrization,
+                                                SurfaceIsVegetated) {
 
   # Sanity checks
   InputLength <- length(ParticleDiameter_m)
   if (
     (length(CharacteristicRadius_m) != InputLength) |
-      (length(Parametrization) != InputLength)
+    (length(Parametrization) != InputLength) |
+    (length(SurfaceIsVegetated) != InputLength)
   ) {
     stop("All inputs must have same length.")
   }
 
-  # Loss efficiency from Interception
+  #Loss efficiency from Interception
   nu <- GetParameters(Parametrization, "nu")
   C_In <- GetParameters(Parametrization, "C_In")
   E_In <- C_In * (ParticleDiameter_m / CharacteristicRadius_m)^nu
+  #Return zero for non-vegetated surfaces
+  E_In[!SurfaceIsVegetated] <- 0
+
   return(E_In)
 }
