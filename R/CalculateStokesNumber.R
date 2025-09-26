@@ -39,6 +39,13 @@ CalculateStokesNumber <- function(FrictionVelocity_ms,
     stop("All inputs must have same length.")
   }
 
+  if (any( SurfaceIsVegetated & is.na(CharacteristicRadius_m) )) {
+    stop(paste(
+      "Data contains cases where SurfaceIsVegetated is TRUE but",
+      "CharacteristicRadius_m is NA. This is not allowed."
+    ))
+  }
+
   if (any(is.na(SurfaceIsVegetated))) {
     stop("Could not determine whether surface is vegetated.")
   }
