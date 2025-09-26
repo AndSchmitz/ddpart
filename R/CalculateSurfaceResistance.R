@@ -58,17 +58,15 @@ CalculateSurfaceResistance <- function(SurfaceIsWet,
 
   #Bounce correction
   #Zhang et al. 2001 eq9
-  #"Particles larger than 5 um may rebound after hitting a surface."
-  #"[...] thus the same formula is used in the present study with the condition
-  #that no particles rebound from a wet surface."
+  #Zhang et al. 2001 write in text that this is only valid for particles > 5um
+  #diameter. However, this would lead to a discontinuity in vd = f(diam) and
+  #in the GEOS-CHEM source code it is also implemented as:
+  #"R1 (Particle rebound)  = exp(-St^0.5)"
+  #https://github.com/geoschem/geos-chem/blob/main/GeosCore/drydep_mod.F90
   #Set bounce correction to 1 (no re-bounce)
   BounceCorrectionTerm <- rep(x = 1, times = InputLength)
   #Modify value at rows where surface is dry
   BounceCorrectionTerm[!SurfaceIsWet] <- exp(-sqrt(StokesNumber[!SurfaceIsWet]))
-  #Disable bounce correction again at rows where particles are smaller than
-  #5 um diameter
-  idx_small <- which(ParticleDiameter_m <= 5e-6)
-  BounceCorrectionTerm[idx_small] <- 1
 
   #Calculate surface resistance according to Zhang et al. (2001) eq. 5
   R_s <- 1 / (epsilon_0 * FrictionVelocity_ms * BounceCorrectionTerm * (E_b + E_Im + E_In))
