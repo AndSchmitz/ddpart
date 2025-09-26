@@ -17,7 +17,7 @@
 #' The mapping between land use classes is not always straightforward. For
 #' example, "Grassland" in B) uses parameters for "shrubs and interrupted
 #'   woodland" from A). The complete mapping of LUCs is defined in file
-#' "drydep_mod.F90" starting in lines 3143:
+#' "drydep_mod.F90" in a section starting with the string "LUC [Zhang et al., 2001]":
 #'   https://github.com/geoschem/geos-chem/blob/main/GeosCore/drydep_mod.F90.
 #'
 #' For the LUCs relevant for ddpart, the mapping Emerson20 <-> Zhang01 is as
