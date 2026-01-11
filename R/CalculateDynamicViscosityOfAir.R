@@ -12,6 +12,15 @@
 #'   Air Pollution to Climate Change. Wiley; 2006.
 
 CalculateDynamicViscosityOfAir <- function(T_air_K) {
+
+  if ( any(T_air_K < 0) ) {
+    stop("T_air_K cannot be below 0 Kelvin")
+  }
+
+  if ( any(T_air_K > (273 + 60)) ) {
+    stop("T_air_K is above 60 degree Celsius")
+  }
+
   DynamicViscosityAir_kgms <- 1.8 * 1e-5 * (T_air_K / 298)^0.85
   return(DynamicViscosityAir_kgms)
 }
