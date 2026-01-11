@@ -334,7 +334,8 @@ Output <- Input %>%
     E_In = CalculateLossEfficiencyInterception(
       ParticleDiameter_m = ParticleDiameter_m,
       CharacteristicRadius_m = CharacteristicRadius_m,
-      Parametrization = Parametrization
+      Parametrization = Parametrization,
+      SurfaceIsVegetated = SurfaceIsVegetated_bool
     ),
     # _R_s-----
     # Surface resistance
@@ -576,7 +577,7 @@ OtherPars <- data.frame(
   # of Emerson20 Fig1.
   FrictionVelocity_ms = 0.4,
   ParticleDensity_kgm3 = 1200,
-  SurfaceIsVegetated = TRUE,
+  SurfaceIsVegetated_bool = TRUE,
   # These parameters are guessed:
   # "article water uptake corresponding to ambient relative humidity"
   RelHum_percent = 80,
@@ -649,7 +650,7 @@ Output <- Input %>%
       SettlingVelocity_ms = SettlingVelocity_ms,
       CharacteristicRadius_m = A_mm / 1000,
       KinematicViscosityOfAir_m2s = KinematicViscosityOfAir_m2s,
-      SurfaceIsVegetated = SurfaceIsVegetated
+      SurfaceIsVegetated = SurfaceIsVegetated_bool
     ),
     # _E_Im----
     # Loss efficiency by impaction
@@ -663,7 +664,8 @@ Output <- Input %>%
     E_In = CalculateLossEfficiencyInterception(
       ParticleDiameter_m = ParticleDiameter_m,
       CharacteristicRadius_m = A_mm / 1000,
-      Parametrization = Parametrization
+      Parametrization = Parametrization,
+      SurfaceIsVegetated = SurfaceIsVegetated_bool
     ),
     # _R_s-----
     # Surface resistance
@@ -695,7 +697,7 @@ TableData <- Output %>%
   select(
     Parametrization, LUCNames,
     T_air_K, AirPressure_Pa, SurfaceIsWet_bool,
-    SurfaceIsVegetated, A_mm,
+    SurfaceIsVegetated_bool, A_mm,
     alpha, ParticleDensity_kgm3,
     gamma, R_a_sm
   ) %>%
