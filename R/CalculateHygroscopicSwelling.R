@@ -82,6 +82,10 @@ CalculateHygroscopicSwelling <- function(DryParticleDiameter_m,
     stop("All inputs must be vectors of same length.")
   }
 
+  if ( any(DryParticleDiameter_m > (500 * 1e-6)) ) {
+    stop("Some values of 'DryParticleDiameter_m' exceed 500 um. Wrong units?")
+  }
+
   # Zhang et al. 2001 Table 1:
   HygroscopicSwellingPars <- tribble(
     ~AerosolType, ~C1, ~C2, ~C3, ~C4,
