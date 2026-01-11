@@ -71,7 +71,7 @@ CalculateDepositionVelocity(InputTable)
   according to Zhang et al. (2001). See CalculateHygroscopicSwelling() for
   further details.
 
-  - RelHum_percent: Relativ humidty (%) for hygroscopic swelling of
+  - RelHum_percent: Relativ humidity (%) for hygroscopic swelling of
   particles.
 
   - Parametrization: A character indicates which parametrization should be
